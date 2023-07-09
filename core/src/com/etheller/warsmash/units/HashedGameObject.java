@@ -275,4 +275,8 @@ public abstract class HashedGameObject implements GameObject {
 		}
 		return keySet;
 	}
+
+	public int size() {
+		return this.fields.size();
+	}
 }

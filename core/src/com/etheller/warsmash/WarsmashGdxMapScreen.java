@@ -24,14 +24,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.etheller.warsmash.datasources.CascDataSourceDescriptor;
-import com.etheller.warsmash.datasources.CompoundDataSource;
-import com.etheller.warsmash.datasources.CompoundDataSourceDescriptor;
-import com.etheller.warsmash.datasources.DataSource;
-import com.etheller.warsmash.datasources.DataSourceDescriptor;
-import com.etheller.warsmash.datasources.FolderDataSourceDescriptor;
-import com.etheller.warsmash.datasources.MpqDataSourceDescriptor;
-import com.etheller.warsmash.datasources.SubdirDataSource;
+import com.etheller.warsmash.datasources.*;
 import com.etheller.warsmash.parsers.fdf.GameUI;
 import com.etheller.warsmash.parsers.jass.Jass2;
 import com.etheller.warsmash.parsers.jass.Jass2.CommonEnvironment;
@@ -55,6 +48,7 @@ import com.etheller.warsmash.viewer5.handlers.w3x.camera.CameraPreset;
 import com.etheller.warsmash.viewer5.handlers.w3x.camera.CameraRates;
 import com.etheller.warsmash.viewer5.handlers.w3x.simulation.players.CPlayerUnitOrderListener;
 import com.etheller.warsmash.viewer5.handlers.w3x.ui.MeleeUI;
+import com.google.common.base.Strings;
 
 public class WarsmashGdxMapScreen implements InputProcessor, Screen {
 	public static final boolean ENABLE_AUDIO = true;
@@ -219,10 +213,14 @@ public class WarsmashGdxMapScreen implements InputProcessor, Screen {
 
 	public static DataSource parseDataSources(final DataTable warsmashIni) {
 		final Element dataSourcesConfig = warsmashIni.get("DataSources");
+		final int kvStyle = dataSourcesConfig.getFieldValue("KvStyle");
+		if (kvStyle == 1) {
+			return parseDataSources(dataSourcesConfig);
+		}
 		final int dataSourcesCount = dataSourcesConfig.getFieldValue("Count");
 		final List<DataSourceDescriptor> dataSourcesList = new ArrayList<>();
 		final List<String> allCascPrefixes = new ArrayList<>();
-		for (int i = 0; i < dataSourcesCount; i++) {
+		for (int i = 0; i < dataSourcesConfig.size(); i++) {
 			final String type = dataSourcesConfig.getField("Type" + (i < 10 ? "0" : "") + i);
 			final String path = dataSourcesConfig.getField("Path" + (i < 10 ? "0" : "") + i);
 			switch (type) {
@@ -254,6 +252,37 @@ public class WarsmashGdxMapScreen implements InputProcessor, Screen {
 		}
 		subdirDataSourcesList.add(baseCompoundDataSource);
 		return new CompoundDataSource(subdirDataSourcesList);
+	}
+
+	static DataSource parseDataSources(Element element) {
+		String mpqPath = element.getField("MpqPath");
+		if (Strings.isNullOrEmpty(mpqPath)) {
+			throw new RuntimeException("missing MpqPath element under Datasources section");
+		}
+		String mpqFile = element.getField("MpqFile");
+		if (Strings.isNullOrEmpty(mpqPath)) {
+			throw new RuntimeException("missing MpqFile element under Datasources section");
+		}
+		mpqPath = mpqPath.replace("${EXTERNAL_STORAGE_ROOT}/", Gdx.files.getExternalStoragePath()).replace("$" +
+																												   "{EXTERNAL_STORAGE_ROOT}\\", Gdx.files.getExternalStoragePath()).replace("${EXTERNAL_STORAGE_ROOT}",
+				Gdx.files.getExternalStoragePath());
+		final List<DataSourceDescriptor> dataSourcesList = new ArrayList<>();
+
+		String[] files = mpqFile.split(",");
+		for (int i = 0; i < files.length; i++) {
+			String absPath =
+					(mpqPath + files[i]).replace("\\/", "/").replace("/\\", "/").replace("\\\\", "/").replace("//",
+							"/");
+			dataSourcesList.add(new MpqDataSourceDescriptor(absPath));
+		}
+		String resPath = element.getField("ResPath");
+		if (!Strings.isNullOrEmpty(resPath)) {
+			String absPath = resPath.replace("${INTERNAL_STORAGE_ROOT}/", "").replace("${INTERNAL_STORAGE_ROOT}\\",
+					"").replace("${INTERNAL_STORAGE_ROOT}", "");
+			absPath = absPath.replace("\\/", "/").replace("/\\", "/").replace("\\\\", "/").replace("//", "/");
+			dataSourcesList.add(new FolderDataSourceDescriptor(absPath));
+		}
+		return new CompoundDataSourceDescriptor(dataSourcesList).createDataSource();
 	}
 
 	private void updateUIScene() {
