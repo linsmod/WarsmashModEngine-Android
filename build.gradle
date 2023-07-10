@@ -1,9 +1,9 @@
 buildscript {
     repositories {
         mavenLocal()
-		flatDir {
-			dirs "$rootProject.projectDir/jars"
-		}
+        flatDir {
+            dirs "$rootProject.projectDir/jars"
+        }
         mavenCentral()
         gradlePluginPortal()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
@@ -69,13 +69,15 @@ project(":core") {
         api project(":shared")
         api project(":fdfparser")
         api project(":jassparser")
+        api 'com.github.lintrust:android-awt-blp:1.0.0'
+//        implementation 'org.apache.commons:commons-imaging:1.0-SNAPSHOT'
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
         api "com.google.guava:guava:23.5-jre"
         api "org.apache.commons:commons-compress:1.20"
         api "net.nikr:dds:1.0.0"
-        api files(fileTree(dir:'../jars', includes: ['*.jar']))
+        api files(fileTree(dir: '../jars', includes: ['*.jar']))
     }
 }
 
