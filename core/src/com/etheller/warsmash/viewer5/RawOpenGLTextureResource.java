@@ -1,12 +1,19 @@
 package com.etheller.warsmash.viewer5;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.GL30;
 import com.etheller.warsmash.viewer5.handlers.ResourceHandler;
+import com.hiveworkshop.blizzard.blp.BLPReadParam;
+import com.hiveworkshop.blizzard.blp.BLPReader;
+import lin.threading.MtPixelTask;
+
+import javax.imageio.stream.MemoryCacheImageInputStream;
 
 /**
  * Similar to GdxTextureResource, but now I'm probably replacing use of that one
@@ -15,7 +22,7 @@ import com.etheller.warsmash.viewer5.handlers.ResourceHandler;
  * already had, but the libraries are not playing nicely with each other, so
  * this class is written to be a lower level solution (OpenGL calls instead of
  * LibGDX api) that will work.
- *
+ * <p>
  * My theory is that because doing it THIS way works on Retera Model Studio,
  * therefore it should work here as well.
  */
@@ -100,7 +107,7 @@ public abstract class RawOpenGLTextureResource extends Texture {
 		image.getRGB(0, 0, imageWidth, imageHeight, pixels, 0, imageWidth);
 
 		final ByteBuffer buffer = ByteBuffer.allocateDirect(imageWidth * imageHeight * BYTES_PER_PIXEL)
-				.order(ByteOrder.nativeOrder());
+										  .order(ByteOrder.nativeOrder());
 		// 4
 		// for
 		// RGBA,
@@ -137,13 +144,64 @@ public abstract class RawOpenGLTextureResource extends Texture {
 //		}
 	}
 
+	public void update(final com.google.code.appengine.awt.image.BufferedImage image, final boolean sRGBFix) {
+		final GL20 gl = this.viewer.gl;
+
+		final int imageWidth = image.getWidth();
+		final int imageHeight = image.getHeight();
+		final int[] pixels = new int[imageWidth * imageHeight];
+		image.getRGB(0, 0, imageWidth, imageHeight, pixels, 0, imageWidth);
+
+		final ByteBuffer buffer = ByteBuffer.allocateDirect(imageWidth * imageHeight * BYTES_PER_PIXEL)
+										  .order(ByteOrder.nativeOrder());
+		// 4
+		// for
+		// RGBA,
+		// 3
+		// for
+		// RGB
+
+		for (int y = 0; y < imageHeight; y++) {
+			for (int x = 0; x < imageWidth; x++) {
+				final int pixel = pixels[(y * imageWidth) + x];
+				buffer.put((byte) ((pixel >> 16) & 0xFF)); // Red component
+				buffer.put((byte) ((pixel >> 8) & 0xFF)); // Green component
+				buffer.put((byte) (pixel & 0xFF)); // Blue component
+				buffer.put((byte) ((pixel >> 24) & 0xFF)); // Alpha component.
+				// Only for RGBA
+			}
+		}
+
+		buffer.flip();
+		this.data = buffer;
+
+		gl.glBindTexture(GL20.GL_TEXTURE_2D, this.handle);
+
+//		if ((this.width == imageWidth) && (this.height == imageHeight)) {
+//			gl.glTexSubImage2D(GL20.GL_TEXTURE_2D, 0, 0, 0, imageWidth, imageHeight, GL20.GL_RGBA,
+//					GL20.GL_UNSIGNED_BYTE, buffer);
+//		}
+//		else {
+		gl.glTexImage2D(GL20.GL_TEXTURE_2D, 0, sRGBFix ? GL30.GL_SRGB8_ALPHA8 : GL30.GL_RGBA8, imageWidth, imageHeight,
+				0, GL20.GL_RGBA, GL20.GL_UNSIGNED_BYTE, buffer);
+
+		this.width = imageWidth;
+		this.height = imageHeight;
+//		}
+	}
+
+	public void updateSize(int width, int height) {
+		this.width = width;
+		this.height = height;
+	}
+
 	/**
 	 * I really don't like holding the reference to the original buffer like this.
 	 * Seems wasteful. It's already on the GPU. However, while porting some code for
 	 * shadow maps I hit a point where I really finally felt obligated to add this
 	 * (there is some code in the Terrain stuff that should've had this, but
 	 * doesn't, and does its own texture management as a result).
-	 *
+	 * <p>
 	 * So, as a note to future authors, please reinvent the system such that this
 	 * cached buffer data is only stored for shadow maps and terrain textures or
 	 * whatever. Right now, this holds a reference to these guys on every texture,
@@ -154,4 +212,22 @@ public abstract class RawOpenGLTextureResource extends Texture {
 		return this.data;
 	}
 
+	protected void update(ByteBuffer buffer, int width, int height, boolean sRGBFix) {
+		this.data = buffer;
+		final GL20 gl = this.viewer.gl;
+		gl.glBindTexture(GL20.GL_TEXTURE_2D, this.handle);
+
+//		if ((this.width == imageWidth) && (this.height == imageHeight)) {
+//			gl.glTexSubImage2D(GL20.GL_TEXTURE_2D, 0, 0, 0, imageWidth, imageHeight, GL20.GL_RGBA,
+//					GL20.GL_UNSIGNED_BYTE, buffer);
+//		}
+//		else {
+		gl.glTexImage2D(GL20.GL_TEXTURE_2D,
+				0, sRGBFix ? GL30.GL_SRGB8_ALPHA8 : GL30.GL_RGBA8,
+				width, height,
+				0, GL20.GL_RGBA, GL20.GL_UNSIGNED_BYTE, this.data);
+
+		this.width = width;
+		this.height = height;
+	}
 }
