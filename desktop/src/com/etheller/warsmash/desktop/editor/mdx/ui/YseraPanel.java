@@ -189,11 +189,11 @@ public class YseraPanel extends JPanel {
 		 * @param amountY the vertical scroll amount, negative or positive depending on the direction the wheel was scrolled.
 		 * @return whether the input was processed.
 		 */
-
+		@Override
 		public boolean scrolled(float amountX, float amountY) {
 			return this.scrolled((int) amountY);
 		}
-		@Override
+
 		public boolean scrolled(final int amount) {
 			final PortraitCameraManager cameraManager = this.warsmashPreviewApplication.getCameraManager();
 			cameraManager.distance += amount * 100;

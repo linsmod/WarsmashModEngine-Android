@@ -1,2 +1,2 @@
-include 'desktop', 'core', 'server', 'shared', 'fdfparser', 'jassparser'
-//include 'android'
+include 'core', 'server', 'shared', 'fdfparser', 'jassparser','android'
+include 'desktop'

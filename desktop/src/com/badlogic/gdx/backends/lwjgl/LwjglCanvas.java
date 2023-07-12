@@ -146,10 +146,10 @@ public class LwjglCanvas implements Application {
 			this.audio = new OpenALAudio();
 		}
 		this.files = new LwjglFiles();
-//		this.input = new DefaultLwjglInput();
-//		this.net = new LwjglNet(config);
-		this.input = new LwjglInput();
-		this.net = new LwjglNet();
+		this.input = new DefaultLwjglInput();
+		this.net = new LwjglNet(config);
+//		this.input = new LwjglInput();
+//		this.net = new LwjglNet();
 		this.listener = listener;
 
 		Gdx.app = this;

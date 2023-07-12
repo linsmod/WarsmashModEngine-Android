@@ -13,6 +13,7 @@ import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.badlogic.gdx.backends.android.AndroidAudio;
+import com.etheller.warsmash.GdxEnv;
 import com.etheller.warsmash.WarsmashGdxMapScreen;
 import com.etheller.warsmash.WarsmashGdxMultiScreenGame;
 import com.etheller.warsmash.loader.GameLoader;
@@ -23,16 +24,17 @@ public class AndroidLauncher extends AndroidApplication {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+
 		super.onCreate(savedInstanceState);
 		WarsmashGdxMultiScreenGame game = new WarsmashGdxMultiScreenGame();
-		WarsmashGdxMapScreen.EXTERNAL_STORAGE = Environment.getExternalStorageDirectory().getAbsolutePath() + "/";
+		GdxEnv.EXTERNAL_STORAGE_ROOT = Environment.getExternalStorageDirectory().getAbsolutePath() + "/";
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
 		initialize(game, config);
 
 		WarCraft3.RunGame(game);
 		gameLoader = new GameLoader(game,
 				new ANGLEInstancedArraysGLES30(),
-				WarsmashGdxMapScreen.EXTERNAL_STORAGE,
+				null,
 				null,
 				this::requestPermissionsAsync
 		);

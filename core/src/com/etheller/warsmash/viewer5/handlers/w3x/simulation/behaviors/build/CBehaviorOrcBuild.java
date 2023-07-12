@@ -83,8 +83,8 @@ public class CBehaviorOrcBuild extends CAbstractRangedBehavior {
 					}
 					if (abilityGoldMine != null) {
 						for (final CAbility ability : constructedStructure.getAbilities()) {
-							if (ability instanceof CAbilityOverlayedMine blightedGoldMine) {
-								blightedGoldMine.setParentMine(this.buildOnBuildingIntersector.getUnitToBuildOn(),
+							if (ability instanceof CAbilityOverlayedMine ) {
+								((CAbilityOverlayedMine)ability).setParentMine(this.buildOnBuildingIntersector.getUnitToBuildOn(),
 										abilityGoldMine);
 								this.buildOnBuildingIntersector.getUnitToBuildOn().setHidden(true);
 								this.buildOnBuildingIntersector.getUnitToBuildOn().setPaused(true);
