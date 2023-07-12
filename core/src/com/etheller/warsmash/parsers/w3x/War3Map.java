@@ -34,6 +34,7 @@ import mpq.MPQException;
  */
 public class War3Map implements DataSource {
 
+	private final String pathName;
 	private CompoundDataSource dataSource;
 	private DataSource internalMpqContentsDataSource;
 
@@ -43,10 +44,10 @@ public class War3Map implements DataSource {
 			// 1.) Copy map into RAM
 			// 2.) Setup a Data Source that will read assets
 			// from either the map or the game, giving the map priority.
-
+			this.pathName = new File(mapFileName).getName();
 			SeekableByteChannel sbc;
 			sbc = new SeekableInMemoryByteChannel(dataSource.read(mapFileName).array());
-			this.internalMpqContentsDataSource = new MpqDataSource(new MPQArchive(sbc), sbc);
+			this.internalMpqContentsDataSource = new MpqDataSource(mapFileName,new MPQArchive(sbc), sbc);
 			this.dataSource = new CompoundDataSource(Arrays.asList(dataSource, this.internalMpqContentsDataSource));
 		}
 		catch (final IOException e) {
@@ -59,6 +60,7 @@ public class War3Map implements DataSource {
 
 	public War3Map(final DataSource dataSource, final File mapFileName) {
 		try {
+			this.pathName = mapFileName.getName();
 			if (mapFileName.isDirectory()) {
 				this.internalMpqContentsDataSource = new FolderDataSource(mapFileName.toPath());
 			}
@@ -71,7 +73,7 @@ public class War3Map implements DataSource {
 				try (InputStream mapStream = new FileInputStream(mapFileName)) {
 					final byte[] mapData = IOUtils.toByteArray(mapStream);
 					sbc = new SeekableInMemoryByteChannel(mapData);
-					this.internalMpqContentsDataSource = new MpqDataSource(new MPQArchive(sbc), sbc);
+					this.internalMpqContentsDataSource = new MpqDataSource(mapFileName.getName(),new MPQArchive(sbc), sbc);
 				}
 			}
 			this.dataSource = new CompoundDataSource(Arrays.asList(dataSource, this.internalMpqContentsDataSource));
@@ -177,6 +179,11 @@ public class War3Map implements DataSource {
 	@Override
 	public void close() throws IOException {
 		this.dataSource.close();
+	}
+
+	@Override
+	public String getPathName() {
+		return this.pathName;
 	}
 
 	public CompoundDataSource getCompoundDataSource() {

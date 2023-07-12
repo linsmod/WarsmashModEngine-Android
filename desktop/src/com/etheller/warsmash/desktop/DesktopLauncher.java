@@ -59,12 +59,12 @@ public class DesktopLauncher {
 //		config.foregroundFPS = 0;
 //		config.backgroundFPS = 0;
 		final DisplayMode desktopDisplayMode = LwjglApplicationConfiguration.getDesktopDisplayMode();
-		config.width = desktopDisplayMode.width;
-		config.height = desktopDisplayMode.height;
-		config.fullscreen = true;
+		config.width = 800;
+		config.height = 600;
+		config.fullscreen = false;
 		String fileToLoad = null;
 		String iniPath = null;
-		boolean noLogs = false;
+		boolean noLogs = true;
 		for (int argIndex = 0; argIndex < arg.length; argIndex++) {
 			if ("-window".equals(arg[argIndex])) {
 				config.fullscreen = false;

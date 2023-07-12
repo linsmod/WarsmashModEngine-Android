@@ -14,11 +14,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.etheller.warsmash.common.FetchDataTypeName;
 import com.etheller.warsmash.common.LoadGenericCallback;
+import com.etheller.warsmash.datasources.CompoundDataSource;
 import com.etheller.warsmash.datasources.DataSource;
 import com.etheller.warsmash.viewer5.gl.ClientBuffer;
 import com.etheller.warsmash.viewer5.gl.WebGL;
 import com.etheller.warsmash.viewer5.handlers.ResourceHandler;
 import com.etheller.warsmash.viewer5.handlers.ResourceHandlerConstructionParams;
+import com.etheller.warsmash.viewer5.handlers.ResourceInfo;
 
 public abstract class ModelViewer {
 	public DataSource dataSource;
@@ -131,7 +133,7 @@ public abstract class ModelViewer {
 		for (final ResourceHandler handler : this.handlers) {
 			for (final String[] extension : handler.extensions) {
 				if (extension[0].equals(ext)) {
-					return new Object[] { handler, extension[1] };
+					return new Object[]{handler, extension[1]};
 				}
 			}
 		}
@@ -194,7 +196,9 @@ public abstract class ModelViewer {
 
 				// TODO this is a synchronous hack, skipped some Ghostwolf code
 				try {
-					resource.loadData(this.dataSource.getResourceAsStream(finalSrc), null);
+					DataSource ds = ((CompoundDataSource) this.dataSource).getDataSource(finalSrc);
+					ResourceInfo info = new ResourceInfo(ds, src, finalSrc);
+					resource.loadData(ds.getResourceAsStream(finalSrc), info);
 				}
 				catch (final Exception e) {
 					throw new IllegalStateException("Unable to load data: " + finalSrc, e);
@@ -228,17 +232,17 @@ public abstract class ModelViewer {
 
 	/**
 	 * Load something generic.
-	 *
+	 * <p>
 	 * Unlike load(), this does not use handlers or construct any internal objects.
-	 *
+	 * <p>
 	 * `dataType` can be one of: `"image"`, `"string"`, `"arrayBuffer"`, `"blob"`.
-	 *
+	 * <p>
 	 * If `callback` isn't given, the resource's `data` is the fetch data, according
 	 * to `dataType`.
-	 *
+	 * <p>
 	 * If `callback` is given, the resource's `data` is the value returned by it
 	 * when called with the fetch data.
-	 *
+	 * <p>
 	 * If `callback` returns a promise, the resource's `data` will be whatever the
 	 * promise resolved to.
 	 */

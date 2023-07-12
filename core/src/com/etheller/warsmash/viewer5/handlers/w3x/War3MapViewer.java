@@ -547,7 +547,7 @@ public class War3MapViewer extends AbstractMdxModelViewer {
 					else {
 						final byte[] mapData = IOUtils.toByteArray(mapStream);
 						sbc = new SeekableInMemoryByteChannel(mapData);
-						final DataSource internalMpqContentsDataSource = new MpqDataSource(new MPQArchive(sbc), sbc);
+						final DataSource internalMpqContentsDataSource = new MpqDataSource(tileset + ".mpq",new MPQArchive(sbc), sbc);
 						tilesetSource = new CompoundDataSource(
 								Arrays.asList(compoundDataSource, internalMpqContentsDataSource));
 					}

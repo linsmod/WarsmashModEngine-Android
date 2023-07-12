@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.etheller.warsmash.viewer5.handlers.ResourceInfo;
 import org.apache.commons.compress.utils.IOUtils;
 
 import com.badlogic.gdx.graphics.GL20;
@@ -164,15 +165,16 @@ public class MdxModel extends com.etheller.warsmash.viewer5.Model<MdxHandler> {
 		// Textures.
 		for (final MdlxTexture texture : parser.getTextures()) {
 			String path = texture.getPath();
+			if(path.equals(""))
+				continue;
 			final int replaceableId = texture.getReplaceableId();
 			final WrapMode wrapMode = texture.getWrapMode();
-
 			if (replaceableId != 0) {
 				// TODO This uses dumb, stupid, terrible, no-good hardcoded replaceable IDs
 				// instead of the real system, because currently MdxSimpleInstance is not
 				// supporting it correctly.
 				final String idString = ((replaceableId == 1) || (replaceableId == 2)) ? ReplaceableIds.getIdString(0)
-						: "";
+												: "";
 				path = "ReplaceableTextures\\" + ReplaceableIds.getPathString(replaceableId) + idString + ".blp";
 			}
 

@@ -1,5 +1,6 @@
 package com.etheller.warsmash.viewer5;
 
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.etheller.warsmash.viewer5.handlers.ResourceHandler;
 

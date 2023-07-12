@@ -90,6 +90,11 @@ public class FolderDataSource implements DataSource {
 	public void close() {
 	}
 
+	@Override
+	public String getPathName() {
+		return this.folderPath.toString();
+	}
+
 	private static String fixFilepath(final String filepath) {
 		return filepath.replace('\\', File.separatorChar).replace('/', File.separatorChar).replace(':',
 				File.separatorChar);

@@ -1,5 +1,6 @@
 package lin.threading;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
@@ -16,14 +17,16 @@ public class MtPixelTaskGroup {
 		this.list = list;
 	}
 
-	public void readAsync(PromiseFunctionGeneric<RgbaImageBuffer> runnable) {
-		LinsThread.bgTask(() -> read()).thenUITask(runnable);
+	public void readAsync(ByteBuffer buffer, PromiseFunctionGeneric<RgbaImageBuffer> runnable) {
+		LinsThread.bgTask(() -> read(buffer)).thenUITask(runnable);
 	}
-
 	public RgbaImageBuffer read() {
+		return read(null);
+	}
+	public RgbaImageBuffer read(ByteBuffer byteBuffer) {
 		int[] rgbArray = new int[w * h];
 		CountDownLatch latch = new CountDownLatch(list.size());
-		RgbaImageBuffer buffer = new RgbaImageBuffer(rgbArray, w, h, 4);
+		RgbaImageBuffer buffer = new RgbaImageBuffer(rgbArray,byteBuffer, w, h, 4);
 		for (int i = 0; i < list.size(); i++) {
 			list.get(i).run(buffer, latch, true);
 		}
