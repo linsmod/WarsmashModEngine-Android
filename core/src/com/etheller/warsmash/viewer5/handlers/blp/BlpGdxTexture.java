@@ -74,7 +74,6 @@ public class BlpGdxTexture extends GdxTextureResource {
 				setGdxTexture(texture);
 				pixmap.dispose();
 
-//				ImageIO.write(ImageIO.read(src), "png", file.file());
 //				System.out.println("[WRITE_BLP_PNG] " + file.path());
 			}
 			else {
@@ -85,10 +84,6 @@ public class BlpGdxTexture extends GdxTextureResource {
 				setGdxTexture(texture);
 				pixmap.dispose();
 			}
-//
-//			if (!loadFromConverted(file)) {
-//				loadFromStream(src, (ResourceInfo) options, true);
-//			}
 		}
 		catch (final IOException e) {
 			throw new RuntimeException(e);
@@ -114,21 +109,5 @@ public class BlpGdxTexture extends GdxTextureResource {
 		int batchSize = 64;
 		var task = MtPixelTask.create(image::getRGB, image.getWidth(), image.getHeight(), batchSize);
 		return task.read();
-	}
-
-	static {
-		javax.imageio.spi.IIORegistry.getDefaultInstance().registerServiceProvider(new BLPReaderSpi());
-		IIORegistry.getDefaultInstance().registerServiceProvider(new JPEGImageReaderSpi());
-	}
-
-	boolean loadFromConverted(FileHandle file) {
-		if (file.exists()) {
-			Pixmap pixmap = new Pixmap(file);
-			final Texture texture = new Texture(pixmap);
-			setGdxTexture(texture);
-			pixmap.dispose();
-			return true;
-		}
-		return false;
 	}
 }
