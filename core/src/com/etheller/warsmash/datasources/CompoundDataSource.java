@@ -1,5 +1,7 @@
 package com.etheller.warsmash.datasources;
 
+import org.apache.harmony.luni.util.NotImplementedException;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -115,6 +117,18 @@ public class CompoundDataSource implements DataSource {
 		return false;
 	}
 
+	public DataSource getDataSource(final String filepath){
+		for (int i = this.mpqList.size() - 1; i >= 0; i--) {
+			final DataSource mpq = this.mpqList.get(i);
+			if (mpq.has(filepath)) {
+				if(mpq instanceof  CompoundDataSource)
+					return ((CompoundDataSource) mpq).getDataSource(filepath);
+				return mpq;
+			}
+		}
+		return null;
+	}
+
 	public void refresh(final List<DataSourceDescriptor> dataSourceDescriptors) {
 		for (final DataSource dataSource : this.mpqList) {
 			try {
@@ -167,5 +181,10 @@ public class CompoundDataSource implements DataSource {
 		for (final DataSource mpqGuy : this.mpqList) {
 			mpqGuy.close();
 		}
+	}
+
+	@Override
+	public String getPathName() {
+		throw new NotImplementedException();
 	}
 }

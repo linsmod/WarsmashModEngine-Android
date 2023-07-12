@@ -10,7 +10,7 @@ public class MTPixelCopy {
 		this.w = w;
 		this.h = h;
 		this.reader = reader;
-		this.handler = new RgbaImageBuffer(null, w, h, 4);
+		this.handler = new RgbaImageBuffer(null,null, w, h, 4);
 	}
 
 	public RgbaImageBuffer doCopy() {

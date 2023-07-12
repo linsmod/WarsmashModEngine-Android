@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.badlogic.gdx.files.FileHandle;
 import mpq.ArchivedFile;
 import mpq.ArchivedFileExtractor;
 import mpq.ArchivedFileStream;
@@ -25,10 +26,12 @@ public class MpqDataSource implements DataSource {
 	private final MPQArchive archive;
 	private final SeekableByteChannel inputChannel;
 	private final ArchivedFileExtractor extractor = new ArchivedFileExtractor();
+	private final String pathName;
 
-	public MpqDataSource(final MPQArchive archive, final SeekableByteChannel inputChannel) {
+	public MpqDataSource(String fileName, final MPQArchive archive, final SeekableByteChannel inputChannel) {
 		this.archive = archive;
 		this.inputChannel = inputChannel;
+		this.pathName = fileName;
 	}
 
 	public MPQArchive getArchive() {
@@ -166,6 +169,11 @@ public class MpqDataSource implements DataSource {
 	@Override
 	public void close() throws IOException {
 		this.inputChannel.close();
+	}
+
+	@Override
+	public String getPathName() {
+		return new FileHandle(this.pathName).name();
 	}
 
 }

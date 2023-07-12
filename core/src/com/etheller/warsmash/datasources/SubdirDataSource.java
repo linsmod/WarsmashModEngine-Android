@@ -57,4 +57,9 @@ public class SubdirDataSource implements DataSource {
 	public void close() throws IOException {
 		this.dataSource.close();
 	}
+
+	@Override
+	public String getPathName() {
+		return this.subdir;
+	}
 }

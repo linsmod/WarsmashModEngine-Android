@@ -1,20 +1,27 @@
 package com.etheller.warsmash.viewer5.handlers.blp;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.util.zip.InflaterInputStream;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.MemoryCacheImageInputStream;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.GL30;
+import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.StreamUtils;
 import com.etheller.warsmash.viewer5.ModelViewer;
 import com.etheller.warsmash.viewer5.PathSolver;
 import com.etheller.warsmash.viewer5.RawOpenGLTextureResource;
 import com.etheller.warsmash.viewer5.handlers.ResourceHandler;
+import com.google.code.appengine.awt.color.ColorSpace;
 import com.google.code.appengine.imageio.spi.IIORegistry;
 import com.google.code.appengine.imageio.spi.ImageReaderSpi;
 import com.hiveworkshop.blizzard.blp.BLPReadParam;
@@ -24,6 +31,7 @@ import com.lin.imageio.plugins.jpeg.JPEGImageReaderSpi;
 import com.lin.imageio.plugins.jpeg.JPEGImageWriterSpi;
 import lin.threading.MtPixelTask;
 import org.apache.commons.imaging.common.bytesource.ByteSourceInputStream;
+import org.apache.harmony.awt.gl.color.LUTColorConverter;
 
 public class BlpTexture extends RawOpenGLTextureResource {
 
@@ -40,11 +48,14 @@ public class BlpTexture extends RawOpenGLTextureResource {
 	@Override
 	protected void load(final InputStream src, final Object options) {
 		try {
-			if (src == null)
-				return;
+//			if (src == null)
+//				return;
+//			update(BlpFactory.createBlp(src), false);
 //			update(ImageIO.read(src), true);
 
 //			update(com.google.code.appengine.imageio.ImageIO.read(src), true);
+//			LUTColorConverter.sRGB_CS = ColorSpace.getInstance(ColorSpace.CS_LINEAR_RGB);
+//			LUTColorConverter.LINEAR_RGB_CS = ColorSpace.getInstance(ColorSpace.CS_LINEAR_RGB);
 			update(src, true);
 		}
 		catch (final IOException e) {
@@ -78,17 +89,64 @@ public class BlpTexture extends RawOpenGLTextureResource {
 			int batchSize = 64;
 			var task = MtPixelTask.create(image::getRGB, image.getWidth(), image.getHeight(), batchSize);
 
+			//pixmap mode
+			Pixmap pixmap = new Pixmap(image.getWidth(), image.getHeight(), Pixmap.Format.RGBA8888);
+			ByteBuffer pixelBuf = pixmap.getPixels();
+			((Buffer) pixelBuf).position(0);
+			((Buffer) pixelBuf).limit(pixelBuf.capacity());
+			task.read(pixelBuf);
 			//sync mode
-			super.update(task.read().getBuffer(), image.getWidth(), image.getHeight(), sRGBFix);
+//			PixmapIO.writePNG(Gdx.files.external("blp2png/"), pixmap);
+			new Texture(pixmap);
 
-			//async mode
-			//no errors, but many textures is black.
-//			task.readAsync(x->{
-//				super.update(x.getBuffer(), image.getWidth(), image.getHeight(), sRGBFix);
-//			});
+			super.update(pixelBuf, image.getWidth(), image.getHeight(), sRGBFix);
+			pixmap.dispose();
 		}
 		else {
 			update(image, sRGBFix);
+		}
+	}
+	private void fixColors(BufferedImage img) {
+		for (int x = 0; x < img.getWidth(); x++) {
+			for (int y = 0; y < img.getHeight(); y++) {
+				int rgb = img.getRGB(x, y);
+				java.awt.Color color1 = new java.awt.Color(rgb);
+				java.awt.Color color2 = new Color(color1.getBlue(), color1.getGreen(), color1.getRed());
+				img.setRGB(x, y, color2.hashCode());
+			}
+		}
+	}
+
+	static private final byte[] readBuffer = new byte[32000];
+
+	static public Pixmap read(InputStream s) {
+		DataInputStream in = null;
+
+		try {
+			in = new DataInputStream(new InflaterInputStream(new BufferedInputStream(s)));
+			int width = in.readInt();
+			int height = in.readInt();
+			Pixmap.Format format = Pixmap.Format.fromGdx2DPixmapFormat(in.readInt());
+			Pixmap pixmap = new Pixmap(width, height, format);
+			ByteBuffer pixelBuf = pixmap.getPixels();
+			((Buffer) pixelBuf).position(0);
+			((Buffer) pixelBuf).limit(pixelBuf.capacity());
+
+			synchronized (readBuffer) {
+				int readBytes = 0;
+				while ((readBytes = in.read(readBuffer)) > 0) {
+					pixelBuf.put(readBuffer, 0, readBytes);
+				}
+			}
+
+			((Buffer) pixelBuf).position(0);
+			((Buffer) pixelBuf).limit(pixelBuf.capacity());
+			return pixmap;
+		}
+		catch (Exception e) {
+			throw new GdxRuntimeException("Couldn't read Pixmap from inputStream", e);
+		} finally {
+			StreamUtils.closeQuietly(in);
 		}
 	}
 }

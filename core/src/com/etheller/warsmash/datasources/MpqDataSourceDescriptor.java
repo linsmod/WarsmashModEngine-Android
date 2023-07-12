@@ -26,7 +26,7 @@ public class MpqDataSourceDescriptor implements DataSourceDescriptor {
 		try {
 			SeekableByteChannel sbc;
 			sbc = Files.newByteChannel(Paths.get(this.mpqFilePath), EnumSet.of(StandardOpenOption.READ));
-			return new MpqDataSource(new MPQArchive(sbc), sbc);
+			return new MpqDataSource(this.mpqFilePath, new MPQArchive(sbc), sbc);
 		}
 		catch (final IOException e) {
 			throw new RuntimeException(e);

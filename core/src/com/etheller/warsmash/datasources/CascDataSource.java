@@ -19,6 +19,7 @@ import com.hiveworkshop.blizzard.casc.io.WarcraftIIICASC.FileSystem;
 import com.hiveworkshop.json.JSONArray;
 import com.hiveworkshop.json.JSONObject;
 import com.hiveworkshop.json.JSONTokener;
+import org.apache.harmony.luni.util.NotImplementedException;
 
 public class CascDataSource implements DataSource {
 	private final String[] prefixes;
@@ -225,6 +226,11 @@ public class CascDataSource implements DataSource {
 	@Override
 	public void close() throws IOException {
 		this.warcraftIIICASC.close();
+	}
+
+	@Override
+	public String getPathName() {
+		throw new NotImplementedException();
 	}
 
 }

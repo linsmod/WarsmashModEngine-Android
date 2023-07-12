@@ -55,4 +55,6 @@ public interface DataSource {
 	Collection<String> getListfile();
 
 	void close() throws IOException;
+
+	String getPathName();
 }
