@@ -8,8 +8,8 @@ import com.etheller.interpreter.ast.value.JassValue;
 import com.etheller.interpreter.ast.value.RealJassValue;
 import com.etheller.interpreter.ast.value.StringJassValue;
 
-public enum ArithmeticSigns implements ArithmeticSign {
-	ADD() {
+public class ArithmeticSigns {
+	public static ArithmeticSign ADD =new ArithmeticSign() {
 		@Override
 		public JassValue apply(final BooleanJassValue left, final BooleanJassValue right) {
 			throw new UnsupportedOperationException("Cannot perform numeric arithmetic on boolean");
@@ -49,8 +49,8 @@ public enum ArithmeticSigns implements ArithmeticSign {
 		public JassValue apply(final CodeJassValue left, final CodeJassValue right) {
 			throw new UnsupportedOperationException("Cannot perform arithmetic on code");
 		}
-	},
-	SUBTRACT() {
+	};
+	public static ArithmeticSign  SUBTRACT =new ArithmeticSign()  {
 		@Override
 		public JassValue apply(final BooleanJassValue left, final BooleanJassValue right) {
 			throw new UnsupportedOperationException("Cannot perform numeric arithmetic on boolean");
@@ -90,8 +90,8 @@ public enum ArithmeticSigns implements ArithmeticSign {
 		public JassValue apply(final CodeJassValue left, final CodeJassValue right) {
 			throw new UnsupportedOperationException("Cannot perform arithmetic on code");
 		}
-	},
-	MULTIPLY() {
+	};
+	public static ArithmeticSign  MULTIPLY =new ArithmeticSign()  {
 		@Override
 		public JassValue apply(final BooleanJassValue left, final BooleanJassValue right) {
 			throw new UnsupportedOperationException("Cannot perform numeric arithmetic on boolean");
@@ -131,8 +131,8 @@ public enum ArithmeticSigns implements ArithmeticSign {
 		public JassValue apply(final CodeJassValue left, final CodeJassValue right) {
 			throw new UnsupportedOperationException("Cannot perform arithmetic on code");
 		}
-	},
-	DIVIDE() {
+	};
+	public static ArithmeticSign  DIVIDE =new ArithmeticSign()  {
 		@Override
 		public JassValue apply(final BooleanJassValue left, final BooleanJassValue right) {
 			throw new UnsupportedOperationException("Cannot perform numeric arithmetic on boolean");
@@ -172,8 +172,8 @@ public enum ArithmeticSigns implements ArithmeticSign {
 		public JassValue apply(final CodeJassValue left, final CodeJassValue right) {
 			throw new UnsupportedOperationException("Cannot perform arithmetic on code");
 		}
-	},
-	OR() {
+	};
+	public static ArithmeticSign  OR =new ArithmeticSign()  {
 		@Override
 		public JassValue apply(final BooleanJassValue left, final BooleanJassValue right) {
 			return BooleanJassValue.of(left.getValue() || right.getValue());
@@ -213,8 +213,8 @@ public enum ArithmeticSigns implements ArithmeticSign {
 		public JassValue apply(final CodeJassValue left, final CodeJassValue right) {
 			throw new UnsupportedOperationException("Cannot perform boolean arithmetic on code");
 		}
-	},
-	AND() {
+	};
+	public static ArithmeticSign  AND =new ArithmeticSign()  {
 		@Override
 		public JassValue apply(final BooleanJassValue left, final BooleanJassValue right) {
 			return BooleanJassValue.of(left.getValue() && right.getValue());
@@ -254,8 +254,8 @@ public enum ArithmeticSigns implements ArithmeticSign {
 		public JassValue apply(final CodeJassValue left, final CodeJassValue right) {
 			throw new UnsupportedOperationException("Cannot perform boolean arithmetic on code");
 		}
-	},
-	EQUALS() {
+	};
+	public static ArithmeticSign  EQUALS =new ArithmeticSign() {
 		@Override
 		public JassValue apply(final BooleanJassValue left, final BooleanJassValue right) {
 			return BooleanJassValue.of(left.getValue() == right.getValue());
@@ -295,8 +295,8 @@ public enum ArithmeticSigns implements ArithmeticSign {
 		public BooleanJassValue apply(final CodeJassValue left, final CodeJassValue right) {
 			return BooleanJassValue.of(isEqual(left, right));
 		}
-	},
-	NOT_EQUALS() {
+	};
+	public static ArithmeticSign NOT_EQUALS =new ArithmeticSign()  {
 		@Override
 		public JassValue apply(final BooleanJassValue left, final BooleanJassValue right) {
 			return BooleanJassValue.of(left.getValue() != right.getValue());
@@ -336,8 +336,8 @@ public enum ArithmeticSigns implements ArithmeticSign {
 		public BooleanJassValue apply(final CodeJassValue left, final CodeJassValue right) {
 			return BooleanJassValue.of(!isEqual(left, right));
 		}
-	},
-	LESS() {
+	};
+	public static ArithmeticSign  LESS =new ArithmeticSign()  {
 		@Override
 		public JassValue apply(final BooleanJassValue left, final BooleanJassValue right) {
 			throw new UnsupportedOperationException("Invalid type for specified operator");
@@ -377,8 +377,8 @@ public enum ArithmeticSigns implements ArithmeticSign {
 		public BooleanJassValue apply(final CodeJassValue left, final CodeJassValue right) {
 			throw new UnsupportedOperationException("Invalid type for specified operator");
 		}
-	},
-	LESS_OR_EQUALS() {
+	};
+	public static ArithmeticSign  LESS_OR_EQUALS =new ArithmeticSign()  {
 		@Override
 		public JassValue apply(final BooleanJassValue left, final BooleanJassValue right) {
 			throw new UnsupportedOperationException("Invalid type for specified operator");
@@ -418,8 +418,8 @@ public enum ArithmeticSigns implements ArithmeticSign {
 		public BooleanJassValue apply(final CodeJassValue left, final CodeJassValue right) {
 			throw new UnsupportedOperationException("Invalid type for specified operator");
 		}
-	},
-	GREATER() {
+	};
+	public static ArithmeticSign  GREATER =new ArithmeticSign()  {
 		@Override
 		public JassValue apply(final BooleanJassValue left, final BooleanJassValue right) {
 			throw new UnsupportedOperationException("Invalid type for specified operator");
@@ -459,8 +459,8 @@ public enum ArithmeticSigns implements ArithmeticSign {
 		public BooleanJassValue apply(final CodeJassValue left, final CodeJassValue right) {
 			throw new UnsupportedOperationException("Invalid type for specified operator");
 		}
-	},
-	GREATER_OR_EQUALS() {
+	};
+	public static ArithmeticSign  GREATER_OR_EQUALS =new ArithmeticSign()  {
 		@Override
 		public JassValue apply(final BooleanJassValue left, final BooleanJassValue right) {
 			throw new UnsupportedOperationException("Invalid type for specified operator");

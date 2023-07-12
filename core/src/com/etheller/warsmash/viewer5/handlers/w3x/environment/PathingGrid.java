@@ -71,7 +71,7 @@ public class PathingGrid {
 				final int yy = (getCellY(positionY) + y) - (divH / 2);
 
 				if ((xx < 0) || (xx > (this.pathingGridSizes[0] - 1)) || (yy < 0)
-						|| (yy > (this.pathingGridSizes[1] - 1))) {
+							|| (yy > (this.pathingGridSizes[1] - 1))) {
 					continue;
 				}
 
@@ -127,7 +127,7 @@ public class PathingGrid {
 				final int yy = (getCellY(positionY) + y) - (divH / 2);
 
 				if ((xx < 0) || (xx > (this.pathingGridSizes[0] - 1)) || (yy < 0)
-						|| (yy > (this.pathingGridSizes[1] - 1))) {
+							|| (yy > (this.pathingGridSizes[1] - 1))) {
 					continue;
 				}
 
@@ -306,7 +306,7 @@ public class PathingGrid {
 				final float unitPathingX = unitX + (i * collisionSize);
 				final float unitPathingY = unitY + (j * collisionSize);
 				if (!contains(unitPathingX, unitPathingY)
-						|| !pathingType.isPathable(getPathing(unitPathingX, unitPathingY))) {
+							|| !pathingType.isPathable(getPathing(unitPathingX, unitPathingY))) {
 					return false;
 				}
 			}
@@ -388,7 +388,7 @@ public class PathingGrid {
 				return PathingFlags.isPathingFlag(pathingValue, PathingFlags.BLIGHTED);
 			case UNAMPH:
 				return PathingFlags.isPathingFlag(pathingValue, PathingFlags.UNWALKABLE)
-						&& PathingFlags.isPathingFlag(pathingValue, PathingFlags.UNSWIMABLE);
+							   && PathingFlags.isPathingFlag(pathingValue, PathingFlags.UNSWIMABLE);
 			case UNBUILDABLE:
 				return PathingFlags.isPathingFlag(pathingValue, PathingFlags.UNBUILDABLE);
 			case UNFLOAT:
@@ -447,7 +447,7 @@ public class PathingGrid {
 			@Override
 			public boolean isPathable(final short pathingValue) {
 				return !PathingFlags.isPathingFlag(pathingValue, PathingFlags.UNWALKABLE)
-						|| !PathingFlags.isPathingFlag(pathingValue, PathingFlags.UNSWIMABLE);
+							   || !PathingFlags.isPathingFlag(pathingValue, PathingFlags.UNSWIMABLE);
 			}
 		},
 		DISABLED("") {
