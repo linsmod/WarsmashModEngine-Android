@@ -71,6 +71,7 @@ public class BlpGdxTexture extends GdxTextureResource {
 				var pngData = bos.toByteArray();
 				Pixmap pixmap = new Pixmap(pngData,0,pngData.length);
 				final Texture texture = new Texture(pixmap);
+				setFilter(texture);
 				setGdxTexture(texture);
 				pixmap.dispose();
 
@@ -81,6 +82,7 @@ public class BlpGdxTexture extends GdxTextureResource {
 //			System.out.println("[LOAD_BLP_PNG] " + file.path());
 				Pixmap pixmap = new Pixmap(file);
 				final Texture texture = new Texture(pixmap);
+				setFilter(texture);
 				setGdxTexture(texture);
 				pixmap.dispose();
 			}
@@ -88,6 +90,9 @@ public class BlpGdxTexture extends GdxTextureResource {
 		catch (final IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+	void setFilter(Texture texture){
+//		texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 	}
 
 	private RgbaImageBuffer decodeMt(InputStream stream) throws IOException {
