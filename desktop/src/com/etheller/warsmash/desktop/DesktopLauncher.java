@@ -74,8 +74,8 @@ public class DesktopLauncher extends LwjglApplication {
 //		config.foregroundFPS = 0;
 //		config.backgroundFPS = 0;
 		final DisplayMode desktopDisplayMode = LwjglApplicationConfiguration.getDesktopDisplayMode();
-		config.width = 800;
-		config.height = 600;
+		config.width = 1024;
+		config.height = 768;
 		config.fullscreen = false;
 		String fileToLoad = null;
 		String iniPath = null;

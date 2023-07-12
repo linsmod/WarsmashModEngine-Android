@@ -22,6 +22,9 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.etheller.warsmash.datasources.DataSource;
 import com.etheller.warsmash.viewer5.handlers.ResourceInfo;
 import com.etheller.warsmash.viewer5.handlers.tga.TgaFile;
+import com.google.code.appengine.imageio.spi.IIORegistry;
+import com.hiveworkshop.blizzard.blpAwt.BLPReaderSpi;
+import com.lin.imageio.plugins.jpeg.JPEGImageReaderSpi;
 
 /**
  * Uses AWT stuff
@@ -29,6 +32,13 @@ import com.etheller.warsmash.viewer5.handlers.tga.TgaFile;
 public final class ImageUtils {
 	private static final int BYTES_PER_PIXEL = 4;
 	public static final String DEFAULT_ICON_PATH = "ReplaceableTextures\\CommandButtons\\BTNTemp.blp";
+
+	static {
+		// registration is important!!!
+		javax.imageio.spi.IIORegistry.getDefaultInstance().registerServiceProvider(new BLPReaderSpi());
+		IIORegistry.getDefaultInstance().registerServiceProvider(new BLPReaderSpi());
+		IIORegistry.getDefaultInstance().registerServiceProvider(new JPEGImageReaderSpi());
+	}
 
 	public static Texture getAnyExtensionTexture(final DataSource dataSource, final String path) {
 		BufferedImage image;
