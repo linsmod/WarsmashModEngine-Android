@@ -6,25 +6,25 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import javax.imageio.ImageIO;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.etheller.warsmash.datasources.DataSource;
+import com.etheller.warsmash.viewer5.handlers.ResourceInfo;
 import com.etheller.warsmash.viewer5.handlers.tga.TgaFile;
 
 /**
  * Uses AWT stuff
- *
  */
 public final class ImageUtils {
 	private static final int BYTES_PER_PIXEL = 4;
@@ -131,6 +131,47 @@ public final class ImageUtils {
 		return texture;
 	}
 
+	public static Texture getTexture(ResourceInfo res) throws IOException {
+		final ResourceInfo info = res;
+		String path = info.getCachePath("blp2png", ".png");
+		var file = Gdx.files.external(path);
+		if (!file.exists()) {
+			file.parent().mkdirs();
+
+			ByteArrayOutputStream bos = new ByteArrayOutputStream(100 << 10);
+			var fs = new FileOutputStream(file.file()) {
+				@Override
+				public void write(byte[] b, int off, int len) throws IOException {
+					super.write(b, off, len);
+					bos.write(b, off, len);
+				}
+
+				@Override
+				public void flush() throws IOException {
+					bos.flush();
+					super.flush();
+				}
+			};
+			com.google.code.appengine.imageio.ImageIO.write(com.google.code.appengine.imageio.ImageIO.read(res.getResourceAsStream()), "png", fs);
+
+			var pngData = bos.toByteArray();
+			Pixmap pixmap = new Pixmap(pngData, 0, pngData.length);
+			final Texture texture = new Texture(pixmap);
+
+			pixmap.dispose();
+			return texture;
+//				System.out.println("[WRITE_BLP_PNG] " + file.path());
+		}
+		else {
+			// load converted png from cache for the blp.
+//			System.out.println("[LOAD_BLP_PNG] " + file.path());
+			Pixmap pixmap = new Pixmap(file);
+			final Texture texture = new Texture(pixmap);
+			pixmap.dispose();
+			return texture;
+		}
+	}
+
 	public static Texture getTextureNoColorCorrection(final BufferedImage image) {
 		final int[] pixels = new int[image.getWidth() * image.getHeight()];
 		image.getRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());
@@ -162,7 +203,7 @@ public final class ImageUtils {
 		image.getRGB(0, 0, imageWidth, imageHeight, pixels, 0, imageWidth);
 
 		final ByteBuffer buffer = ByteBuffer.allocateDirect(imageWidth * imageHeight * BYTES_PER_PIXEL)
-				.order(ByteOrder.nativeOrder());
+										  .order(ByteOrder.nativeOrder());
 		// 4
 		// for
 		// RGBA,

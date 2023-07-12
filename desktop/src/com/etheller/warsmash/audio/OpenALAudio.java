@@ -68,7 +68,7 @@ public class OpenALAudio implements Audio {
 	private int mostRecetSound = -1;
 
 	Array<OpenALMusic> music = new Array(false, 1, OpenALMusic.class);
-	boolean noDevice = false;
+	public boolean noDevice = false;
 
 	public OpenALAudio() {
 		this(16, 9, 512);
@@ -413,6 +413,22 @@ public class OpenALAudio implements Audio {
 
 				@Override
 				public void setVolume(final float volume) {
+				}
+
+				/**
+				 * Pauses the audio device if supported
+				 */
+//				@Override
+				public void pause() {
+
+				}
+
+				/**
+				 * Unpauses the audio device if supported
+				 */
+//				@Override
+				public void resume() {
+
 				}
 
 				@Override

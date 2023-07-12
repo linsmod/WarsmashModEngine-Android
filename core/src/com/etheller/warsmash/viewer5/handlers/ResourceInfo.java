@@ -5,6 +5,8 @@ import com.etheller.warsmash.datasources.DataSource;
 import com.google.common.base.Strings;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class ResourceInfo {
 	public String path;
@@ -38,5 +40,9 @@ public class ResourceInfo {
 			return str.substring(str.length() - 2);
 		}
 		return str;
+	}
+
+	public InputStream getResourceAsStream() throws IOException {
+		return this.dataSource.getResourceAsStream(this.path);
 	}
 }
