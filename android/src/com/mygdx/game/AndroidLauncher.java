@@ -24,22 +24,22 @@ public class AndroidLauncher extends AndroidApplication {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-
 		super.onCreate(savedInstanceState);
 		WarsmashGdxMultiScreenGame game = new WarsmashGdxMultiScreenGame();
 		GdxEnv.EXTERNAL_STORAGE_ROOT = Environment.getExternalStorageDirectory().getAbsolutePath() + "/";
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
+		config.useGL30 = true;
 		initialize(game, config);
 
-		WarCraft3.RunGame(game);
+//		WarCraft3.RunGame(game);
 		gameLoader = new GameLoader(game,
 				new ANGLEInstancedArraysGLES30(),
 				null,
 				null,
 				this::requestPermissionsAsync
 		);
-
 		gameLoader.runGameAsync();
+
 //        Gdx.app.postRunnable(() -> {
 //            game.setScreen(new GameLoaderScreen());
 //            System.out.println("WarsmashModEngine");
@@ -59,7 +59,6 @@ public class AndroidLauncher extends AndroidApplication {
 
 	void requestPermissionsAsync() {
 		Looper.prepare();
-		Looper.myLooper();
 		requestPermissions();
 		Looper.loop();
 	}

@@ -61,7 +61,7 @@ public class GameLoader {
 
 	public void onStoragePermGranted() {
 		System.out.println("loading...");
-		final DataTable warsmashIni = loadWarsmashIni("warsmashAndroid.ini");
+		final DataTable warsmashIni = loadWarsmashIni("warsmash.ini");
 		final Element emulatorConstants = warsmashIni.get("Emulator");
 		WarsmashConstants.loadConstants(emulatorConstants, warsmashIni);
 //		AppSettings.initialize();
@@ -69,6 +69,7 @@ public class GameLoader {
 		if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
 			Gdx.app.postRunnable(() -> {
 				WarsmashGdxMenuScreen menuScreen = new WarsmashGdxMenuScreen(warsmashIni, gameInitialized);
+
 				gameInitialized.setScreen(menuScreen);
 				System.out.println("done.");
 			});
@@ -80,6 +81,7 @@ public class GameLoader {
 			// ui thread
 			Gdx.app.postRunnable(() -> {
 				WarsmashGdxMenuScreen menuScreen = new WarsmashGdxMenuScreen(warsmashIni, gameInitialized);
+				menuScreen.show();
 				gameInitialized.setScreen(menuScreen);
 				System.out.println("done.");
 			});

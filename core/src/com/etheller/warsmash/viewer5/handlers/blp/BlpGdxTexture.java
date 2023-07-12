@@ -75,11 +75,11 @@ public class BlpGdxTexture extends GdxTextureResource {
 				setGdxTexture(texture);
 				pixmap.dispose();
 
-//				System.out.println("[WRITE_BLP_PNG] " + file.path());
+				System.out.println("[WRITE_BLP_PNG] " + file.path());
 			}
 			else {
 				// load converted png from cache for the blp.
-//			System.out.println("[LOAD_BLP_PNG] " + file.path());
+			System.out.println("[LOAD_BLP_PNG] " + file.path());
 				Pixmap pixmap = new Pixmap(file);
 				final Texture texture = new Texture(pixmap);
 				setFilter(texture);

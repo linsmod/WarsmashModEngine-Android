@@ -62,7 +62,7 @@ public class War3Map implements DataSource {
 		try {
 			this.pathName = mapFileName.getName();
 			if (mapFileName.isDirectory()) {
-				this.internalMpqContentsDataSource = new FolderDataSource(mapFileName.toPath());
+				this.internalMpqContentsDataSource = new FolderDataSource(mapFileName.getAbsolutePath());
 			}
 			else {
 				// Slightly complex. Here's the theory:

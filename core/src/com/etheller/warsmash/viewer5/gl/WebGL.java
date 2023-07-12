@@ -3,6 +3,8 @@ package com.etheller.warsmash.viewer5.gl;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -59,7 +61,10 @@ public class WebGL {
 		vertexSrc = vertexSrc.replace("mediump", "");
 		fragmentSrc = fragmentSrc.replace("mediump", "");
 		final Map<Integer, ShaderProgram> shaderPrograms = this.shaderPrograms;
-
+		if(Gdx.app.getType()== Application.ApplicationType.Android){
+			vertexSrc = vertexSrc.replace("#version 120", "#version 100");
+			fragmentSrc = fragmentSrc.replace("#version 120", "#version 100");
+		}
 		final int hash = stringHash(vertexSrc + fragmentSrc);
 		ShaderProgram.pedantic = false;
 		if (!shaderPrograms.containsKey(hash)) {
