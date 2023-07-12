@@ -14,13 +14,12 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import org.lwjgl.util.vector.Quaternion;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl.LwjglCanvas;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.etheller.warsmash.WarsmashPreviewApplication;
 import com.etheller.warsmash.desktop.editor.mdx.listeners.YseraGUIListener;
@@ -183,6 +182,17 @@ public class YseraPanel extends JPanel {
 			return false;
 		}
 
+		/**
+		 * Called when the mouse wheel was scrolled. Will not be called on iOS.
+		 *
+		 * @param amountX the horizontal scroll amount, negative or positive depending on the direction the wheel was scrolled.
+		 * @param amountY the vertical scroll amount, negative or positive depending on the direction the wheel was scrolled.
+		 * @return whether the input was processed.
+		 */
+
+		public boolean scrolled(float amountX, float amountY) {
+			return this.scrolled((int) amountY);
+		}
 		@Override
 		public boolean scrolled(final int amount) {
 			final PortraitCameraManager cameraManager = this.warsmashPreviewApplication.getCameraManager();

@@ -221,6 +221,22 @@ public class OpenALAudioDevice implements AudioDevice {
 		}
 	}
 
+	/**
+	 * Pauses the audio device if supported
+	 */
+//	@Override
+	public void pause() {
+
+	}
+
+	/**
+	 * Unpauses the audio device if supported
+	 */
+//	@Override
+	public void resume() {
+
+	}
+
 	public float getPosition() {
 		if (this.sourceID == -1) {
 			return 0;

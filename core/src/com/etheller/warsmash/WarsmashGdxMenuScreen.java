@@ -779,6 +779,17 @@ public class WarsmashGdxMenuScreen implements InputProcessor, Screen, SingleMode
 		return false;
 	}
 
+	/**
+	 * Called when the mouse wheel was scrolled. Will not be called on iOS.
+	 *
+	 * @param amountX the horizontal scroll amount, negative or positive depending on the direction the wheel was scrolled.
+	 * @param amountY the vertical scroll amount, negative or positive depending on the direction the wheel was scrolled.
+	 * @return whether the input was processed.
+	 */
+
+	public boolean scrolled(float amountX, float amountY) {
+		return false;
+	}
 	@Override
 	public boolean scrolled(final int amount) {
 		// TODO Auto-generated method stub

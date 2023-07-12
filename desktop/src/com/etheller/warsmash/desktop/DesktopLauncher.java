@@ -12,6 +12,10 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.FloatBuffer;
 
+import com.badlogic.gdx.ApplicationListener;
+import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
+import com.badlogic.gdx.backends.lwjgl.LwjglApplicationDesktop;
+import com.etheller.warsmash.audio.OpenALAudio;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL;
 import org.lwjgl.opengl.GL11;
@@ -23,7 +27,6 @@ import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics.DisplayMode;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl.LwjglNativesLoader;
 import com.etheller.warsmash.WarsmashGdxFDFTestRenderScreen;
@@ -43,7 +46,19 @@ import com.etheller.warsmash.viewer5.gl.DynamicShadowExtension;
 import com.etheller.warsmash.viewer5.gl.Extensions;
 import com.etheller.warsmash.viewer5.gl.WireframeExtension;
 
-public class DesktopLauncher {
+public class DesktopLauncher extends LwjglApplication {
+	public DesktopLauncher(ApplicationListener listener, LwjglApplicationConfiguration config) {
+		super(listener, config);
+	}
+
+//	@Override
+//	public LwjglAudio createAudio(LwjglApplicationConfiguration config) {
+//		OpenALAudio audio1 = new OpenALAudio();
+//		if(!audio1.noDevice)
+//			return audio1;
+//		return super.createAudio(config);
+//	}
+
 	public static void main(final String[] arg) {
 		System.out.println("Warsmash engine is starting...");
 		final LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
@@ -107,7 +122,7 @@ public class DesktopLauncher {
 			System.out.println("About to run loading file: " + fileToLoad);
 		}
 		final WarsmashGdxMultiScreenGame warsmashGdxMultiScreenGame = new WarsmashGdxMultiScreenGame();
-		new LwjglApplication(warsmashGdxMultiScreenGame, config);
+		new LwjglApplicationDesktop(warsmashGdxMultiScreenGame, config);
 		final String finalFileToLoad = fileToLoad;
 		Gdx.app.postRunnable(new Runnable() {
 			@Override

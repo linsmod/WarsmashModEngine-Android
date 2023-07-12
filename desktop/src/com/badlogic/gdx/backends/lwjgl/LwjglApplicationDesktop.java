@@ -46,7 +46,7 @@ import com.etheller.warsmash.audio.OpenALAudio;
  * override currently is to use a replacement for the OpenALAudio class that
  * will now support the 3D sound!
  */
-public class LwjglApplication implements Application {
+public class LwjglApplicationDesktop implements Application {
 	protected final LwjglGraphics graphics;
 	protected OpenALAudio audio;
 	protected final LwjglFiles files;
@@ -64,28 +64,28 @@ public class LwjglApplication implements Application {
 	protected String preferencesdir;
 	protected Files.FileType preferencesFileType;
 
-	public LwjglApplication(final ApplicationListener listener, final String title, final int width, final int height) {
+	public LwjglApplicationDesktop(final ApplicationListener listener, final String title, final int width, final int height) {
 		this(listener, createConfig(title, width, height));
 	}
 
-	public LwjglApplication(final ApplicationListener listener) {
+	public LwjglApplicationDesktop(final ApplicationListener listener) {
 		this(listener, null, 640, 480);
 	}
 
-	public LwjglApplication(final ApplicationListener listener, final LwjglApplicationConfiguration config) {
+	public LwjglApplicationDesktop(final ApplicationListener listener, final LwjglApplicationConfiguration config) {
 		this(listener, config, new LwjglGraphics(config));
 	}
 
-	public LwjglApplication(final ApplicationListener listener, final Canvas canvas) {
+	public LwjglApplicationDesktop(final ApplicationListener listener, final Canvas canvas) {
 		this(listener, new LwjglApplicationConfiguration(), new LwjglGraphics(canvas));
 	}
 
-	public LwjglApplication(final ApplicationListener listener, final LwjglApplicationConfiguration config,
+	public LwjglApplicationDesktop(final ApplicationListener listener, final LwjglApplicationConfiguration config,
 			final Canvas canvas) {
 		this(listener, config, new LwjglGraphics(canvas, config));
 	}
 
-	public LwjglApplication(final ApplicationListener listener, final LwjglApplicationConfiguration config,
+	public LwjglApplicationDesktop(final ApplicationListener listener, final LwjglApplicationConfiguration config,
 			final LwjglGraphics graphics) {
 		LwjglNativesLoader.load();
 		setApplicationLogger(new LwjglApplicationLogger());
@@ -100,11 +100,13 @@ public class LwjglApplication implements Application {
 						config.audioDeviceBufferSize);
 			}
 			catch (final Throwable t) {
-				log("LwjglApplication", "Couldn't initialize audio, disabling audio", t);
+				log("LwjglApplicationDesktop", "Couldn't initialize audio, disabling audio", t);
 				LwjglApplicationConfiguration.disableAudio = true;
 			}
 		}
 		this.files = new LwjglFiles();
+//		this.input = new DefaultLwjglInput();
+//		this.net = new LwjglNet(config);
 		this.input = new LwjglInput();
 		this.net = new LwjglNet();
 		this.listener = listener;
@@ -133,13 +135,13 @@ public class LwjglApplication implements Application {
 		this.mainLoopThread = new Thread("LWJGL Application") {
 			@Override
 			public void run() {
-				LwjglApplication.this.graphics.setVSync(LwjglApplication.this.graphics.config.vSyncEnabled);
+				LwjglApplicationDesktop.this.graphics.setVSync(LwjglApplicationDesktop.this.graphics.config.vSyncEnabled);
 				try {
-					LwjglApplication.this.mainLoop();
+					LwjglApplicationDesktop.this.mainLoop();
 				}
 				catch (final Throwable t) {
-					if (LwjglApplication.this.audio != null) {
-						LwjglApplication.this.audio.dispose();
+					if (LwjglApplicationDesktop.this.audio != null) {
+						LwjglApplicationDesktop.this.audio.dispose();
 					}
 					Gdx.input.setCursorCatched(false);
 					if (t instanceof RuntimeException) {
@@ -466,7 +468,7 @@ public class LwjglApplication implements Application {
 		postRunnable(new Runnable() {
 			@Override
 			public void run() {
-				LwjglApplication.this.running = false;
+				LwjglApplicationDesktop.this.running = false;
 			}
 		});
 	}
