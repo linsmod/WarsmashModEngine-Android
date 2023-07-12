@@ -15,7 +15,7 @@ public class FolderDataSourceDescriptor implements DataSourceDescriptor {
 
 	@Override
 	public DataSource createDataSource() {
-		return new FolderDataSource(Paths.get(this.folderPath));
+		return new FolderDataSource(this.folderPath);
 	}
 
 	@Override

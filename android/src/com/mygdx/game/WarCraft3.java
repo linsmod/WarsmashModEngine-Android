@@ -37,7 +37,7 @@ public class WarCraft3 {
     public static void RunGame(final WarsmashGdxMultiScreenGame arg) {
         System.out.println("You ran it.");
         String fileToLoad = null;
-        String iniPath = "warsmashAndroid.ini";
+        String iniPath = "warsmash.ini";
 //		boolean noLogs = true;
 //		if (!noLogs) {
 //			new File("Logs").mkdir();
@@ -74,6 +74,7 @@ public class WarCraft3 {
                 } else {
                     final WarsmashGdxMenuScreen menuScreen = new WarsmashGdxMenuScreen(warsmashIni,
                             arg);
+                    menuScreen.show();
                     arg.setScreen(menuScreen);
                     if (finalFileToLoad != null) {
                         menuScreen.startMap(finalFileToLoad);

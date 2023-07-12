@@ -263,7 +263,7 @@ public class WarsmashGdxMapScreen implements InputProcessor, Screen {
 		if (Strings.isNullOrEmpty(mpqPath)) {
 			throw new RuntimeException("missing MpqFile element under Datasources section");
 		}
-		mpqPath = mpqPath.replace("${EXTERNAL_STORAGE_ROOT}/", Gdx.files.getExternalStoragePath()).replace("$" +
+		mpqPath = mpqPath.replace("${EXTERNAL_STORAGE_ROOT}/", GdxEnv.EXTERNAL_STORAGE_ROOT).replace("$" +
 																												   "{EXTERNAL_STORAGE_ROOT}\\", Gdx.files.getExternalStoragePath()).replace("${EXTERNAL_STORAGE_ROOT}",
 				Gdx.files.getExternalStoragePath());
 		final List<DataSourceDescriptor> dataSourcesList = new ArrayList<>();

@@ -13,17 +13,21 @@ import java.nio.ByteOrder;
 
 import javax.imageio.ImageIO;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.etheller.warsmash.datasources.CompoundDataSource;
 import com.etheller.warsmash.datasources.DataSource;
 import com.etheller.warsmash.viewer5.handlers.ResourceInfo;
 import com.etheller.warsmash.viewer5.handlers.tga.TgaFile;
 import com.google.code.appengine.imageio.spi.IIORegistry;
-import com.hiveworkshop.blizzard.blpAwt.BLPReaderSpi;
+import com.google.common.base.Strings;
+import com.hiveworkshop.blizzard.blp.BLPReaderSpi;
 import com.lin.imageio.plugins.jpeg.JPEGImageReaderSpi;
 
 /**
@@ -35,7 +39,9 @@ public final class ImageUtils {
 
 	static {
 		// registration is important!!!
-		javax.imageio.spi.IIORegistry.getDefaultInstance().registerServiceProvider(new BLPReaderSpi());
+		if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
+			javax.imageio.spi.IIORegistry.getDefaultInstance().registerServiceProvider(new BLPReaderSpi());
+		}
 		IIORegistry.getDefaultInstance().registerServiceProvider(new BLPReaderSpi());
 		IIORegistry.getDefaultInstance().registerServiceProvider(new JPEGImageReaderSpi());
 	}
@@ -43,11 +49,23 @@ public final class ImageUtils {
 	public static Texture getAnyExtensionTexture(final DataSource dataSource, final String path) {
 		BufferedImage image;
 		try {
-			final AnyExtensionImage imageInfo = getAnyExtensionImageFixRGB(dataSource, path, "texture");
-			image = imageInfo.getImageData();
-			if (image != null) {
-				return ImageUtils.getTexture(image, imageInfo.isNeedsSRGBFix());
+//			var extension = new FileHandle(path).extension();
+//			if (!Strings.isNullOrEmpty(extension)) {
+//
+//			}
+			if (dataSource.has(path)) {
+				DataSource ds = ((CompoundDataSource) dataSource).getDataSource(path);
+				var res = new ResourceInfo(ds, path, path);
+				return getTexture(res);
 			}
+			else {
+				System.err.println("[RES_NOT_FOUND] "+path);
+			}
+//			final AnyExtensionImage imageInfo = getAnyExtensionImageFixRGB(dataSource, path, "texture");
+//			image = imageInfo.getImageData();
+//			if (image != null) {
+//				return ImageUtils.getTexture(image, imageInfo.isNeedsSRGBFix());
+//			}
 		}
 		catch (final IOException e) {
 			return null;
