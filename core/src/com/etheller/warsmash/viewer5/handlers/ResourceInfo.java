@@ -1,6 +1,9 @@
 package com.etheller.warsmash.viewer5.handlers;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.etheller.warsmash.GdxEnv;
+import com.etheller.warsmash.datasources.CompoundDataSource;
 import com.etheller.warsmash.datasources.DataSource;
 import com.google.common.base.Strings;
 
@@ -20,12 +23,29 @@ public class ResourceInfo {
 		this.resolvedPath = resolvedPath;
 	}
 
+	public ResourceInfo(DataSource dataSource, String path) {
+		this(dataSource, path, path);
+	}
+
+	public DataSource getDirectDataSource() {
+		if (this.dataSource instanceof CompoundDataSource) {
+			return ((CompoundDataSource) dataSource).getDataSource(path);
+		}
+		return this.dataSource;
+	}
+
 	public String getCachePath(String cacheFolder, String extAppend) {
-		return rTrailSlash(cacheFolder)  +File.separator
-					   + this.dataSource.getPathName()
+		return rTrailSlash(GdxEnv.EXTERNAL_STORAGE_ROOT)
+					   + File.separator
+					   + rheadSlash(rTrailSlash(cacheFolder)) + File.separator
+					   + this.getDirectDataSource().getPathName()
 					   + File.separator
 					   + rheadSlash(this.resolvedPath)
-					   +((Strings.isNullOrEmpty(extAppend) || extAppend.startsWith(".")) ? extAppend : "." + extAppend);
+					   + ((Strings.isNullOrEmpty(extAppend) || extAppend.startsWith(".")) ? extAppend : "." + extAppend);
+	}
+
+	public FileHandle getCacheFile(String cacheFolder, String extAppend) {
+		return Gdx.files.absolute(getCachePath(cacheFolder, extAppend));
 	}
 
 	String rheadSlash(final String str) {
@@ -37,7 +57,7 @@ public class ResourceInfo {
 
 	String rTrailSlash(final String str) {
 		if (str.endsWith("\\") || str.endsWith("/")) {
-			return str.substring(str.length() - 2);
+			return str.substring(0, str.length() - 1);
 		}
 		return str;
 	}

@@ -45,12 +45,9 @@ public class RgbaImageBuffer {
 	public RgbaImageBuffer(int[] rgbArray, ByteBuffer buff, int width, int height, int bytesPerPixel) {
 		this.totalBytes = width * height * bytesPerPixel;
 		this.rgbArray = rgbArray == null ? new int[width * height] : rgbArray;
-		this.buffer = buff != null ? buff : ByteBuffer.allocateDirect(totalBytes + 12)
+		this.buffer = buff != null ? buff : ByteBuffer.allocateDirect(totalBytes)
 													.order(ByteOrder.nativeOrder());
 		this.buffer.mark();
-//		this.buffer.putInt(width);
-//		this.buffer.putInt(height);
-//		this.buffer.putInt(Pixmap.Format.RGBA8888.ordinal());
 		this.bytes = new byte[totalBytes];
 		this.width = width;
 		this.height = height;
@@ -104,5 +101,13 @@ public class RgbaImageBuffer {
 		buffer.flip();
 		int r = buffer.remaining();
 		this.completed = true;
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public int getHeight() {
+		return height;
 	}
 }

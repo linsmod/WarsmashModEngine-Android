@@ -46,73 +46,62 @@ public class BlpGdxTexture extends GdxTextureResource {
 	protected void load(final InputStream src, final Object options) {
 		ResourceInfo info = (ResourceInfo) options;
 		try {
-			String path = info.getCachePath("blp2png", ".png");
-			var file = Gdx.files.external(path);
-			if (!file.exists()) {
-				file.parent().mkdirs();
-
-				ByteArrayOutputStream bos = new ByteArrayOutputStream(100 << 10);
-				var fs= new FileOutputStream( file.file()){
-					@Override
-					public void write(byte[] b, int off, int len) throws IOException {
-						super.write(b, off, len);
-						bos.write(b,off,len);
-					}
-
-					@Override
-					public void flush() throws IOException {
-						bos.flush();
-						super.flush();
-					}
-				};
-
-				ImageIO.write(ImageIO.read(src), "png", fs);
-
-				var pngData = bos.toByteArray();
-				Pixmap pixmap = new Pixmap(pngData,0,pngData.length);
-				final Texture texture = new Texture(pixmap);
-				setFilter(texture);
-				setGdxTexture(texture);
-				pixmap.dispose();
-
-				System.out.println("[WRITE_BLP_PNG] " + file.path());
-			}
-			else {
-				// load converted png from cache for the blp.
-			System.out.println("[LOAD_BLP_PNG] " + file.path());
-				Pixmap pixmap = new Pixmap(file);
-				final Texture texture = new Texture(pixmap);
-				setFilter(texture);
-				setGdxTexture(texture);
-				pixmap.dispose();
-			}
+			Pixmap pixmap = ImageUtils.getPixmap(info);
+			final Texture texture = new Texture(pixmap);
+			setFilter(texture);
+			setGdxTexture(texture);
+//			String path = info.getCachePath("blp2png", ".png");
+//			var file = Gdx.files.external(path);
+//			if (!file.exists()) {
+//				file.parent().mkdirs();
+//
+//				ByteArrayOutputStream bos = new ByteArrayOutputStream(100 << 10);
+//				var fs= new FileOutputStream( file.file()){
+//					@Override
+//					public void write(byte[] b, int off, int len) throws IOException {
+//						super.write(b, off, len);
+//						bos.write(b,off,len);
+//					}
+//
+//					@Override
+//					public void flush() throws IOException {
+//						bos.flush();
+//						super.flush();
+//					}
+//				};
+//				var rendered = ImageIO.read(src);
+//				ImageIO.write(rendered, "png", fs);
+//
+//				var pngData = bos.toByteArray();
+//				Pixmap pixmap = new Pixmap(pngData,0,pngData.length);
+//				final Texture texture = new Texture(pixmap);
+//				setFilter(texture);
+//				setGdxTexture(texture);
+//				pixmap.dispose();
+//
+//				System.out.println("[WRITE_BLP_PNG] " + file.path());
+//			}
+//			else {
+//				// load converted png from cache for the blp.
+//			System.out.println("[LOAD_BLP_PNG] " + file.path());
+//				Pixmap pixmap = new Pixmap(file);
+//				final Texture texture = new Texture(pixmap);
+//				setFilter(texture);
+//				setGdxTexture(texture);
+//				pixmap.dispose();
+//			}
 		}
 		catch (final IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
-	void setFilter(Texture texture){
+
+	void setFilter(Texture texture) {
 //		texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 	}
 
-	private RgbaImageBuffer decodeMt(InputStream stream) throws IOException {
-		BLPReader reader = new BLPReader(null);
-		reader.setInput(new ByteSourceInputStream(stream, null));
-		var image = reader.read(0, new BLPReadParam() {
-			@Override
-			public boolean isDirectRead() {
-				return true;
-			}
-
-			@Override
-			public ImageReaderSpi getJPEGSpi() {
-				return new JPEGImageReaderSpi();
-			}
-		});
-
-		//speedup read using multi-threading task
-		int batchSize = 64;
-		var task = MtPixelTask.create(image::getRGB, image.getWidth(), image.getHeight(), batchSize);
-		return task.read();
+	@Override
+	protected void error(Exception e) {
+		throw new RuntimeException(e);
 	}
 }

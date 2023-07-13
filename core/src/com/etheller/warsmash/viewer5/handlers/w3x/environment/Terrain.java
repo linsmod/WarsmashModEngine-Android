@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 
+import com.etheller.warsmash.viewer5.handlers.ResourceInfo;
+import lin.threading.RgbaImageBuffer;
 import org.apache.commons.compress.utils.IOUtils;
 
 import com.badlogic.gdx.Gdx;
@@ -57,7 +59,7 @@ import com.etheller.warsmash.viewer5.handlers.w3x.simulation.players.CPlayerFogO
 
 public class Terrain {
 	public static final float CELL_SIZE = 128f;
-	private static final String[] colorTags = { "R", "G", "B", "A" };
+	private static final String[] colorTags = {"R", "G", "B", "A"};
 	private static final float[] sizeHeap = new float[2];
 	private static final Vector3 normalHeap1 = new Vector3();
 	private static final Vector3 normalHeap2 = new Vector3();
@@ -168,8 +170,8 @@ public class Terrain {
 				final RenderCorner topRight = this.corners[i + 1][j + 1];
 
 				bottomLeft.cliff = (bottomLeft.getLayerHeight() != bottomRight.getLayerHeight())
-						|| (bottomLeft.getLayerHeight() != topLeft.getLayerHeight())
-						|| (bottomLeft.getLayerHeight() != topRight.getLayerHeight());
+										   || (bottomLeft.getLayerHeight() != topLeft.getLayerHeight())
+										   || (bottomLeft.getLayerHeight() != topRight.getLayerHeight());
 			}
 		}
 
@@ -229,7 +231,7 @@ public class Terrain {
 			final Integer maxVariations = cliffVar.getValue();
 			for (int variation = 0; variation <= maxVariations; variation++) {
 				final String fileName = "Doodads\\Terrain\\CityCliffs\\CityCliffs" + cliffVar.getKey() + variation
-						+ ".mdx";
+												+ ".mdx";
 				this.cliffMeshes.add(new CliffMesh(fileName, dataSource, Gdx.gl30));
 				this.pathToCliff.put("CityCliffs" + cliffVar.getKey() + variation, this.cliffMeshes.size() - 1);
 			}
@@ -262,11 +264,16 @@ public class Terrain {
 			}
 			final String texDir = cliffInfo.getField("texDir");
 			final String texFile = cliffInfo.getField("texFile");
-			final AnyExtensionImage imageInfo = ImageUtils.getAnyExtensionImageFixRGB(dataSource,
-					texDir + "\\" + texFile + texturesExt, "cliff texture");
-			final BufferedImage image = imageInfo.getRGBCorrectImageData();
+
+//TODO rgb color correct ?
+			var blp = ImageUtils.decodeBLP(new ResourceInfo(dataSource, texDir + "\\" + texFile + texturesExt));
+
+
+			//final AnyExtensionImage imageInfo = ImageUtils.getAnyExtensionImageFixRGB(dataSource,
+			//		texDir + "\\" + texFile + texturesExt, "cliff texture");
+			//final BufferedImage image = imageInfo.getRGBCorrectImageData();
 			this.cliffTextures
-					.add(new UnloadedTexture(image.getWidth(), image.getHeight(), ImageUtils.getTextureBuffer(image),
+					.add(new UnloadedTexture(blp.getWidth(), blp.getHeight(), blp.getBuffer(),
 							cliffInfo.getField("cliffModelDir"), cliffInfo.getField("rampModelDir")));
 			this.cliffTexturesSize = Math.max(this.cliffTexturesSize,
 					this.cliffTextures.get(this.cliffTextures.size() - 1).width);
@@ -370,20 +377,23 @@ public class Terrain {
 
 		if (waterInfo != null) {
 			final String fileName = waterInfo.getField("texFile");
-			final List<BufferedImage> waterTextures = new ArrayList<>();
+			final List<RgbaImageBuffer> waterTextures = new ArrayList<>();
 			boolean anyWaterTextureNeedsSRGB = false;
 			int waterImageDimension = 128;
 			for (int i = 0; i < this.waterTextureCount; i++) {
-				final AnyExtensionImage imageInfo = ImageUtils.getAnyExtensionImageFixRGB(dataSource,
-						fileName + (i < 10 ? "0" : "") + Integer.toString(i) + texturesExt, "water texture");
-				final BufferedImage image = imageInfo.getImageData();
-				if ((image.getWidth() != 128) || (image.getHeight() != 128)) {
+				String blpPath = fileName + (i < 10 ? "0" : "") + Integer.toString(i) + texturesExt;
+				var blp = ImageUtils.decodeBLP(new ResourceInfo(dataSource, blpPath));
+//				final AnyExtensionImage imageInfo = ImageUtils.getAnyExtensionImageFixRGB(dataSource,
+//						blpPath, "water texture");
+//				final BufferedImage image = imageInfo.getImageData();
+				if ((blp.getWidth() != 128) || (blp.getHeight() != 128)) {
 					System.err.println(
-							"Odd water texture size detected of " + image.getWidth() + " x " + image.getHeight());
-					waterImageDimension = image.getWidth();
+							"Odd water texture size detected of " + blp.getWidth() + " x " + blp.getHeight());
+					waterImageDimension = blp.getWidth();
 				}
-				anyWaterTextureNeedsSRGB |= imageInfo.isNeedsSRGBFix();
-				waterTextures.add(image);
+				//TODO rgb color fix?
+				//anyWaterTextureNeedsSRGB |= imageInfo.isNeedsSRGBFix();
+				waterTextures.add(blp);
 			}
 			gl.glTexImage3D(GL30.GL_TEXTURE_2D_ARRAY, 0,
 					anyWaterTextureNeedsSRGB ? GL30.GL_SRGB8_ALPHA8 : GL30.GL_RGBA8, waterImageDimension,
@@ -393,9 +403,9 @@ public class Terrain {
 			gl.glTexParameteri(GL30.GL_TEXTURE_2D_ARRAY, GL30.GL_TEXTURE_BASE_LEVEL, 0);
 
 			for (int i = 0; i < waterTextures.size(); i++) {
-				final BufferedImage image = waterTextures.get(i);
+				final var image = waterTextures.get(i);
 				gl.glTexSubImage3D(GL30.GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, image.getWidth(), image.getHeight(), 1,
-						GL30.GL_RGBA, GL30.GL_UNSIGNED_BYTE, ImageUtils.getTextureBuffer(image));
+						GL30.GL_RGBA, GL30.GL_UNSIGNED_BYTE, image.getBuffer());
 			}
 		}
 
@@ -416,10 +426,10 @@ public class Terrain {
 		this.uberSplatModelsList = new ArrayList<>();
 		this.defaultCameraBounds = w3iFile.getCameraBounds();
 		this.mapBounds = w3iFile.getCameraBoundsComplements();
-		this.shaderMapBounds = new float[] { (this.mapBounds[0] * 128.0f) + this.centerOffset[0],
+		this.shaderMapBounds = new float[]{(this.mapBounds[0] * 128.0f) + this.centerOffset[0],
 				(this.mapBounds[2] * 128.0f) + this.centerOffset[1],
 				((this.columns - this.mapBounds[1] - 1) * 128.0f) + this.centerOffset[0],
-				((this.rows - this.mapBounds[3] - 1) * 128.0f) + this.centerOffset[1] };
+				((this.rows - this.mapBounds[3] - 1) * 128.0f) + this.centerOffset[1]};
 		this.shaderMapBoundsRectangle = new Rectangle(this.shaderMapBounds[0], this.shaderMapBounds[1],
 				this.shaderMapBounds[2] - this.shaderMapBounds[0], this.shaderMapBounds[3] - this.shaderMapBounds[1]);
 		this.mapSize = w3eFile.getMapSize();
@@ -460,7 +470,7 @@ public class Terrain {
 				for (int xOffset = -1; xOffset <= 0; xOffset++) {
 					for (int yOffset = -1; yOffset <= 0; yOffset++) {
 						if (((i + xOffset) >= 0) && ((i + xOffset) < (this.columns - 1)) && ((j + yOffset) >= 0)
-								&& ((j + yOffset) < (this.rows - 1))) {
+									&& ((j + yOffset) < (this.rows - 1))) {
 							final RenderCorner bottomLeft = this.corners[i + xOffset][j + yOffset];
 							final RenderCorner bottomRight = this.corners[i + 1 + xOffset][j + yOffset];
 							final RenderCorner topLeft = this.corners[i + xOffset][j + 1 + yOffset];
@@ -485,8 +495,8 @@ public class Terrain {
 				final float newGroundCornerHeight = corner.computeFinalGroundHeight() + rampHeight;
 				this.groundCornerHeights[(j * this.columns) + i] = newGroundCornerHeight;
 				corner.depth = (corner.getWater() != 0)
-						? (this.waterHeightOffset + corner.getWaterHeight()) - newGroundCornerHeight
-						: 0;
+									   ? (this.waterHeightOffset + corner.getWaterHeight()) - newGroundCornerHeight
+									   : 0;
 			}
 		}
 		updateGroundHeights();
@@ -517,8 +527,8 @@ public class Terrain {
 		final int columns = this.mapSize[0];
 		final int rows = this.mapSize[1];
 
-		final String[] ramps = { "AAHL", "AALH", "ABHL", "AHLA", "ALHA", "ALHB", "BALH", "BHLA", "HAAL", "HBAL", "HLAA",
-				"HLAB", "LAAH", "LABH", "LHAA", "LHBA" };
+		final String[] ramps = {"AAHL", "AALH", "ABHL", "AHLA", "ALHA", "ALHB", "BALH", "BHLA", "HAAL", "HBAL", "HLAA",
+				"HLAB", "LAAH", "LABH", "LHAA", "LHBA"};
 
 		// Adjust terrain height inside ramps (set rampAdjust)
 		for (int y = 1; y < (rows - 1); ++y) {
@@ -561,7 +571,7 @@ public class Terrain {
 	/// Updates the cliff and ramp meshes for an area
 	private void updateCliffMeshes(final Rectangle area) throws IOException {
 		// Remove all existing cliff meshes in area
-		for (int i = this.cliffs.size(); i-- > 0;) {
+		for (int i = this.cliffs.size(); i-- > 0; ) {
 			final IVec3 pos = this.cliffs.get(i);
 			if (area.contains(pos.x, pos.y)) {
 				this.cliffs.remove(i);
@@ -593,9 +603,9 @@ public class Terrain {
 							Math.min(topLeft.getLayerHeight(), topRight.getLayerHeight()));
 
 					final boolean facingDown = (topLeft.getLayerHeight() >= bottomLeft.getLayerHeight())
-							&& (topRight.getLayerHeight() >= bottomRight.getLayerHeight());
+													   && (topRight.getLayerHeight() >= bottomRight.getLayerHeight());
 					final boolean facingLeft = (bottomRight.getLayerHeight() >= bottomLeft.getLayerHeight())
-							&& (topRight.getLayerHeight() >= topLeft.getLayerHeight());
+													   && (topRight.getLayerHeight() >= topLeft.getLayerHeight());
 
 					int bottomLeftCliffTex = bottomLeft.getCliffTexture();
 					if (bottomLeftCliffTex == 15) {
@@ -627,17 +637,17 @@ public class Terrain {
 						}
 					}
 					if (!(facingDown && (j == 0)) && !(!facingDown && (j >= (this.rows - 2)))
-							&& !(facingLeft && (i == 0)) && !(!facingLeft && (i >= (this.columns - 2)))) {
+								&& !(facingLeft && (i == 0)) && !(!facingLeft && (i >= (this.columns - 2)))) {
 						final boolean verticalRamp = ((bottomLeft.isRamp()) != (bottomRight.isRamp()))
-								&& ((topLeft.isRamp()) != (topRight.isRamp()));
+															 && ((topLeft.isRamp()) != (topRight.isRamp()));
 
 						final boolean horizontalRamp = ((bottomLeft.isRamp()) != (topLeft.isRamp()))
-								&& ((bottomRight.isRamp()) != (topRight.isRamp()));
+															   && ((bottomRight.isRamp()) != (topRight.isRamp()));
 
 						if (verticalRamp || horizontalRamp) {
 							final boolean rampBlockedByCliff = ((verticalRamp
-									&& this.corners[i][j + (facingDown ? -1 : 1)].cliff)
-									|| (horizontalRamp && this.corners[i + (facingLeft ? -1 : 1)][j].cliff));
+																		 && this.corners[i][j + (facingDown ? -1 : 1)].cliff)
+																		|| (horizontalRamp && this.corners[i + (facingLeft ? -1 : 1)][j].cliff));
 							final int topLeftHeight = topLeft.getLayerHeight() - base;
 							final int topRightHeight = topRight.getLayerHeight() - base;
 							final int bottomRightHeight = bottomRight.getLayerHeight() - base;
@@ -666,13 +676,13 @@ public class Terrain {
 							}
 							if (!invalidRamp) {
 								String fileName = "" + getRampLetter(topLeftHeight, topLeft.isRamp())
-										+ getRampLetter(topRightHeight, topRight.isRamp())
-										+ getRampLetter(bottomRightHeight, bottomRight.isRamp())
-										+ getRampLetter(bottomLeftHeight, bottomLeft.isRamp());
+														  + getRampLetter(topRightHeight, topRight.isRamp())
+														  + getRampLetter(bottomRightHeight, bottomRight.isRamp())
+														  + getRampLetter(bottomLeftHeight, bottomLeft.isRamp());
 
 								final String rampModelDir = this.cliffTextures.get(bottomLeftCliffTex).rampModelDir;
 								fileName = "Doodads\\Terrain\\" + rampModelDir + "\\" + rampModelDir + fileName
-										+ "0.mdx";
+												   + "0.mdx";
 
 								if (this.dataSource.has(fileName)) {
 									if (!this.pathToCliff.containsKey(fileName)) {
@@ -680,10 +690,10 @@ public class Terrain {
 										this.pathToCliff.put(fileName, this.cliffMeshes.size() - 1);
 									}
 
-									for (int ji = this.cliffs.size(); ji-- > 0;) {
+									for (int ji = this.cliffs.size(); ji-- > 0; ) {
 										final IVec3 pos = this.cliffs.get(ji);
 										if ((pos.x == (i + ((horizontalRamp ? 1 : 0) * (facingLeft ? -1 : 0))))
-												&& (pos.y == (j - ((verticalRamp ? 1 : 0) * (facingDown ? 1 : 0))))) {
+													&& (pos.y == (j - ((verticalRamp ? 1 : 0) * (facingDown ? 1 : 0))))) {
 											this.cliffs.remove(ji);
 											break;
 										}
@@ -698,11 +708,11 @@ public class Terrain {
 									topLeft.setCliffTexture(bottomLeftCliffTex);
 									topRight.setCliffTexture(bottomLeftCliffTex);
 									this.corners[i + ((facingLeft ? -1 : 1) * (horizontalRamp ? 1 : 0))][j
-											+ ((facingDown ? -1 : 1) * (verticalRamp ? 1 : 0))]
-													.setCliffTexture(bottomLeftCliffTex);
+																												 + ((facingDown ? -1 : 1) * (verticalRamp ? 1 : 0))]
+											.setCliffTexture(bottomLeftCliffTex);
 
 									this.corners[i + ((facingLeft ? -1 : 1) * (horizontalRamp ? 1 : 0))][j
-											+ ((facingDown ? -1 : 1) * (verticalRamp ? 1 : 0))].romp = true;
+																												 + ((facingDown ? -1 : 1) * (verticalRamp ? 1 : 0))].romp = true;
 
 									continue;
 								}
@@ -723,9 +733,9 @@ public class Terrain {
 					// Cliff model path
 
 					String fileName = "" + (char) (('A' + topLeft.getLayerHeight()) - base)
-							+ (char) (('A' + topRight.getLayerHeight()) - base)
-							+ (char) (('A' + bottomRight.getLayerHeight()) - base)
-							+ (char) (('A' + bottomLeft.getLayerHeight()) - base);
+											  + (char) (('A' + topRight.getLayerHeight()) - base)
+											  + (char) (('A' + bottomRight.getLayerHeight()) - base)
+											  + (char) (('A' + bottomLeft.getLayerHeight()) - base);
 
 					if ("AAAA".equals(fileName)) {
 						continue;
@@ -734,8 +744,8 @@ public class Terrain {
 					// Clamp to within max variations
 
 					fileName = this.cliffTextures.get(bottomLeftCliffTex).cliffModelDir + fileName
-							+ Variations.getCliffVariation(this.cliffTextures.get(bottomLeftCliffTex).cliffModelDir,
-									fileName, bottomLeft.getCliffVariation());
+									   + Variations.getCliffVariation(this.cliffTextures.get(bottomLeftCliffTex).cliffModelDir,
+							fileName, bottomLeft.getCliffVariation());
 					if (!this.pathToCliff.containsKey(fileName)) {
 						throw new IllegalArgumentException("No such pathToCliff entry: " + fileName);
 					}
@@ -837,7 +847,7 @@ public class Terrain {
 		iterator.hasNext();
 		final short firstValue = iterator.next().shortValue();
 		out[outStartOffset] = (short) (firstValue
-				+ (getVariation(firstValue, this.corners[x][y].getGroundVariation()) << 5));
+											   + (getVariation(firstValue, this.corners[x][y].getGroundVariation()) << 5));
 
 		int index;
 		while (iterator.hasNext()) {
@@ -865,8 +875,8 @@ public class Terrain {
 							final RenderCorner topRight = this.corners[x + i + 1][y + j + 1];
 
 							if ((bottomLeft.isRamp()) && (topLeft.isRamp()) && (bottomRight.isRamp())
-									&& (topRight.isRamp()) && (!bottomLeft.romp) && (!bottomRight.romp)
-									&& (!topLeft.romp) && (!topRight.romp)) {
+										&& (topRight.isRamp()) && (!bottomLeft.romp) && (!bottomRight.romp)
+										&& (!topLeft.romp) && (!topRight.romp)) {
 								break ILoop;
 							}
 						}
@@ -902,8 +912,8 @@ public class Terrain {
 		final RenderCorner topRight = this.corners[x + 1][y + 1];
 
 		return (bottomLeft.isRamp()) && (topLeft.isRamp()) && (bottomRight.isRamp()) && (topRight.isRamp())
-				&& !((bottomLeft.getLayerHeight() == topRight.getLayerHeight())
-						&& (topLeft.getLayerHeight() == bottomRight.getLayerHeight()));
+					   && !((bottomLeft.getLayerHeight() == topRight.getLayerHeight())
+									&& (topLeft.getLayerHeight() == bottomRight.getLayerHeight()));
 	}
 
 	private static void loadWaterColor(final float[] out, final String prefix, final Element waterInfo) {
@@ -1216,7 +1226,7 @@ public class Terrain {
 			this.shadowTextures.put(file, (Texture) this.viewer.load(path, PathSolver.DEFAULT, null));
 		}
 		final List<float[]> shadowList = this.shadows.get(file);
-		final float[] shadowPositionArray = new float[] { shadowX, shadowY };
+		final float[] shadowPositionArray = new float[]{shadowX, shadowY};
 		shadowList.add(shadowPositionArray);
 		if (this.initShadowsFinished) {
 			final Texture texture = this.shadowTextures.get(file);
@@ -1251,8 +1261,10 @@ public class Terrain {
 		final int height = texture.getHeight();
 		final int ox = (int) Math.round(width * 0.3);
 		final int oy = (int) Math.round(height * 0.7);
+		if(texture instanceof RawOpenGLTextureResource)
 		blitShadowDataLocation(columns, rows, (RawOpenGLTextureResource) texture, width, height, ox, oy,
 				this.centerOffset, shadowX, shadowY, this.shadowData);
+//TODO blitShadowDataLocation to blpGdxTexture
 	}
 
 	public void initShadows() throws IOException {
@@ -1330,8 +1342,10 @@ public class Terrain {
 			final int ox = (int) Math.round(width * 0.3);
 			final int oy = (int) Math.round(height * 0.7);
 			for (final float[] location : this.shadows.get(file)) {
+				if(texture instanceof RawOpenGLTextureResource)
 				blitShadowDataLocation(columns, rows, (RawOpenGLTextureResource) texture, width, height, ox, oy,
 						centerOffset, location[0], location[1], this.shadowData);
+				//TODO blitShadowDataLocation to blpGdxTexture
 			}
 		}
 	}
@@ -1584,9 +1598,9 @@ public class Terrain {
 						final int groundCornerHeightIndex = (int) (((vPositionY + y) * (columns)) + (vPositionX + x));
 						final float height = groundCornerHeights[groundCornerHeightIndex];
 						this.vertices[(instanceId * 4 * 3) + (vertexId * 3)] = ((vPositionX + x) * 128f)
-								+ centerOffset[0];
+																					   + centerOffset[0];
 						this.vertices[(instanceId * 4 * 3) + (vertexId * 3) + 1] = ((vPositionY + y) * 128f)
-								+ centerOffset[1];
+																						   + centerOffset[1];
 						this.vertices[(instanceId * 4 * 3) + (vertexId * 3) + 2] = height * 128f;
 					}
 					for (int triangle = 0; triangle < Shapes.INSTANCE.quadIndices.length; triangle++) {
@@ -1629,9 +1643,9 @@ public class Terrain {
 							height = groundCornerHeights[groundCornerHeightIndex];
 						}
 						this.vertices[(instanceId * 4 * 3) + (vertexId * 3)] = ((vPositionX + x) * 128f)
-								+ centerOffset[0];
+																					   + centerOffset[0];
 						this.vertices[(instanceId * 4 * 3) + (vertexId * 3) + 1] = ((vPositionY + y) * 128f)
-								+ centerOffset[1];
+																						   + centerOffset[1];
 						this.vertices[(instanceId * 4 * 3) + (vertexId * 3) + 2] = height * 128f;
 					}
 					for (int triangle = 0; triangle < Shapes.INSTANCE.quadIndices.length; triangle++) {

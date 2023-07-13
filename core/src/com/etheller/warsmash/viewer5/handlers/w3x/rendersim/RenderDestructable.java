@@ -56,7 +56,12 @@ public class RenderDestructable extends RenderDoodad implements RenderWidget {
 				this.replaceableTextureFile += "Blight";
 			}
 			this.instance.setReplaceableTexture(this.replaceableTextureId, this.replaceableTextureFile + ".blp");
-			this.instance.setReplaceableTextureHD(this.replaceableTextureId, this.replaceableTextureFile);
+			try {
+				this.instance.setReplaceableTextureHD(this.replaceableTextureId, this.replaceableTextureFile);
+			}
+			catch (Exception ex) {
+				ex.printStackTrace();
+			}
 		}
 		this.selectionScale *= row.getFieldAsFloat(SEL_CIRCLE_SIZE, 0);
 		this.unitAnimationListenerImpl = new UnitAnimationListenerImpl((MdxComplexInstance) this.instance, 0, 0);
@@ -248,6 +253,6 @@ public class RenderDestructable extends RenderDoodad implements RenderWidget {
 		final int vertR = row.getFieldAsInteger(DOODAD_COLOR_RED, doodadVariation);
 		final int vertG = row.getFieldAsInteger(DOODAD_COLOR_GREEN, doodadVariation);
 		final int vertB = row.getFieldAsInteger(DOODAD_COLOR_BLUE, doodadVariation);
-		((MdxComplexInstance) instance).setVertexColor(new float[] { vertR / 255f, vertG / 255f, vertB / 255f });
+		((MdxComplexInstance) instance).setVertexColor(new float[]{vertR / 255f, vertG / 255f, vertB / 255f});
 	}
 }

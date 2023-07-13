@@ -165,8 +165,6 @@ public class MdxModel extends com.etheller.warsmash.viewer5.Model<MdxHandler> {
 		// Textures.
 		for (final MdlxTexture texture : parser.getTextures()) {
 			String path = texture.getPath();
-			if(path.equals(""))
-				continue;
 			final int replaceableId = texture.getReplaceableId();
 			final WrapMode wrapMode = texture.getWrapMode();
 			if (replaceableId != 0) {
