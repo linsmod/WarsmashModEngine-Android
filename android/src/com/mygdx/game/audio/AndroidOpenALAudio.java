@@ -422,13 +422,6 @@ public class AndroidOpenALAudio implements AndroidAudio, IOpenALAudio {
 
 		ALC.alcDestroyContext(this.alcContext);
 		ALC.alcCloseDevice(this.alcDevice);
-		while (org.lwjgl.openal.AL.isCreated()) {
-			try {
-				Thread.sleep(10);
-			}
-			catch (InterruptedException e) {
-			}
-		}
 	}
 
 	public AudioDevice newAudioDevice(int sampleRate, final boolean isMono) {
