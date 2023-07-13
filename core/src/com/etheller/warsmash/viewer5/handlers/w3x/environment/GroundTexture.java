@@ -5,9 +5,12 @@ import java.io.IOException;
 import java.nio.Buffer;
 
 import com.badlogic.gdx.graphics.GL30;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.etheller.warsmash.datasources.DataSource;
 import com.etheller.warsmash.util.ImageUtils;
 import com.etheller.warsmash.util.ImageUtils.AnyExtensionImage;
+import com.etheller.warsmash.viewer5.handlers.ResourceInfo;
 
 public class GroundTexture {
 	public int id;
@@ -15,18 +18,32 @@ public class GroundTexture {
 	public boolean extended;
 
 	public GroundTexture(final String path, final DataSource dataSource, final GL30 gl) throws IOException {
-		final AnyExtensionImage imageInfo = ImageUtils.getAnyExtensionImageFixRGB(dataSource, path, "ground texture");
-		loadImage(path, gl, imageInfo.getImageData(), imageInfo.isNeedsSRGBFix());
+		ResourceInfo info = new ResourceInfo(dataSource, path, path);
+		if (path.endsWith(".blp")) {
+//			System.out.println("[BLP_DECODE] " + path);
+			var buffRGBA = ImageUtils.decodeBLP(info);
+//			var pixmap = ImageUtils.getPixmap(info);
+			loadImage(path, gl, buffRGBA.getBuffer(), buffRGBA.getWidth(), buffRGBA.getHeight(), null);
+		}
+		else {
+			System.err.println("[RES_DECODE_TODO] " + path);
+		}
+
+		// TODO may need srgbfix
+
+//		final AnyExtensionImage imageInfo = ImageUtils.getAnyExtensionImageFixRGB(dataSource, path, "ground texture");
+//		loadImage(path, gl, imageInfo.getImageData(), imageInfo.isNeedsSRGBFix());
 	}
 
-	private void loadImage(final String path, final GL30 gl, final BufferedImage image, final boolean sRGBFix) {
-		if (image == null) {
-			throw new IllegalStateException("Missing ground texture: " + path);
+	private void loadImage(final String path, final GL30 gl, Buffer buffer, int width, int height, final Pixmap pixmap) {
+//		if (buffer == null) {
+//			throw new IllegalStateException("Missing ground texture: " + path);
+//		}
+		if (pixmap != null) {
+			width = pixmap.getWidth();
+			height = pixmap.getWidth();
+			buffer = pixmap.getPixels();
 		}
-		final Buffer buffer = ImageUtils.getTextureBuffer(sRGBFix ? ImageUtils.forceBufferedImagesRGB(image) : image);
-		final int width = image.getWidth();
-		final int height = image.getHeight();
-
 		this.tileSize = (int) (height * 0.25);
 		this.extended = (width > height);
 

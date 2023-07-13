@@ -38,7 +38,8 @@ public abstract class CAbilityAuraBase extends CAbilityPassiveSpellBase {
 
 	@Override
 	public void onRemove(CSimulation game, CUnit unit) {
-		this.fx.remove();
+		if (this.fx != null)
+			this.fx.remove();
 	}
 
 	@Override

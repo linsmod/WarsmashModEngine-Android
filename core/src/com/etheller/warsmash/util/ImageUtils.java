@@ -26,9 +26,17 @@ import com.etheller.warsmash.datasources.DataSource;
 import com.etheller.warsmash.viewer5.handlers.ResourceInfo;
 import com.etheller.warsmash.viewer5.handlers.tga.TgaFile;
 import com.google.code.appengine.imageio.spi.IIORegistry;
+import com.google.code.appengine.imageio.spi.ImageReaderSpi;
 import com.google.common.base.Strings;
+import com.hiveworkshop.blizzard.blp.BLPReadParam;
+import com.hiveworkshop.blizzard.blp.BLPReader;
 import com.hiveworkshop.blizzard.blp.BLPReaderSpi;
 import com.lin.imageio.plugins.jpeg.JPEGImageReaderSpi;
+import lin.threading.MtPixelTask;
+import lin.threading.RgbaImageBuffer;
+import org.apache.commons.imaging.ImageReadException;
+import org.apache.commons.imaging.Imaging;
+import org.apache.commons.imaging.common.bytesource.ByteSourceInputStream;
 
 /**
  * Uses AWT stuff
@@ -54,12 +62,19 @@ public final class ImageUtils {
 //
 //			}
 			if (dataSource.has(path)) {
-				DataSource ds = ((CompoundDataSource) dataSource).getDataSource(path);
-				var res = new ResourceInfo(ds, path, path);
+				var res = new ResourceInfo(dataSource, path);
+				return getTexture(res);
+			}
+			else if (dataSource.has(changeExtension(path, ".tga"))) {
+				var res = new ResourceInfo(dataSource, changeExtension(path, ".tga"));
+				return getTexture(res);
+			}
+			else if (dataSource.has(changeExtension(path, ".dds"))) {
+				var res = new ResourceInfo(dataSource, changeExtension(path, ".dds"));
 				return getTexture(res);
 			}
 			else {
-				System.err.println("[RES_NOT_FOUND] "+path);
+				System.err.println("[RES_NOT_FOUND] " + path);
 			}
 //			final AnyExtensionImage imageInfo = getAnyExtensionImageFixRGB(dataSource, path, "texture");
 //			image = imageInfo.getImageData();
@@ -71,6 +86,12 @@ public final class ImageUtils {
 			return null;
 		}
 		return null;
+	}
+
+	public static String changeExtension(String f, String newExtension) {
+		int i = f.lastIndexOf('.');
+		String name = f.substring(0, i);
+		return new File(f, name + newExtension).getPath();
 	}
 
 	public static AnyExtensionImage getAnyExtensionImageFixRGB(final DataSource dataSource, final String path,
@@ -159,15 +180,54 @@ public final class ImageUtils {
 		return texture;
 	}
 
+	public static RgbaImageBuffer decodeBLP(ResourceInfo info) throws IOException {
+		return decodeBLP(info.getResourceAsStream());
+	}
+
+	public static RgbaImageBuffer decodeBLP(InputStream stream) throws IOException {
+		BLPReader reader = new BLPReader(null);
+		reader.setInput(new ByteSourceInputStream(stream, null));
+		var image = reader.read(0, new BLPReadParam() {
+			@Override
+			public boolean isDirectRead() {
+				return true;
+			}
+
+			@Override
+			public ImageReaderSpi getJPEGSpi() {
+				return new JPEGImageReaderSpi();
+			}
+		});
+
+		//speedup read using multi-threading task
+		int batchSize = 64;
+		var task = MtPixelTask.create(image::getRGB, image.getWidth(), image.getHeight(), batchSize);
+		return task.read();
+	}
+
+	/**
+	 * @param res blp/jpeg/png/dds/tga should be supported by awt-imageio
+	 * @return
+	 * @throws IOException
+	 */
 	public static Texture getTexture(ResourceInfo res) throws IOException {
+		Pixmap pixmap = getPixmap(res);
+		final Texture texture = new Texture(pixmap);
+		pixmap.dispose();
+		return texture;
+	}
+
+	public static Pixmap getPixmap(ResourceInfo res) throws IOException {
 		final ResourceInfo info = res;
-		String path = info.getCachePath("blp2png", ".png");
-		var file = Gdx.files.external(path);
+		var file = info.getCacheFile("blp2png", ".png");
+		var temp = info.getCacheFile("blp2png", ".png.tmp");
+		if (temp.exists())
+			temp.delete();
 		if (!file.exists()) {
 			file.parent().mkdirs();
-
 			ByteArrayOutputStream bos = new ByteArrayOutputStream(100 << 10);
-			var fs = new FileOutputStream(file.file()) {
+
+			var fs = new FileOutputStream(temp.file()) {
 				@Override
 				public void write(byte[] b, int off, int len) throws IOException {
 					super.write(b, off, len);
@@ -180,23 +240,32 @@ public final class ImageUtils {
 					super.flush();
 				}
 			};
-			com.google.code.appengine.imageio.ImageIO.write(com.google.code.appengine.imageio.ImageIO.read(res.getResourceAsStream()), "png", fs);
+
+			var image = com.google.code.appengine.imageio.ImageIO.read(res.getResourceAsStream());
+			com.google.code.appengine.imageio.ImageIO.write(image, "png", fs);
+
+			temp.moveTo(file);
 
 			var pngData = bos.toByteArray();
 			Pixmap pixmap = new Pixmap(pngData, 0, pngData.length);
-			final Texture texture = new Texture(pixmap);
-
-			pixmap.dispose();
-			return texture;
-//				System.out.println("[WRITE_BLP_PNG] " + file.path());
+			System.out.println("[WRITE_BLP_PNG] " + file.path());
+			return pixmap;
 		}
 		else {
+
 			// load converted png from cache for the blp.
-//			System.out.println("[LOAD_BLP_PNG] " + file.path());
+			System.out.println("[LOAD_BLP_PNG] " + file.path());
 			Pixmap pixmap = new Pixmap(file);
-			final Texture texture = new Texture(pixmap);
-			pixmap.dispose();
-			return texture;
+			try {
+				var size = Imaging.getImageSize(info.getResourceAsStream(), info.path);
+				if (size.getHeight() != pixmap.getHeight() || size.getWidth() != pixmap.getWidth()) {
+					System.err.println("png cache broken.");
+				}
+			}
+			catch (ImageReadException e) {
+				throw new RuntimeException(e);
+			}
+			return pixmap;
 		}
 	}
 

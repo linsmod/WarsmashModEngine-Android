@@ -9,10 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.GL30;
@@ -259,29 +256,44 @@ public class WarsmashGdxMapScreen implements InputProcessor, Screen {
 		if (Strings.isNullOrEmpty(mpqPath)) {
 			throw new RuntimeException("missing MpqPath element under Datasources section");
 		}
+
 		String mpqFile = element.getField("MpqFile");
 		if (Strings.isNullOrEmpty(mpqPath)) {
 			throw new RuntimeException("missing MpqFile element under Datasources section");
 		}
-		mpqPath = mpqPath.replace("${EXTERNAL_STORAGE_ROOT}/", GdxEnv.EXTERNAL_STORAGE_ROOT).replace("$" +
-																												   "{EXTERNAL_STORAGE_ROOT}\\", Gdx.files.getExternalStoragePath()).replace("${EXTERNAL_STORAGE_ROOT}",
-				Gdx.files.getExternalStoragePath());
+
+		mpqPath = mpqPath
+						  .replace("${EXTERNAL_STORAGE_ROOT}/", GdxEnv.EXTERNAL_STORAGE_ROOT)
+						  .replace("${EXTERNAL_STORAGE_ROOT}\\", GdxEnv.EXTERNAL_STORAGE_ROOT)
+						  .replace("${EXTERNAL_STORAGE_ROOT}", GdxEnv.EXTERNAL_STORAGE_ROOT);
 		final List<DataSourceDescriptor> dataSourcesList = new ArrayList<>();
 
 		String[] files = mpqFile.split(",");
 		for (int i = 0; i < files.length; i++) {
-			String absPath =
-					(mpqPath + files[i]).replace("\\/", "/").replace("/\\", "/").replace("\\\\", "/").replace("//",
-							"/");
+			String absPath = (mpqPath + files[i])
+									 .replace("\\/", "/")
+									 .replace("/\\", "/")
+									 .replace("\\\\", "/")
+									 .replace("//", "/");
 			dataSourcesList.add(new MpqDataSourceDescriptor(absPath));
 		}
-		String resPath = element.getField("ResPath");
-		if (!Strings.isNullOrEmpty(resPath)) {
-			String absPath = resPath.replace("${INTERNAL_STORAGE_ROOT}/", "").replace("${INTERNAL_STORAGE_ROOT}\\",
-					"").replace("${INTERNAL_STORAGE_ROOT}", "");
-			absPath = absPath.replace("\\/", "/").replace("/\\", "/").replace("\\\\", "/").replace("//", "/");
-			dataSourcesList.add(new FolderDataSourceDescriptor(absPath));
+
+		String mapPath = element.getField("MapPath");
+		if (!Strings.isNullOrEmpty(mapPath)) {
+			mapPath = mapPath
+							  .replace("${EXTERNAL_STORAGE_ROOT}/", GdxEnv.EXTERNAL_STORAGE_ROOT)
+							  .replace("${EXTERNAL_STORAGE_ROOT}\\", GdxEnv.EXTERNAL_STORAGE_ROOT)
+							  .replace("${EXTERNAL_STORAGE_ROOT}", GdxEnv.EXTERNAL_STORAGE_ROOT);
+			dataSourcesList.add(new FolderDataSourceDescriptor(mapPath));
 		}
+
+
+		//android assets
+		if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
+			dataSourcesList.add(new FolderDataSourceDescriptor("."));
+		}
+		else if (Gdx.app.getType() == Application.ApplicationType.Android)
+			dataSourcesList.add(new FolderDataSourceDescriptor(""));
 		return new CompoundDataSourceDescriptor(dataSourcesList).createDataSource();
 	}
 

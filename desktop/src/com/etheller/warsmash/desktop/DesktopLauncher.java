@@ -15,6 +15,7 @@ import java.nio.FloatBuffer;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationDesktop;
+import com.etheller.warsmash.GdxEnv;
 import com.etheller.warsmash.audio.OpenALAudio;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL;
@@ -61,6 +62,7 @@ public class DesktopLauncher extends LwjglApplication {
 
 	public static void main(final String[] arg) {
 		System.out.println("Warsmash engine is starting...");
+
 		final LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.useGL30 = true;
 		config.gles30ContextMajorVersion = 3;
@@ -123,6 +125,7 @@ public class DesktopLauncher extends LwjglApplication {
 		}
 		final WarsmashGdxMultiScreenGame warsmashGdxMultiScreenGame = new WarsmashGdxMultiScreenGame();
 		new LwjglApplicationDesktop(warsmashGdxMultiScreenGame, config);
+		GdxEnv.EXTERNAL_STORAGE_ROOT = Gdx.files.getExternalStoragePath();
 		final String finalFileToLoad = fileToLoad;
 		Gdx.app.postRunnable(new Runnable() {
 			@Override

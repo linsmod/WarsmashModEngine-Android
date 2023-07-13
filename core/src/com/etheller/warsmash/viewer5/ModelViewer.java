@@ -157,6 +157,7 @@ public abstract class ModelViewer {
 				}
 				else {
 					System.err.println("Attempting to load non-existant file: " + finalSrc);
+					return null;
 				}
 			}
 			extension = solved.getExtension();
@@ -196,9 +197,8 @@ public abstract class ModelViewer {
 
 				// TODO this is a synchronous hack, skipped some Ghostwolf code
 				try {
-					DataSource ds = ((CompoundDataSource) this.dataSource).getDataSource(finalSrc);
-					ResourceInfo info = new ResourceInfo(ds, src, finalSrc);
-					resource.loadData(ds.getResourceAsStream(finalSrc), info);
+					ResourceInfo info = new ResourceInfo(this.dataSource, src, finalSrc);
+					resource.loadData(info.getResourceAsStream(), info);
 				}
 				catch (final Exception e) {
 					throw new IllegalStateException("Unable to load data: " + finalSrc, e);

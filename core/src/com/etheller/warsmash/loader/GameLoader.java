@@ -10,6 +10,8 @@ import com.etheller.warsmash.units.Element;
 import com.etheller.warsmash.util.StringBundle;
 import com.etheller.warsmash.util.WarsmashConstants;
 import com.etheller.warsmash.viewer5.gl.ANGLEInstancedArrays;
+import com.etheller.warsmash.viewer5.gl.AudioExtension;
+import com.etheller.warsmash.viewer5.gl.DynamicShadowExtension;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -18,23 +20,18 @@ import java.io.InputStream;
 public class GameLoader {
 
 	private final WarsmashGdxMultiScreenGame gameInitialized;
-	private final String externalStoragePath;
 	private final Runnable requestStoragePerm;
 	private final ANGLEInstancedArrays angleInstancedArrays;
-	private String internalStoragePath;
 
-
-	public GameLoader(WarsmashGdxMultiScreenGame gameInitialized, ANGLEInstancedArrays angleInstancedArrays, String externalStoragePath,String internalStoragePath) {
-		this(gameInitialized, angleInstancedArrays, externalStoragePath,internalStoragePath, null);
-	}
-
-	public GameLoader(WarsmashGdxMultiScreenGame gameInitialized, ANGLEInstancedArrays angleInstancedArrays, String externalStoragePath, String internalStoragePath, Runnable requestStoragePerm) {
+	public GameLoader(WarsmashGdxMultiScreenGame gameInitialized,
+			ANGLEInstancedArrays angleInstancedArrays,
+			DynamicShadowExtension dynamicShadowExtension,
+			AudioExtension audioExtension,
+			Runnable requestStoragePerm) {
 		this.gameInitialized = gameInitialized;
-		this.externalStoragePath = externalStoragePath;
-		this.internalStoragePath = internalStoragePath;
-		this.requestStoragePerm = requestStoragePerm;
 		this.angleInstancedArrays = angleInstancedArrays;
-		ExtensionLoader.setupExtensions(this.angleInstancedArrays);
+		this.requestStoragePerm=requestStoragePerm;
+		ExtensionLoader.setupExtensions(this.angleInstancedArrays,dynamicShadowExtension,audioExtension);
 	}
 
 	Thread thread;

@@ -145,7 +145,7 @@ public class BatchGroup extends GenericGroup {
 					{
 						final Integer replaceable = replaceables.get(diffuseId);
 						if ((replaceable > 0) && (replaceable < WarsmashConstants.REPLACEABLE_TEXTURE_LIMIT)
-								&& (instance.replaceableTextures_diffuse[replaceable] != null)) {
+									&& (instance.replaceableTextures_diffuse[replaceable] != null)) {
 							diffuseTexture = instance.replaceableTextures_diffuse[replaceable];
 						}
 						else {
@@ -156,7 +156,7 @@ public class BatchGroup extends GenericGroup {
 					{
 						final Integer replaceable = replaceables.get(normalsId);
 						if ((replaceable > 0) && (replaceable < WarsmashConstants.REPLACEABLE_TEXTURE_LIMIT)
-								&& (instance.replaceableTextures_normal[replaceable] != null)) {
+									&& (instance.replaceableTextures_normal[replaceable] != null)) {
 							normalsTexture = instance.replaceableTextures_normal[replaceable];
 						}
 						else {
@@ -167,7 +167,7 @@ public class BatchGroup extends GenericGroup {
 					{
 						final Integer replaceable = replaceables.get(ormId);
 						if ((replaceable > 0) && (replaceable < WarsmashConstants.REPLACEABLE_TEXTURE_LIMIT)
-								&& (instance.replaceableTextures_orm[replaceable] != null)) {
+									&& (instance.replaceableTextures_orm[replaceable] != null)) {
 							ormTexture = instance.replaceableTextures_orm[replaceable];
 						}
 						else {
@@ -177,7 +177,7 @@ public class BatchGroup extends GenericGroup {
 
 					final Integer replaceable = replaceables.get(teamColorId);
 					if ((replaceable > 0) && (replaceable < WarsmashConstants.REPLACEABLE_TEXTURE_LIMIT)
-							&& (instance.replaceableTextures[replaceable] != null)) {
+								&& (instance.replaceableTextures[replaceable] != null)) {
 						teamColorTexture = instance.replaceableTextures[replaceable];
 					}
 					else {
@@ -241,11 +241,15 @@ public class BatchGroup extends GenericGroup {
 						layer.bind(shader);
 					}
 
-					final Integer replaceable = replaceables.get(layerTexture); // TODO is this OK?
+					int layeridx = layerTexture;
+					if (layerTexture >= instance.layerTextures.length) {
+						layeridx = 0;
+					}
+					final Integer replaceable = replaceables.get(layeridx); // TODO is this OK?
 					Texture texture;
 
 					if ((replaceable > 0) && (replaceable < WarsmashConstants.REPLACEABLE_TEXTURE_LIMIT)
-							&& (instance.replaceableTextures[replaceable] != null)) {
+								&& (instance.replaceableTextures[replaceable] != null)) {
 						texture = instance.replaceableTextures[replaceable];
 					}
 					else {

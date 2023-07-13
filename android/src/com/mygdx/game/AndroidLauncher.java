@@ -17,6 +17,7 @@ import com.etheller.warsmash.GdxEnv;
 import com.etheller.warsmash.WarsmashGdxMapScreen;
 import com.etheller.warsmash.WarsmashGdxMultiScreenGame;
 import com.etheller.warsmash.loader.GameLoader;
+import com.mygdx.game.audio.AndroidAudioExtension;
 import com.mygdx.game.audio.AndroidOpenALAudio;
 
 public class AndroidLauncher extends AndroidApplication {
@@ -34,8 +35,8 @@ public class AndroidLauncher extends AndroidApplication {
 //		WarCraft3.RunGame(game);
 		gameLoader = new GameLoader(game,
 				new ANGLEInstancedArraysGLES30(),
-				null,
-				null,
+				new DynamicShadowExtensionGLES30(),
+				new AndroidAudioExtension(),
 				this::requestPermissionsAsync
 		);
 		gameLoader.runGameAsync();
