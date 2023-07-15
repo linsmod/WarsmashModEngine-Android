@@ -17,6 +17,9 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationDesktop;
 import com.etheller.warsmash.GdxEnv;
 import com.etheller.warsmash.audio.OpenALAudio;
+import com.etheller.warsmash.viewer5.gl.*;
+import com.etheller.warsmash.viewer5.handlers.w3x.W3xShaders;
+import com.etheller.warsmash.viewer5.handlers.w3x.environment.TerrainShaders;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL;
 import org.lwjgl.opengl.GL11;
@@ -41,11 +44,6 @@ import com.etheller.warsmash.util.WarsmashConstants;
 import com.etheller.warsmash.viewer5.AudioContext;
 import com.etheller.warsmash.viewer5.AudioContext.Listener;
 import com.etheller.warsmash.viewer5.AudioDestination;
-import com.etheller.warsmash.viewer5.gl.ANGLEInstancedArrays;
-import com.etheller.warsmash.viewer5.gl.AudioExtension;
-import com.etheller.warsmash.viewer5.gl.DynamicShadowExtension;
-import com.etheller.warsmash.viewer5.gl.Extensions;
-import com.etheller.warsmash.viewer5.gl.WireframeExtension;
 
 public class DesktopLauncher extends LwjglApplication {
 	public DesktopLauncher(ApplicationListener listener, LwjglApplicationConfiguration config) {
@@ -127,6 +125,22 @@ public class DesktopLauncher extends LwjglApplication {
 		new LwjglApplicationDesktop(warsmashGdxMultiScreenGame, config);
 		GdxEnv.EXTERNAL_STORAGE_ROOT = Gdx.files.getExternalStoragePath();
 		final String finalFileToLoad = fileToLoad;
+
+//		Gdx.app.postRunnable(() -> {
+//			// WebGL test
+//			try {
+//				WebGL webGL = new WebGL(Gdx.gl30);
+//				webGL.createShaderProgram(TerrainShaders.Terrain.codes());
+//				webGL.createShaderProgram(TerrainShaders.Cliffs.codes());
+//				webGL.createShaderProgram(TerrainShaders.Water.codes());
+//				webGL.createShaderProgram(W3xShaders.UberSplat.codes());
+//			}
+//			catch (Exception ex) {
+//				ex.printStackTrace();
+//				Gdx.app.exit();
+//			}
+//		});
+
 		Gdx.app.postRunnable(new Runnable() {
 			@Override
 			public void run() {

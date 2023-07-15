@@ -1126,8 +1126,9 @@ public class MenuUI {
 						}
 						war3MapConfig.setMapName("NOTEXTERN: default name string");
 						war3MapConfig.setMapDescription("NOTEXTERN: default description string");
-						Jass2.loadConfig(map, MenuUI.this.uiViewport, MenuUI.this.uiScene, MenuUI.this.rootFrame,
-								war3MapConfig, WarsmashConstants.JASS_FILE_LIST).config();
+
+//						Jass2.loadConfig(map, MenuUI.this.uiViewport, MenuUI.this.uiScene, MenuUI.this.rootFrame,
+//								war3MapConfig, WarsmashConstants.JASS_FILE_LIST).config();
 						boolean foundFirstHuman = false;
 						boolean foundFirstComp = false;
 						for (int i = 0; i < WarsmashConstants.MAX_PLAYERS; i++) {
