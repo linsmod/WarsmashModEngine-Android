@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Looper;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
@@ -17,6 +18,9 @@ import com.etheller.warsmash.GdxEnv;
 import com.etheller.warsmash.WarsmashGdxMapScreen;
 import com.etheller.warsmash.WarsmashGdxMultiScreenGame;
 import com.etheller.warsmash.loader.GameLoader;
+import com.etheller.warsmash.viewer5.gl.WebGL;
+import com.etheller.warsmash.viewer5.handlers.w3x.W3xShaders;
+import com.etheller.warsmash.viewer5.handlers.w3x.environment.TerrainShaders;
 import com.mygdx.game.audio.AndroidAudioExtension;
 import com.mygdx.game.audio.AndroidOpenALAudio;
 
@@ -31,6 +35,22 @@ public class AndroidLauncher extends AndroidApplication {
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
 		config.useGL30 = true;
 		initialize(game, config);
+
+		Gdx.app.postRunnable(() -> {
+			// test
+			try {
+				WebGL webGL = new WebGL(Gdx.gl30);
+				webGL.createShaderProgram(TerrainShaders.Terrain.codes());
+				webGL.createShaderProgram(TerrainShaders.Cliffs.codes());
+				webGL.createShaderProgram(TerrainShaders.Water.codes());
+				webGL.createShaderProgram(W3xShaders.UberSplat.codes());
+			}
+			catch (Exception ex) {
+				ex.printStackTrace();
+				Gdx.app.exit();
+			}
+		});
+
 
 //		WarCraft3.RunGame(game);
 		gameLoader = new GameLoader(game,

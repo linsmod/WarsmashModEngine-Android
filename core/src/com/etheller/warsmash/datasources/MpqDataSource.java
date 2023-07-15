@@ -65,7 +65,7 @@ public class MpqDataSource implements DataSource {
 	public ByteBuffer read(final String path) throws IOException {
 		ArchivedFile file = null;
 		try {
-			System.out.println("[MPQ_RES_READ] " + path);
+//			System.out.println("[MPQ_RES_READ] " + path);
 			file = this.archive.lookupHash2(new HashLookup(path));
 		}
 		catch (final MPQException exc) {

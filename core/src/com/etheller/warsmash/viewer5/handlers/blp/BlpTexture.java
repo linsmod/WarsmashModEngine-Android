@@ -1,7 +1,7 @@
 package com.etheller.warsmash.viewer5.handlers.blp;
 
 import java.awt.Color;
-import java.awt.image.BufferedImage;
+import com.google.code.appengine.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;

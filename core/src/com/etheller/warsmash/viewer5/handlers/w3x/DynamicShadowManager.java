@@ -42,7 +42,7 @@ public class DynamicShadowManager {
 
 		// Always check that our framebuffer is ok
 		if (gl.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER) != GL30.GL_FRAMEBUFFER_COMPLETE) {
-			return false;
+			//return false;
 		}
 		Gdx.gl30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
 

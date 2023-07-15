@@ -1,6 +1,6 @@
 package com.etheller.warsmash.viewer5.handlers.w3x.environment;
 
-import java.awt.image.BufferedImage;
+import com.google.code.appengine.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.Buffer;
@@ -413,11 +413,11 @@ public class Terrain {
 
 		updateGroundHeights(new Rectangle(0, 0, width - 1, height - 1));
 
-		this.groundShader = webGL.createShaderProgram(TerrainShaders.Terrain.vert(), TerrainShaders.Terrain.frag);
-		this.cliffShader = webGL.createShaderProgram(TerrainShaders.Cliffs.vert(), TerrainShaders.Cliffs.frag);
-		this.waterShader = webGL.createShaderProgram(TerrainShaders.Water.vert(), TerrainShaders.Water.frag);
+		this.groundShader = webGL.createShaderProgram(TerrainShaders.Terrain.codes());
+		this.cliffShader = webGL.createShaderProgram(TerrainShaders.Cliffs.codes());
+		this.waterShader = webGL.createShaderProgram(TerrainShaders.Water.codes());
 
-		this.uberSplatShader = webGL.createShaderProgram(W3xShaders.UberSplat.vert(), W3xShaders.UberSplat.frag);
+		this.uberSplatShader = webGL.createShaderProgram(W3xShaders.UberSplat.codes());
 
 		// TODO collision bodies (?)
 

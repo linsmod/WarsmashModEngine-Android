@@ -126,6 +126,7 @@ project(":core") {
         api "com.google.guava:guava:23.5-jre"
         api "org.apache.commons:commons-compress:1.20"
         api "net.nikr:dds:1.0.0"
+        api 'com.github.lintrust:linq4j-modified:0.5-SNAPSHOT'
         // https://mvnrepository.com/artifact/com.google.typography/sfntly
 //        implementation 'com.twelvemonkeys.imageio:imageio-jpeg:3.9.4'
 //        api files(fileTree(dir: '../jars', includes: ['*.jar']))

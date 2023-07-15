@@ -1,15 +1,14 @@
 package com.etheller.warsmash.viewer5.handlers.blp;
 
-import java.awt.image.BufferedImage;
+import com.google.code.appengine.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-
-import javax.imageio.ImageIO;
 
 import com.etheller.warsmash.viewer5.ModelViewer;
 import com.etheller.warsmash.viewer5.PathSolver;
 import com.etheller.warsmash.viewer5.RawOpenGLTextureResource;
 import com.etheller.warsmash.viewer5.handlers.ResourceHandler;
+import com.google.code.appengine.imageio.ImageIO;
 
 public class DdsTexture extends RawOpenGLTextureResource {
 

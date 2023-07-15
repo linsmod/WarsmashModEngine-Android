@@ -4,10 +4,11 @@
  */
 package com.etheller.warsmash.viewer5.handlers.tga;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
-import java.awt.image.DataBufferInt;
+import com.google.code.appengine.awt.image.BufferedImage;
+import com.google.code.appengine.awt.image.DataBuffer;
+import com.google.code.appengine.awt.image.DataBufferByte;
+import com.google.code.appengine.awt.image.DataBufferInt;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;

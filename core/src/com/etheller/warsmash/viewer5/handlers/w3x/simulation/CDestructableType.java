@@ -1,9 +1,9 @@
 package com.etheller.warsmash.viewer5.handlers.w3x.simulation;
 
-import java.awt.image.BufferedImage;
 import java.util.EnumSet;
 
 import com.etheller.warsmash.viewer5.handlers.w3x.simulation.combat.CTargetType;
+import com.google.code.appengine.awt.image.BufferedImage;
 
 public class CDestructableType {
 

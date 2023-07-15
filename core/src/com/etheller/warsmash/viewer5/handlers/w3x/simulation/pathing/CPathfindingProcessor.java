@@ -1,6 +1,5 @@
 package com.etheller.warsmash.viewer5.handlers.w3x.simulation.pathing;
 
-import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,6 +14,7 @@ import com.etheller.warsmash.viewer5.handlers.w3x.simulation.CSimulation;
 import com.etheller.warsmash.viewer5.handlers.w3x.simulation.CUnit;
 import com.etheller.warsmash.viewer5.handlers.w3x.simulation.CWorldCollision;
 import com.etheller.warsmash.viewer5.handlers.w3x.simulation.behaviors.CBehaviorMove;
+import com.google.code.appengine.awt.geom.Point2D;
 
 public class CPathfindingProcessor {
 	private static final Rectangle tempRect = new Rectangle();
@@ -36,6 +36,11 @@ public class CPathfindingProcessor {
 		this.worldCollision = worldCollision;
 		this.nodes = new Node[pathingGrid.getHeight()][pathingGrid.getWidth()];
 		this.cornerNodes = new Node[pathingGrid.getHeight() + 1][pathingGrid.getWidth() + 1];
+		int total = 0;
+		for (int i = 0; i < this.nodes.length; i++) {
+			total += this.nodes[i].length;
+		}
+		System.err.println("trying to create " + total + " CPathfinding node");
 		for (int i = 0; i < this.nodes.length; i++) {
 			for (int j = 0; j < this.nodes[i].length; j++) {
 				this.nodes[i][j] = new Node(new Point2D.Float(pathingGrid.getWorldX(j), pathingGrid.getWorldY(i)));
@@ -58,8 +63,6 @@ public class CPathfindingProcessor {
 	 * in college, and is meant only as a first draft to get things working.
 	 *
 	 * @param collisionSize
-	 *
-	 *
 	 * @param start
 	 * @param goal
 	 * @param playerIndex
@@ -91,14 +94,14 @@ public class CPathfindingProcessor {
 			final CUnit ignoreIntersectionsWithThisSecondUnit, final float startX, final float startY,
 			final PathingGrid.MovementType movementType, final float collisionSize, final float x, final float y) {
 		return this.pathingGrid.isPathable(x, y, movementType, collisionSize)
-				&& this.pathingGrid.isPathable(startX, y, movementType, collisionSize)
-				&& this.pathingGrid.isPathable(x, startY, movementType, collisionSize)
-				&& isPathableDynamically(x, y, ignoreIntersectionsWithThisUnit, ignoreIntersectionsWithThisSecondUnit,
-						movementType)
-				&& isPathableDynamically(x, startY, ignoreIntersectionsWithThisUnit,
-						ignoreIntersectionsWithThisSecondUnit, movementType)
-				&& isPathableDynamically(startX, y, ignoreIntersectionsWithThisUnit,
-						ignoreIntersectionsWithThisSecondUnit, movementType);
+					   && this.pathingGrid.isPathable(startX, y, movementType, collisionSize)
+					   && this.pathingGrid.isPathable(x, startY, movementType, collisionSize)
+					   && isPathableDynamically(x, y, ignoreIntersectionsWithThisUnit, ignoreIntersectionsWithThisSecondUnit,
+				movementType)
+					   && isPathableDynamically(x, startY, ignoreIntersectionsWithThisUnit,
+				ignoreIntersectionsWithThisSecondUnit, movementType)
+					   && isPathableDynamically(startX, y, ignoreIntersectionsWithThisUnit,
+				ignoreIntersectionsWithThisSecondUnit, movementType);
 	}
 
 	private boolean isPathableDynamically(final float x, final float y, final CUnit ignoreIntersectionsWithThisUnit,
@@ -214,7 +217,8 @@ public class CPathfindingProcessor {
 
 	public void update(final CSimulation simulation) {
 		int workIterations = 0;
-		JobsLoop: while (!this.moveQueue.isEmpty()) {
+		JobsLoop:
+		while (!this.moveQueue.isEmpty()) {
 			this.totalJobLoops++;
 			final PathfindingJob job = this.moveQueue.peek();
 			if (!job.jobStarted) {
@@ -228,12 +232,12 @@ public class CPathfindingProcessor {
 				job.goalY = job.goal.y;
 				job.weightForHittingWalls = 1E9f;
 				if (!this.pathingGrid.isPathable(job.goalX, job.goalY, job.movementType, job.collisionSize)
-						|| !isPathableDynamically(job.goalX, job.goalY, job.ignoreIntersectionsWithThisUnit,
-								job.ignoreIntersectionsWithThisSecondUnit, job.movementType)) {
+							|| !isPathableDynamically(job.goalX, job.goalY, job.ignoreIntersectionsWithThisUnit,
+						job.ignoreIntersectionsWithThisSecondUnit, job.movementType)) {
 					job.weightForHittingWalls = 5E2f;
 				}
 				System.out.println("beginning findNaiveSlowPath for  " + job.startX + "," + job.startY + "," + job.goalX
-						+ "," + job.goalY);
+										   + "," + job.goalY);
 				if ((job.startX == job.goalX) && (job.startY == job.goalY)) {
 					job.queueItem.pathFound(Collections.emptyList(), simulation);
 					this.moveQueue.poll();
@@ -308,7 +312,7 @@ public class CPathfindingProcessor {
 				for (int cellX = job.startGridMinX; cellX <= job.startGridMaxX; cellX++) {
 					for (int cellY = job.startGridMinY; cellY <= job.startGridMaxY; cellY++) {
 						if ((cellX >= 0) && (cellX < this.pathingGrid.getWidth()) && (cellY >= 0)
-								&& (cellY < this.pathingGrid.getHeight())) {
+									&& (cellY < this.pathingGrid.getHeight())) {
 							final Node possibleNode = job.searchGraph[cellY][cellX];
 							possibleNode.touch(this.pathfindJobId);
 							final float x = possibleNode.point.x;
@@ -343,17 +347,17 @@ public class CPathfindingProcessor {
 					Direction lastCameFromDirection = null;
 
 					if ((current.cameFrom != null)
-							&& pathableBetween(job.ignoreIntersectionsWithThisUnit,
-									job.ignoreIntersectionsWithThisSecondUnit, current.point.x, current.point.y,
-									job.movementType, job.collisionSize, job.goalX, job.goalY)
-							&& pathableBetween(job.ignoreIntersectionsWithThisUnit,
-									job.ignoreIntersectionsWithThisSecondUnit, current.cameFrom.point.x,
-									current.cameFrom.point.y, job.movementType, job.collisionSize, current.point.x,
-									current.point.y)
-							&& pathableBetween(job.ignoreIntersectionsWithThisUnit,
-									job.ignoreIntersectionsWithThisSecondUnit, current.cameFrom.point.x,
-									current.cameFrom.point.y, job.movementType, job.collisionSize, job.goalX, job.goalY)
-							&& job.allowSmoothing) {
+								&& pathableBetween(job.ignoreIntersectionsWithThisUnit,
+							job.ignoreIntersectionsWithThisSecondUnit, current.point.x, current.point.y,
+							job.movementType, job.collisionSize, job.goalX, job.goalY)
+								&& pathableBetween(job.ignoreIntersectionsWithThisUnit,
+							job.ignoreIntersectionsWithThisSecondUnit, current.cameFrom.point.x,
+							current.cameFrom.point.y, job.movementType, job.collisionSize, current.point.x,
+							current.point.y)
+								&& pathableBetween(job.ignoreIntersectionsWithThisUnit,
+							job.ignoreIntersectionsWithThisSecondUnit, current.cameFrom.point.x,
+							current.cameFrom.point.y, job.movementType, job.collisionSize, job.goalX, job.goalY)
+								&& job.allowSmoothing) {
 						// do some basic smoothing to walk straight to the goal if it is not obstructed,
 						// skipping the last grid location
 						totalPath.addFirst(job.goal);
@@ -370,18 +374,18 @@ public class CPathfindingProcessor {
 						lastNode = current;
 						current = current.cameFrom;
 						if ((lastCameFromDirection == null) || (current.cameFromDirection != lastCameFromDirection)
-								|| (current.cameFromDirection == null)) {
+									|| (current.cameFromDirection == null)) {
 							if ((current.cameFromDirection != null) || (lastNode == null)
-									|| !pathableBetween(job.ignoreIntersectionsWithThisUnit,
-											job.ignoreIntersectionsWithThisSecondUnit, job.startX, job.startY,
-											job.movementType, job.collisionSize, current.point.x, current.point.y)
-									|| !pathableBetween(job.ignoreIntersectionsWithThisUnit,
-											job.ignoreIntersectionsWithThisSecondUnit, current.point.x, current.point.y,
-											job.movementType, job.collisionSize, lastNode.point.x, lastNode.point.y)
-									|| !pathableBetween(job.ignoreIntersectionsWithThisUnit,
-											job.ignoreIntersectionsWithThisSecondUnit, job.startX, job.startY,
-											job.movementType, job.collisionSize, lastNode.point.x, lastNode.point.y)
-									|| !job.allowSmoothing) {
+										|| !pathableBetween(job.ignoreIntersectionsWithThisUnit,
+									job.ignoreIntersectionsWithThisSecondUnit, job.startX, job.startY,
+									job.movementType, job.collisionSize, current.point.x, current.point.y)
+										|| !pathableBetween(job.ignoreIntersectionsWithThisUnit,
+									job.ignoreIntersectionsWithThisSecondUnit, current.point.x, current.point.y,
+									job.movementType, job.collisionSize, lastNode.point.x, lastNode.point.y)
+										|| !pathableBetween(job.ignoreIntersectionsWithThisUnit,
+									job.ignoreIntersectionsWithThisSecondUnit, job.startX, job.startY,
+									job.movementType, job.collisionSize, lastNode.point.x, lastNode.point.y)
+										|| !job.allowSmoothing) {
 								// Add the point if it's not the first one, or if we can only complete
 								// the journey by specifically walking to the first one
 								totalPath.addFirst(current.point);
@@ -405,7 +409,7 @@ public class CPathfindingProcessor {
 					job.queueItem.pathFound(totalPath, simulation);
 					this.moveQueue.poll();
 					System.out.println("Task " + this.pathfindJobId + " took " + this.totalIterations
-							+ " iterations and " + this.totalJobLoops + " job loops!");
+											   + " iterations and " + this.totalJobLoops + " job loops!");
 					continue JobsLoop;
 				}
 
@@ -427,7 +431,7 @@ public class CPathfindingProcessor {
 							tentativeScore += (direction.length) * job.weightForHittingWalls;
 						}
 						final Node neighbor = job.searchGraph[job.gridMapping.getY(this.pathingGrid, y)][job.gridMapping
-								.getX(this.pathingGrid, x)];
+																												 .getX(this.pathingGrid, x)];
 						neighbor.touch(this.pathfindJobId);
 						if (tentativeScore < neighbor.g) {
 							neighbor.cameFrom = current;
@@ -453,7 +457,7 @@ public class CPathfindingProcessor {
 			job.queueItem.pathFound(Collections.emptyList(), simulation);
 			this.moveQueue.poll();
 			System.out.println("Task " + this.pathfindJobId + " took " + this.totalIterations + " iterations and "
-					+ this.totalJobLoops + " job loops!");
+									   + this.totalJobLoops + " job loops!");
 		}
 	}
 
