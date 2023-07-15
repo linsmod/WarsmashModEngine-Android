@@ -56,12 +56,12 @@ public class RenderDestructable extends RenderDoodad implements RenderWidget {
 				this.replaceableTextureFile += "Blight";
 			}
 			this.instance.setReplaceableTexture(this.replaceableTextureId, this.replaceableTextureFile + ".blp");
-			try {
-				this.instance.setReplaceableTextureHD(this.replaceableTextureId, this.replaceableTextureFile);
-			}
-			catch (Exception ex) {
-				ex.printStackTrace();
-			}
+//			try {
+//				this.instance.setReplaceableTextureHD(this.replaceableTextureId, this.replaceableTextureFile);
+//			}
+//			catch (Exception ex) {
+//				ex.printStackTrace();
+//			}
 		}
 		this.selectionScale *= row.getFieldAsFloat(SEL_CIRCLE_SIZE, 0);
 		this.unitAnimationListenerImpl = new UnitAnimationListenerImpl((MdxComplexInstance) this.instance, 0, 0);

@@ -534,6 +534,8 @@ public class AbilityDataUI {
 	}
 
 	public static String disable(final String path, final String disabledPrefix) {
+		if("".equals(path))
+			return path;
 		final int slashIndex = path.lastIndexOf('\\');
 		String name = path;
 		if (slashIndex != -1) {

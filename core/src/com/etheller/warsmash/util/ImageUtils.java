@@ -194,6 +194,53 @@ public final class ImageUtils {
 		return task.read();
 	}
 
+	public static RgbaImageBuffer decodeRes(ResourceInfo info) throws IOException {
+		var file = info.getCacheFile("blp2png", ".png");
+		var temp = info.getCacheFile("blp2png", ".png.tmp");
+		if (temp.exists())
+			temp.delete();
+		if (!file.exists()) {
+			file.parent().mkdirs();
+			ByteArrayOutputStream bos = new ByteArrayOutputStream(100 << 10);
+
+			var fs = new FileOutputStream(temp.file()) {
+				@Override
+				public void write(byte[] b, int off, int len) throws IOException {
+					super.write(b, off, len);
+					bos.write(b, off, len);
+				}
+
+				@Override
+				public void flush() throws IOException {
+					bos.flush();
+					super.flush();
+				}
+			};
+
+			var image = com.google.code.appengine.imageio.ImageIO.read(info.getResourceAsStream());
+			com.google.code.appengine.imageio.ImageIO.write(image, "png", fs);
+
+			temp.moveTo(file);
+
+			var pngData = bos.toByteArray();
+			Pixmap pixmap = new Pixmap(pngData, 0, pngData.length);
+			System.out.println("[WRITE_BLP_PNG] " + file.path());
+			return rgbaEncode(image);
+		}
+		else {
+
+			// load converted png from cache for the blp.
+//			System.out.println("[LOAD_BLP_PNG] " + file.path());
+			var image = com.google.code.appengine.imageio.ImageIO.read(file.file());
+			return rgbaEncode(image);
+		}
+	}
+	static RgbaImageBuffer rgbaEncode(BufferedImage image){
+		int batchSize = 64;
+		var task = MtPixelTask.create(image::getRGB, image.getWidth(), image.getHeight(), batchSize);
+		return task.read();
+	}
+
 	/**
 	 * @param res blp/jpeg/png/dds/tga should be supported by awt-imageio
 	 * @return

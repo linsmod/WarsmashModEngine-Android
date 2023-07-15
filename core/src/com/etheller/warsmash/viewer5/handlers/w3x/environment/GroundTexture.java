@@ -22,7 +22,7 @@ public class GroundTexture {
 		ResourceInfo info = new ResourceInfo(dataSource, path, path);
 		if (path.endsWith(".blp")) {
 			System.out.println("[BLP_DECODE] " + path);
-			var buffRGBA = ImageUtils.decodeBLP(info);
+			var buffRGBA = ImageUtils.decodeRes(info);
 //			var pixmap = ImageUtils.getPixmap(info);
 			loadImage(path, gl, buffRGBA.getBuffer(), buffRGBA.getWidth(), buffRGBA.getHeight(), null);
 		}
