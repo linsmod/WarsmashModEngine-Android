@@ -33,6 +33,7 @@ import com.hiveworkshop.blizzard.blp.BLPReaderSpi;
 import com.lin.imageio.plugins.jpeg.JPEGImageReaderSpi;
 import lin.threading.MtPixelTask;
 import lin.threading.RgbaImageBuffer;
+import net.hydromatic.linq4j.Linq;
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.Imaging;
 import org.apache.commons.imaging.common.bytesource.ByteSourceInputStream;
@@ -67,6 +68,7 @@ public final class ImageUtils {
 					return getTexture(res);
 				}
 			}
+			var files = Linq.of(dataSource.getListfile()).where(x -> x.endsWith(".blp")).toList();
 			System.err.println("[RES_NOT_FOUND] " + path + " IN ANY EXT");
 		}
 		catch (final IOException e) {
@@ -235,7 +237,8 @@ public final class ImageUtils {
 			return rgbaEncode(image);
 		}
 	}
-	static RgbaImageBuffer rgbaEncode(BufferedImage image){
+
+	static RgbaImageBuffer rgbaEncode(BufferedImage image) {
 		int batchSize = 64;
 		var task = MtPixelTask.create(image::getRGB, image.getWidth(), image.getHeight(), batchSize);
 		return task.read();

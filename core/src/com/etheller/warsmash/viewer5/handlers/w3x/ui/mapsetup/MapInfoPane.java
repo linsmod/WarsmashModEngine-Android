@@ -73,20 +73,20 @@ public class MapInfoPane {
 				.addSetPoint(new SetPoint(FramePoint.RIGHT, mapNameValue, FramePoint.LEFT, 0, 0));
 		minimapImageFrame.addSetPoint(new SetPoint(FramePoint.TOP, this.mapNameValue, FramePoint.BOTTOM, 0,
 				GameUI.convertY(uiViewport, -0.01f)));
-		
+
 		// Left-section
 		suggestedPlayersLabel.addSetPoint(new SetPoint(FramePoint.TOP, minimapImageFrame, FramePoint.BOTTOMLEFT, 0,
 				GameUI.convertY(uiViewport, -0.01f)));
 		mapSizeLabel.addSetPoint(new SetPoint(FramePoint.TOPLEFT, suggestedPlayersLabel, FramePoint.BOTTOMLEFT, 0, 0));
 		mapTilesetLabel.addSetPoint(new SetPoint(FramePoint.TOPLEFT, mapSizeLabel, FramePoint.BOTTOMLEFT, 0, 0));
-		
+
 		// Right-section
 		this.suggestedPlayersValue
 				.addSetPoint(new SetPoint(FramePoint.TOP, minimapImageFrame, FramePoint.BOTTOM,
-				GameUI.convertX(uiViewport, -0.005f), GameUI.convertY(uiViewport, -0.01f)));
+						GameUI.convertX(uiViewport, -0.005f), GameUI.convertY(uiViewport, -0.01f)));
 		this.mapSizeValue.addSetPoint(new SetPoint(FramePoint.TOP, suggestedPlayersValue, FramePoint.BOTTOM, 0, 0));
 		this.mapTilesetValue.addSetPoint(new SetPoint(FramePoint.TOP, mapSizeValue, FramePoint.BOTTOM, 0, 0));
-		
+
 		// Bottom
 		mapDescLabel.addSetPoint(new SetPoint(FramePoint.TOPLEFT, mapTilesetLabel, FramePoint.BOTTOMLEFT, 0, GameUI.convertY(uiViewport, -0.01f)));
 		this.mapDescValue.clearFramePointAssignments();
@@ -156,9 +156,15 @@ public class MapInfoPane {
 		}
 		else {
 			try {
-				minimapTexture = ImageUtils.getAnyExtensionTexture(map, "war3mapPreview.blp");
+				minimapTexture = ImageUtils.getAnyExtensionTexture(map, "war3mapMap.blp");
 				if (minimapTexture != null) {
 					this.lastUnmanagedTexture = minimapTexture;
+				}
+				else {
+					minimapTexture = ImageUtils.getAnyExtensionTexture(map, "war3mapPreview.blp");
+					if (minimapTexture != null) {
+						this.lastUnmanagedTexture = minimapTexture;
+					}
 				}
 			}
 			catch (final Exception exc) {
@@ -175,7 +181,7 @@ public class MapInfoPane {
 		toggleMapInfo(true);
 	}
 
-	public void toggleMapInfo(final boolean visible){
+	public void toggleMapInfo(final boolean visible) {
 		this.mapInfoPaneFrame.setVisible(visible);
 		this.maxPlayersIcon.setVisible(visible);
 		this.maxPlayersValue.setVisible(visible);

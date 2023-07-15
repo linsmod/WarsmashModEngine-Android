@@ -36,20 +36,20 @@ public class AndroidLauncher extends AndroidApplication {
 		config.useGL30 = true;
 		initialize(game, config);
 
-//		Gdx.app.postRunnable(() -> {
-//			// WebGL test
-//			try {
-//				WebGL webGL = new WebGL(Gdx.gl30);
-//				webGL.createShaderProgram(TerrainShaders.Terrain.codes());
-//				webGL.createShaderProgram(TerrainShaders.Cliffs.codes());
-//				webGL.createShaderProgram(TerrainShaders.Water.codes());
-//				webGL.createShaderProgram(W3xShaders.UberSplat.codes());
-//			}
-//			catch (Exception ex) {
-//				ex.printStackTrace();
-//				Gdx.app.exit();
-//			}
-//		});
+		Gdx.app.postRunnable(() -> {
+			// WebGL test
+			try {
+				WebGL webGL = new WebGL(Gdx.gl30);
+				webGL.createShaderProgram(TerrainShaders.Terrain.codes());
+				webGL.createShaderProgram(TerrainShaders.Cliffs.codes());
+				webGL.createShaderProgram(TerrainShaders.Water.codes());
+				webGL.createShaderProgram(W3xShaders.UberSplat.codes());
+			}
+			catch (Exception ex) {
+				ex.printStackTrace();
+				Gdx.app.exit();
+			}
+		});
 
 
 //		WarCraft3.RunGame(game);

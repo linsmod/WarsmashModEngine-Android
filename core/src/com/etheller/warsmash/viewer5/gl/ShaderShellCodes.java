@@ -15,8 +15,8 @@ public class ShaderShellCodes {
 			fshPath = "gles3.2/" + fshPath;
 		}
 		else {
-			vshPath = "gles3.2/" + vshPath;
-			fshPath = "gles3.2/" + fshPath;
+			vshPath = "gl3.3/" + vshPath;
+			fshPath = "gl3.3/" + fshPath;
 		}
 
 		vshLines.addAll(Linq.of(Gdx.files.internal(vshPath).readString().split("\n")) .toList());
