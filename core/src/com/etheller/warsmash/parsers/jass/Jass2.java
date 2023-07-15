@@ -1,6 +1,5 @@
 package com.etheller.warsmash.parsers.jass;
 
-import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,6 +8,7 @@ import java.util.List;
 import java.util.Locale;
 
 import com.etheller.warsmash.viewer5.handlers.w3x.simulation.util.*;
+import com.google.code.appengine.awt.geom.Point2D;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
