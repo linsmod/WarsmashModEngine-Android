@@ -70,9 +70,33 @@ public class WebGL {
 
 			vertexSrc = vertexSrc.replace("#version 330 core", "#version 320 es");
 			fragmentSrc = fragmentSrc.replace("#version 330 core", "#version 320 es");
-			vertexSrc = vertexSrc.replace("texture2D(", "texture(");
-			fragmentSrc = fragmentSrc.replace("texture2D(", "texture(");
+//			vertexSrc = vertexSrc.replace("texture2D(", "texture(");
+//			fragmentSrc = fragmentSrc.replace("texture2D(", "texture(");
 		}
+		final int hash = stringHash(vertexSrc + fragmentSrc);
+		ShaderProgram.pedantic = false;
+		if (!shaderPrograms.containsKey(hash)) {
+			shaderPrograms.put(hash, new ShaderProgram(vertexSrc, fragmentSrc));
+		}
+
+		final ShaderProgram shaderProgram = shaderPrograms.get(hash);
+
+		if (shaderProgram.isCompiled()) {
+			return shaderProgram;
+		}
+		else {
+			System.err.println(shaderProgram.getLog());
+			if (true) {
+				throw new IllegalStateException("Bad shader");
+			}
+		}
+		return null;
+	}
+
+		public ShaderProgram createShaderProgram(ShaderShellCodes codes) {
+		String vertexSrc = codes.vsh();
+		String fragmentSrc = codes.fsh();
+		final Map<Integer, ShaderProgram> shaderPrograms = this.shaderPrograms;
 		final int hash = stringHash(vertexSrc + fragmentSrc);
 		ShaderProgram.pedantic = false;
 		if (!shaderPrograms.containsKey(hash)) {

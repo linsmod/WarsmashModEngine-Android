@@ -1,6 +1,5 @@
 package com.etheller.warsmash.viewer5.handlers.w3x.simulation.abilities.build;
 
-import java.awt.image.BufferedImage;
 import java.util.*;
 
 import com.etheller.warsmash.util.War3ID;
@@ -20,6 +19,7 @@ import com.etheller.warsmash.viewer5.handlers.w3x.simulation.util.AbilityActivat
 import com.etheller.warsmash.viewer5.handlers.w3x.simulation.util.AbilityTargetCheckReceiver;
 import com.etheller.warsmash.viewer5.handlers.w3x.simulation.util.CommandStringErrorKeys;
 import com.etheller.warsmash.viewer5.handlers.w3x.simulation.util.ResourceType;
+import com.google.code.appengine.awt.image.BufferedImage;
 
 public abstract class AbstractCAbilityBuild extends AbstractCAbility implements CAbilityMenu {
 	private static boolean REFUND_ON_ORDER_CANCEL = false;

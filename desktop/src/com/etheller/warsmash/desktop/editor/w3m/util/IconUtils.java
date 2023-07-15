@@ -3,7 +3,7 @@ package com.etheller.warsmash.desktop.editor.w3m.util;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.image.BufferedImage;
+import com.google.code.appengine.awt.image.BufferedImage;
 import java.io.IOException;
 
 import com.etheller.warsmash.datasources.DataSource;

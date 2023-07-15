@@ -1,6 +1,7 @@
 package com.etheller.warsmash.viewer5.handlers.w3x.environment;
 
 import com.etheller.warsmash.viewer5.Shaders;
+import com.etheller.warsmash.viewer5.gl.ShaderShellCodes;
 
 /**
  * Mostly copied from HiveWE!
@@ -9,7 +10,9 @@ public class TerrainShaders {
 	public static final class Cliffs {
 		private Cliffs() {
 		}
-
+		public static ShaderShellCodes codes(){
+			return new ShaderShellCodes("TerrainShaders.Cliffs.vert.glsl","TerrainShaders.Cliffs.frag.glsl");
+		}
 		public static final String vert() {
 			return "#version 330 core\r\n" + //
 					"\r\n" + //
@@ -114,8 +117,12 @@ public class TerrainShaders {
 				"}";
 	}
 
+
 	public static final class Terrain {
 		private Terrain() {
+		}
+		public static ShaderShellCodes codes(){
+			return new ShaderShellCodes("TerrainShaders.Terrain.vert.glsl","TerrainShaders.Terrain.frag.glsl");
 		}
 
 		public static final String vert() {
@@ -302,7 +309,9 @@ public class TerrainShaders {
 	public static final class Water {
 		private Water() {
 		}
-
+		public static ShaderShellCodes codes(){
+			return new ShaderShellCodes("TerrainShaders.Water.vert.glsl","TerrainShaders.Water.frag.glsl");
+		}
 		public static final String vert() {
 			return "#version 330 core\r\n" + //
 					"\r\n" + //

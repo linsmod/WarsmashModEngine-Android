@@ -1,6 +1,5 @@
 package com.etheller.warsmash.viewer5.handlers.w3x;
 
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -19,14 +18,14 @@ import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import javax.imageio.ImageIO;
-
 import com.badlogic.gdx.Application;
 import com.etheller.warsmash.viewer5.handlers.w3x.lightning.LightningEffectModel;
 import com.etheller.warsmash.viewer5.handlers.w3x.lightning.LightningEffectModelHandler;
 import com.etheller.warsmash.viewer5.handlers.w3x.lightning.LightningEffectNode;
 import com.etheller.warsmash.viewer5.handlers.w3x.rendersim.*;
 import com.etheller.warsmash.viewer5.handlers.w3x.simulation.util.*;
+import com.google.code.appengine.awt.image.BufferedImage;
+import com.google.code.appengine.imageio.ImageIO;
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.compress.utils.SeekableInMemoryByteChannel;
 
@@ -275,11 +274,11 @@ public class War3MapViewer extends AbstractMdxModelViewer {
 
 		this.worldScene = addWorldScene();
 
-		if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
+		//if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
 			if (!this.dynamicShadowManager.setup(webGL)) {
 				throw new IllegalStateException("FrameBuffer setup failed");
 			}
-		}
+		//}
 
 		this.commandErrorListener = new SettableCommandErrorListener();
 		this.mapConfig = mapConfig;

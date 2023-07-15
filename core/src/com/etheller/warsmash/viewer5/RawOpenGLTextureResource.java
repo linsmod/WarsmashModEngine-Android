@@ -1,6 +1,6 @@
 package com.etheller.warsmash.viewer5;
 
-import java.awt.image.BufferedImage;
+import com.google.code.appengine.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -99,52 +99,6 @@ public abstract class RawOpenGLTextureResource extends Texture {
 	}
 
 	public void update(final BufferedImage image, final boolean sRGBFix) {
-		final GL20 gl = this.viewer.gl;
-
-		final int imageWidth = image.getWidth();
-		final int imageHeight = image.getHeight();
-		final int[] pixels = new int[imageWidth * imageHeight];
-		image.getRGB(0, 0, imageWidth, imageHeight, pixels, 0, imageWidth);
-
-		final ByteBuffer buffer = ByteBuffer.allocateDirect(imageWidth * imageHeight * BYTES_PER_PIXEL)
-										  .order(ByteOrder.nativeOrder());
-		// 4
-		// for
-		// RGBA,
-		// 3
-		// for
-		// RGB
-
-		for (int y = 0; y < imageHeight; y++) {
-			for (int x = 0; x < imageWidth; x++) {
-				final int pixel = pixels[(y * imageWidth) + x];
-				buffer.put((byte) ((pixel >> 16) & 0xFF)); // Red component
-				buffer.put((byte) ((pixel >> 8) & 0xFF)); // Green component
-				buffer.put((byte) (pixel & 0xFF)); // Blue component
-				buffer.put((byte) ((pixel >> 24) & 0xFF)); // Alpha component.
-				// Only for RGBA
-			}
-		}
-
-		buffer.flip();
-		this.data = buffer;
-
-		gl.glBindTexture(GL20.GL_TEXTURE_2D, this.handle);
-
-//		if ((this.width == imageWidth) && (this.height == imageHeight)) {
-//			gl.glTexSubImage2D(GL20.GL_TEXTURE_2D, 0, 0, 0, imageWidth, imageHeight, GL20.GL_RGBA,
-//					GL20.GL_UNSIGNED_BYTE, buffer);
-//		}
-//		else {
-		gl.glTexImage2D(GL20.GL_TEXTURE_2D, 0, sRGBFix ? GL30.GL_SRGB8_ALPHA8 : GL30.GL_RGBA8, imageWidth, imageHeight,
-				0, GL20.GL_RGBA, GL20.GL_UNSIGNED_BYTE, buffer);
-
-		this.width = imageWidth;
-		this.height = imageHeight;
-//		}
-	}
-
-	public void update(final com.google.code.appengine.awt.image.BufferedImage image, final boolean sRGBFix) {
 		final GL20 gl = this.viewer.gl;
 
 		final int imageWidth = image.getWidth();

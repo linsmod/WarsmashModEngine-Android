@@ -1,7 +1,5 @@
 package com.etheller.warsmash.viewer5.handlers.w3x.simulation.behaviors;
 
-import java.awt.geom.Point2D;
-import java.awt.geom.Point2D.Float;
 import java.util.List;
 
 import com.badlogic.gdx.math.Rectangle;
@@ -19,6 +17,7 @@ import com.etheller.warsmash.viewer5.handlers.w3x.simulation.abilities.targeting
 import com.etheller.warsmash.viewer5.handlers.w3x.simulation.abilities.targeting.AbilityTarget;
 import com.etheller.warsmash.viewer5.handlers.w3x.simulation.abilities.targeting.AbilityTargetVisitor;
 import com.etheller.warsmash.viewer5.handlers.w3x.simulation.pathing.CPathfindingProcessor;
+import com.google.code.appengine.awt.geom.Point2D;
 
 public class CBehaviorMove implements CBehavior {
 	private static boolean ALWAYS_INTERRUPT_MOVE = false;
@@ -84,7 +83,7 @@ public class CBehaviorMove implements CBehavior {
 		this.gridMapping = CPathfindingProcessor.isCollisionSizeBetterSuitedForCorners(
 				this.unit.getUnitType().getCollisionSize()) ? CPathfindingProcessor.GridMapping.CORNERS
 						: CPathfindingProcessor.GridMapping.CELLS;
-		this.target = new Float(followUnit.getX(), followUnit.getY());
+		this.target = new Point2D.Float(followUnit.getX(), followUnit.getY());
 		this.path = null;
 		this.searchCycles = 0;
 		this.followUnit = followUnit;
@@ -253,7 +252,7 @@ public class CBehaviorMove implements CBehavior {
 						}
 						else {
 							System.out.println(this.path);
-							final Float removed = this.path.remove(0);
+							final Point2D.Float removed = this.path.remove(0);
 							System.out.println(
 									"We think we reached  " + removed + " because we are at " + nextX + "," + nextY);
 							final boolean emptyPath = this.path.isEmpty();

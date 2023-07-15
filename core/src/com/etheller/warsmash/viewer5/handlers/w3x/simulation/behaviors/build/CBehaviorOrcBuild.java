@@ -1,6 +1,6 @@
 package com.etheller.warsmash.viewer5.handlers.w3x.simulation.behaviors.build;
 
-import java.awt.image.BufferedImage;
+import com.google.code.appengine.awt.image.BufferedImage;
 import java.util.EnumSet;
 
 import com.etheller.warsmash.util.War3ID;

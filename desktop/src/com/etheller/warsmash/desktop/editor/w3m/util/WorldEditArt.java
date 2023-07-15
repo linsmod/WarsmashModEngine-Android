@@ -1,6 +1,6 @@
 package com.etheller.warsmash.desktop.editor.w3m.util;
 
-import java.awt.image.BufferedImage;
+import com.google.code.appengine.awt.image.BufferedImage;
 import java.io.IOException;
 
 import javax.swing.ImageIcon;

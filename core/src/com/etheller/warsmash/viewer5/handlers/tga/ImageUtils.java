@@ -1,10 +1,10 @@
 package com.etheller.warsmash.viewer5.handlers.tga;
 
-import java.awt.AlphaComposite;
-import java.awt.Composite;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.image.BufferedImage;
+import com.google.code.appengine.awt.AlphaComposite;
+import com.google.code.appengine.awt.Composite;
+import com.google.code.appengine.awt.Graphics2D;
+import com.google.code.appengine.awt.RenderingHints;
+import com.google.code.appengine.awt.image.BufferedImage;
 
 public class ImageUtils {
 

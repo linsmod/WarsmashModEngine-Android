@@ -1,12 +1,15 @@
 package com.etheller.warsmash.viewer5.handlers.w3x;
 
 import com.etheller.warsmash.viewer5.Shaders;
+import com.etheller.warsmash.viewer5.gl.ShaderShellCodes;
 
 public class W3xShaders {
 	public static final class UberSplat {
 		private UberSplat() {
 		}
-
+		public static ShaderShellCodes codes(){
+			return new ShaderShellCodes("W3xShaders.UberSplat.vert.glsl","W3xShaders.UberSplat.frag.glsl");
+		}
 		public static final String vert() {
 			return "\r\n" + //
 					"\r\n" + //

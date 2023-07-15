@@ -1,6 +1,5 @@
 package com.etheller.warsmash.viewer5.handlers.w3x.simulation;
 
-import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -17,6 +16,7 @@ import com.etheller.warsmash.viewer5.handlers.w3x.simulation.combat.CUpgradeClas
 import com.etheller.warsmash.viewer5.handlers.w3x.simulation.combat.attacks.CUnitAttack;
 import com.etheller.warsmash.viewer5.handlers.w3x.simulation.data.CUnitRace;
 import com.etheller.warsmash.viewer5.handlers.w3x.simulation.pathing.CBuildingPathingType;
+import com.google.code.appengine.awt.image.BufferedImage;
 
 /**
  * The quick (symbol table instead of map) lookup for unit type values that we

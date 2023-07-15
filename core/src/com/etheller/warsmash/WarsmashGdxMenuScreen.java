@@ -51,6 +51,7 @@ import com.etheller.warsmash.viewer5.handlers.w3x.AnimationTokens.SecondaryTag;
 import com.etheller.warsmash.viewer5.handlers.w3x.SequenceUtils;
 import com.etheller.warsmash.viewer5.handlers.w3x.War3MapViewer;
 import com.etheller.warsmash.viewer5.handlers.w3x.ui.MenuUI;
+import com.google.code.appengine.awt.Dimension;
 
 public class WarsmashGdxMenuScreen implements InputProcessor, Screen, SingleModelScreen {
 	private static final String MAPS_DOWNLOAD_DEFAULT = "Maps/Download";
@@ -193,23 +194,23 @@ public class WarsmashGdxMenuScreen implements InputProcessor, Screen, SingleMode
 			}
 			this.menuUI = new MenuUI(this.viewer.dataSource, this.uiViewport, this.uiScene, this.viewer, this.game,
 					this, this.warsmashIni, new RootFrameListener() {
-						@Override
-						public void onCreate(final GameUI rootFrame) {
+				@Override
+				public void onCreate(final GameUI rootFrame) {
 //						WarsmashGdxMapGame.this.viewer.setGameUI(rootFrame);
 
-							singleModelScene(WarsmashGdxMenuScreen.this.scene,
-									rootFrame.getSkinField("GlueSpriteLayerBackground"), "Stand");
-							if (!WarsmashGdxMenuScreen.this.mainModel.cameras.isEmpty()) {
-								WarsmashGdxMenuScreen.this.modelCamera = WarsmashGdxMenuScreen.this.mainModel.cameras
-										.get(0);
-							}
-							else {
-								WarsmashGdxMenuScreen.this.mainInstance.detach();
-								WarsmashGdxMenuScreen.this.mainInstance.setLocation(0, 0, 0);
-								WarsmashGdxMenuScreen.this.mainInstance.setScene(WarsmashGdxMenuScreen.this.uiScene);
-							}
-						}
-					}, new GamingNetworkConnectionImpl(server), mapDownloadDir);
+					singleModelScene(WarsmashGdxMenuScreen.this.scene,
+							rootFrame.getSkinField("GlueSpriteLayerBackground"), "Stand");
+					if (!WarsmashGdxMenuScreen.this.mainModel.cameras.isEmpty()) {
+						WarsmashGdxMenuScreen.this.modelCamera = WarsmashGdxMenuScreen.this.mainModel.cameras
+																		 .get(0);
+					}
+					else {
+						WarsmashGdxMenuScreen.this.mainInstance.detach();
+						WarsmashGdxMenuScreen.this.mainInstance.setLocation(0, 0, 0);
+						WarsmashGdxMenuScreen.this.mainInstance.setScene(WarsmashGdxMenuScreen.this.uiScene);
+					}
+				}
+			}, new GamingNetworkConnectionImpl(server), mapDownloadDir);
 
 			final ModelInstance libgdxContentInstance = new LibGDXContentLayerModel(null, this.viewer, "",
 					PathSolver.DEFAULT, "").addInstance();
@@ -247,8 +248,10 @@ public class WarsmashGdxMenuScreen implements InputProcessor, Screen, SingleMode
 		this.tempRect.width = this.uiViewport.getScreenWidth();
 		this.tempRect.height = this.uiViewport.getScreenHeight();
 		this.uiScene.camera.viewport(this.tempRect);
+		System.out.println("uiScene.CAMERA.VIEWPOINT=" + this.tempRect);
 		final float worldWidth = this.uiViewport.getWorldWidth();
 		final float worldHeight = this.uiViewport.getWorldHeight();
+		System.out.println("uiViewport.WorldSize=" + new Dimension((int) worldWidth, (int) worldHeight));
 		final float xScale = worldWidth / getMinWorldWidth();
 		final float yScale = worldHeight / getMinWorldHeight();
 		final float uiSceneWidth = 0.8f * xScale;
@@ -376,12 +379,12 @@ public class WarsmashGdxMenuScreen implements InputProcessor, Screen, SingleMode
 					}
 				}, null);
 		final MdxModel mineEffectModel = (MdxModel) this.viewer
-				.load("abilities\\spells\\undead\\undeadmine\\undeadminecircle.mdx", new PathSolver() {
-					@Override
-					public SolvedPath solve(final String src, final Object solverParams) {
-						return new SolvedPath(src, src.substring(src.lastIndexOf('.')), true);
-					}
-				}, null);
+															.load("abilities\\spells\\undead\\undeadmine\\undeadminecircle.mdx", new PathSolver() {
+																@Override
+																public SolvedPath solve(final String src, final Object solverParams) {
+																	return new SolvedPath(src, src.substring(src.lastIndexOf('.')), true);
+																}
+															}, null);
 		for (int i = 0; i < 5; i++) {
 			final MdxComplexInstance acolyteInstance = (MdxComplexInstance) acolyteModel.addInstance(0);
 
@@ -440,12 +443,12 @@ public class WarsmashGdxMenuScreen implements InputProcessor, Screen, SingleMode
 					}
 				}, null);
 		final MdxModel mineEffectModel = (MdxModel) this.viewer
-				.load("abilities\\spells\\undead\\undeadmine\\undeadminecircle.mdx", new PathSolver() {
-					@Override
-					public SolvedPath solve(final String src, final Object solverParams) {
-						return new SolvedPath(src, src.substring(src.lastIndexOf('.')), true);
-					}
-				}, null);
+															.load("abilities\\spells\\undead\\undeadmine\\undeadminecircle.mdx", new PathSolver() {
+																@Override
+																public SolvedPath solve(final String src, final Object solverParams) {
+																	return new SolvedPath(src, src.substring(src.lastIndexOf('.')), true);
+																}
+															}, null);
 		for (int i = 0; i < 5; i++) {
 			final MdxComplexInstance acolyteInstance = (MdxComplexInstance) acolyteModel.addInstance(0);
 
@@ -496,12 +499,12 @@ public class WarsmashGdxMenuScreen implements InputProcessor, Screen, SingleMode
 
 		mineInstance.setSequenceLoopMode(SequenceLoopMode.ALWAYS_LOOP);
 		final MdxModel mineModel2 = (MdxModel) this.viewer
-				.load("abilities\\spells\\undead\\unsummon\\unsummontarget.mdx", new PathSolver() {
-					@Override
-					public SolvedPath solve(final String src, final Object solverParams) {
-						return new SolvedPath(src, src.substring(src.lastIndexOf('.')), true);
-					}
-				}, null);
+													   .load("abilities\\spells\\undead\\unsummon\\unsummontarget.mdx", new PathSolver() {
+														   @Override
+														   public SolvedPath solve(final String src, final Object solverParams) {
+															   return new SolvedPath(src, src.substring(src.lastIndexOf('.')), true);
+														   }
+													   }, null);
 		final MdxComplexInstance mineInstance2 = (MdxComplexInstance) mineModel2.addInstance(0);
 
 		mineInstance2.setScene(scene);
@@ -564,8 +567,8 @@ public class WarsmashGdxMenuScreen implements InputProcessor, Screen, SingleMode
 		this.cameraManager.updateCamera();
 		this.menuUI.update(deltaTime);
 		if ((this.mainInstance != null) && this.mainInstance.sequenceEnded
-				&& (((this.mainModel.getSequences().get(this.mainInstance.sequence).getFlags() & 0x1) == 0)
-						|| !this.hasPlayedStandHack)) {
+					&& (((this.mainModel.getSequences().get(this.mainInstance.sequence).getFlags() & 0x1) == 0)
+								|| !this.hasPlayedStandHack)) {
 			SequenceUtils.randomSequence(this.mainInstance, PrimaryTag.STAND, this.tags, true);
 			this.hasPlayedStandHack = true;
 		}
@@ -603,13 +606,15 @@ public class WarsmashGdxMenuScreen implements InputProcessor, Screen, SingleMode
 				this.tempRect.y = dy;
 			}
 		}
+		System.out.println("CAMERA.VIEWPOINT=" + this.tempRect);
 		this.cameraManager.camera.viewport(this.tempRect);
 
 //		super.resize(width, height);
 
 		this.uiViewport.update(width, height);
+		System.out.println("VIEWPOINT.SIZE="+new Dimension(width,height));
 		this.uiCamera.position.set(getMinWorldWidth() / 2, getMinWorldHeight() / 2, 0);
-
+		System.out.println("CAMERA.POSITION=" + this.uiCamera.position);
 		this.menuUI.resize();
 		updateUIScene();
 

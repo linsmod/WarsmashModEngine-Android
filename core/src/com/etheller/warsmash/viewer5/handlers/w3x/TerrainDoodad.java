@@ -1,12 +1,12 @@
 package com.etheller.warsmash.viewer5.handlers.w3x;
 
-import java.awt.image.BufferedImage;
 
 import com.badlogic.gdx.math.Quaternion;
 import com.etheller.warsmash.units.manager.MutableObjectData.MutableGameObject;
 import com.etheller.warsmash.util.RenderMathUtils;
 import com.etheller.warsmash.viewer5.handlers.mdx.MdxComplexInstance;
 import com.etheller.warsmash.viewer5.handlers.mdx.MdxModel;
+import com.google.code.appengine.awt.image.BufferedImage;
 
 public class TerrainDoodad {
 	private static final float[] locationHeap = new float[3];

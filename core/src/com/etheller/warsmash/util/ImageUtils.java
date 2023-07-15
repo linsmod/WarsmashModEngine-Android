@@ -1,17 +1,9 @@
 package com.etheller.warsmash.util;
 
-import java.awt.Transparency;
-import java.awt.color.ColorSpace;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
 import java.io.*;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
-import javax.imageio.ImageIO;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
@@ -25,6 +17,13 @@ import com.etheller.warsmash.datasources.CompoundDataSource;
 import com.etheller.warsmash.datasources.DataSource;
 import com.etheller.warsmash.viewer5.handlers.ResourceInfo;
 import com.etheller.warsmash.viewer5.handlers.tga.TgaFile;
+import com.google.code.appengine.awt.Transparency;
+import com.google.code.appengine.awt.color.ColorSpace;
+import com.google.code.appengine.awt.image.BufferedImage;
+import com.google.code.appengine.awt.image.ColorModel;
+import com.google.code.appengine.awt.image.ComponentColorModel;
+import com.google.code.appengine.awt.image.DataBuffer;
+import com.google.code.appengine.imageio.ImageIO;
 import com.google.code.appengine.imageio.spi.IIORegistry;
 import com.google.code.appengine.imageio.spi.ImageReaderSpi;
 import com.google.common.base.Strings;
@@ -254,7 +253,7 @@ public final class ImageUtils {
 		else {
 
 			// load converted png from cache for the blp.
-			System.out.println("[LOAD_BLP_PNG] " + file.path());
+//			System.out.println("[LOAD_BLP_PNG] " + file.path());
 			Pixmap pixmap = new Pixmap(file);
 			try {
 				var size = Imaging.getImageSize(info.getResourceAsStream(), info.path);
