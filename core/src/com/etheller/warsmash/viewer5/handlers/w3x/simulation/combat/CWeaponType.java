@@ -13,7 +13,7 @@ public enum CWeaponType {
 	MLINE;
 
 	public static CWeaponType parseWeaponType(final String weaponTypeString) {
-		if(weaponTypeString=="_")
+		if (weaponTypeString.equals("_"))
 			return CWeaponType.NONE;
 		return valueOf(weaponTypeString.toUpperCase());
 	}
