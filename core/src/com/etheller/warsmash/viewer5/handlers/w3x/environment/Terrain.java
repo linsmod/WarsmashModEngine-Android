@@ -266,8 +266,7 @@ public class Terrain {
 			final String texFile = cliffInfo.getField("texFile");
 
 //TODO rgb color correct ?
-			var blp = ImageUtils.decodeBLP(new ResourceInfo(dataSource, texDir + "\\" + texFile + texturesExt));
-
+			var blp = ImageUtils.decodeRes(new ResourceInfo(dataSource, texDir + "\\" + texFile + texturesExt));
 
 			//final AnyExtensionImage imageInfo = ImageUtils.getAnyExtensionImageFixRGB(dataSource,
 			//		texDir + "\\" + texFile + texturesExt, "cliff texture");
@@ -382,7 +381,7 @@ public class Terrain {
 			int waterImageDimension = 128;
 			for (int i = 0; i < this.waterTextureCount; i++) {
 				String blpPath = fileName + (i < 10 ? "0" : "") + Integer.toString(i) + texturesExt;
-				var blp = ImageUtils.decodeBLP(new ResourceInfo(dataSource, blpPath));
+				var blp = ImageUtils.decodeRes(new ResourceInfo(dataSource, blpPath));
 //				final AnyExtensionImage imageInfo = ImageUtils.getAnyExtensionImageFixRGB(dataSource,
 //						blpPath, "water texture");
 //				final BufferedImage image = imageInfo.getImageData();

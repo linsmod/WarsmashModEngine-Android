@@ -1546,6 +1546,8 @@ public final class GameUI extends AbstractUIFrame implements UIFrame {
 	}
 
 	public Texture loadTexture(String path) {
+		if("".equals(path))
+			return null;
 		final int lastDotIndex = path.lastIndexOf('.');
 		if (lastDotIndex == -1) {
 			path = path + ".blp";
