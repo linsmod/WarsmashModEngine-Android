@@ -22,7 +22,7 @@ public class DynamicFontGeneratorHolder {
 	public FontGeneratorHolder getFontGenerator(final String font) {
 		FontGeneratorHolder fontGenerator = this.fontNameToGenerator.get(font);
 		if (fontGenerator == null) {
-			final String fontName = this.skin.getField(font);
+			String fontName = font == "MasterFont" ? "zh-hans.ttf" : this.skin.getField(font);
 			if (fontName == null) {
 				throw new IllegalStateException("No such font: " + font);
 			}
