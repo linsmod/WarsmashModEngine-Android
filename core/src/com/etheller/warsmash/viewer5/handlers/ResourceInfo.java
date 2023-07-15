@@ -35,9 +35,18 @@ public class ResourceInfo {
 	}
 
 	public String getCachePath(String cacheFolder, String extAppend) {
+		if (this.resolvedPath.contains("ReplaceableTextures")) {
+			return rTrailSlash(GdxEnv.EXTERNAL_STORAGE_ROOT)
+						   + File.separator
+						   + rheadSlash(rTrailSlash(cacheFolder))
+						   + File.separator
+						   + rheadSlash(this.resolvedPath)
+						   + ((Strings.isNullOrEmpty(extAppend) || extAppend.startsWith(".")) ? extAppend : "." + extAppend);
+		}
 		return rTrailSlash(GdxEnv.EXTERNAL_STORAGE_ROOT)
 					   + File.separator
-					   + rheadSlash(rTrailSlash(cacheFolder)) + File.separator
+					   + rheadSlash(rTrailSlash(cacheFolder))
+					   + File.separator
 					   + this.getDirectDataSource().getPathName()
 					   + File.separator
 					   + rheadSlash(this.resolvedPath)

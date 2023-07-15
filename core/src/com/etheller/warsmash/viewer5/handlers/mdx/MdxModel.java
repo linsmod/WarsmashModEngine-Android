@@ -163,24 +163,28 @@ public class MdxModel extends com.etheller.warsmash.viewer5.Model<MdxHandler> {
 		final GL20 gl = viewer.gl;
 
 		// Textures.
+		MdlxTexture prevTexture = null;
 		for (final MdlxTexture texture : parser.getTextures()) {
 			String path = texture.getPath();
 			final int replaceableId = texture.getReplaceableId();
 			final WrapMode wrapMode = texture.getWrapMode();
-			if (replaceableId != 0) {
+			if ("".equals(path)) {
+				path = "Textures\\white.blp";
+			}
+			else if (replaceableId == 21 && prevTexture != null) {
+				path = prevTexture.path;
+			}
+			else if (replaceableId != 0) {
 				// TODO This uses dumb, stupid, terrible, no-good hardcoded replaceable IDs
 				// instead of the real system, because currently MdxSimpleInstance is not
 				// supporting it correctly.
 				final String idString = ((replaceableId == 1) || (replaceableId == 2)) ? ReplaceableIds.getIdString(0)
-												: "";
+												: this.name;
 				path = "ReplaceableTextures\\" + ReplaceableIds.getPathString(replaceableId) + idString + ".blp";
 			}
 
 			if (reforged && !path.endsWith(".dds")) {
 				path = path.substring(0, path.length() - 4) + ".dds";
-			}
-			else if ("".equals(path)) {
-				path = "Textures\\white.blp";
 			}
 
 			final Texture viewerTexture = (Texture) viewer.load(path, pathSolver, solverParams);
@@ -196,6 +200,7 @@ public class MdxModel extends com.etheller.warsmash.viewer5.Model<MdxHandler> {
 
 			this.replaceables.add(replaceableId);
 			this.textures.add(viewerTexture);
+			prevTexture = texture;
 		}
 
 		// Geoset animations

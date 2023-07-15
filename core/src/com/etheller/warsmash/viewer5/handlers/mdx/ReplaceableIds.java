@@ -16,7 +16,7 @@ public class ReplaceableIds {
 		REPLACEABLE_ID_TO_STR.put(Long.valueOf(1), "TeamColor\\TeamColor");
 		REPLACEABLE_ID_TO_STR.put(Long.valueOf(2), "TeamGlow\\TeamGlow");
 		REPLACEABLE_ID_TO_STR.put(Long.valueOf(11), "Cliff\\Cliff0");
-		REPLACEABLE_ID_TO_STR.put(Long.valueOf(21), ""); // Used by all cursor models (HumanCursor, OrcCursor,
+		REPLACEABLE_ID_TO_STR.put(Long.valueOf(21), "UI\\Cursor"); // Used by all cursor models (HumanCursor, OrcCursor,
 															// UndeadCursor, NightElfCursor)
 		REPLACEABLE_ID_TO_STR.put(Long.valueOf(31), "LordaeronTree\\LordaeronSummerTree");
 		REPLACEABLE_ID_TO_STR.put(Long.valueOf(32), "AshenvaleTree\\AshenTree");

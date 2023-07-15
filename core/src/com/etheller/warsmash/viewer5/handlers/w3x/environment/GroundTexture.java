@@ -1,5 +1,6 @@
 package com.etheller.warsmash.viewer5.handlers.w3x.environment;
 
+import com.badlogic.gdx.assets.loaders.TextureLoader;
 import com.google.code.appengine.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.Buffer;
@@ -20,7 +21,7 @@ public class GroundTexture {
 	public GroundTexture(final String path, final DataSource dataSource, final GL30 gl) throws IOException {
 		ResourceInfo info = new ResourceInfo(dataSource, path, path);
 		if (path.endsWith(".blp")) {
-//			System.out.println("[BLP_DECODE] " + path);
+			System.out.println("[BLP_DECODE] " + path);
 			var buffRGBA = ImageUtils.decodeBLP(info);
 //			var pixmap = ImageUtils.getPixmap(info);
 			loadImage(path, gl, buffRGBA.getBuffer(), buffRGBA.getWidth(), buffRGBA.getHeight(), null);

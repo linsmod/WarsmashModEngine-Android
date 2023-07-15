@@ -54,32 +54,20 @@ public final class ImageUtils {
 	}
 
 	public static Texture getAnyExtensionTexture(final DataSource dataSource, final String path) {
-		BufferedImage image;
 		try {
-//			var extension = new FileHandle(path).extension();
-//			if (!Strings.isNullOrEmpty(extension)) {
-//
-//			}
-			if (dataSource.has(path)) {
-				var res = new ResourceInfo(dataSource, path);
-				return getTexture(res);
+			String[] paths = new String[]{
+					path,
+					changeExtension(path, ".tga"),
+					changeExtension(path, ".dds")
+			};
+			for (String maybePath :
+					paths) {
+				if (dataSource.has(maybePath)) {
+					var res = new ResourceInfo(dataSource, maybePath);
+					return getTexture(res);
+				}
 			}
-			else if (dataSource.has(changeExtension(path, ".tga"))) {
-				var res = new ResourceInfo(dataSource, changeExtension(path, ".tga"));
-				return getTexture(res);
-			}
-			else if (dataSource.has(changeExtension(path, ".dds"))) {
-				var res = new ResourceInfo(dataSource, changeExtension(path, ".dds"));
-				return getTexture(res);
-			}
-			else {
-				System.err.println("[RES_NOT_FOUND] " + path);
-			}
-//			final AnyExtensionImage imageInfo = getAnyExtensionImageFixRGB(dataSource, path, "texture");
-//			image = imageInfo.getImageData();
-//			if (image != null) {
-//				return ImageUtils.getTexture(image, imageInfo.isNeedsSRGBFix());
-//			}
+			System.err.println("[RES_NOT_FOUND] " + path + " IN ANY EXT");
 		}
 		catch (final IOException e) {
 			return null;
@@ -90,7 +78,9 @@ public final class ImageUtils {
 	public static String changeExtension(String f, String newExtension) {
 		int i = f.lastIndexOf('.');
 		String name = f.substring(0, i);
-		return new File(f, name + newExtension).getPath();
+		String path = new File(name + newExtension).getPath();
+//		System.out.println("[changeExtension] input=" + f + " output=" + path);
+		return path;
 	}
 
 	public static AnyExtensionImage getAnyExtensionImageFixRGB(final DataSource dataSource, final String path,
