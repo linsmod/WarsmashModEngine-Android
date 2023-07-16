@@ -50,46 +50,6 @@ public class BlpGdxTexture extends GdxTextureResource {
 			final Texture texture = new Texture(pixmap);
 			setFilter(texture);
 			setGdxTexture(texture);
-//			String path = info.getCachePath("blp2png", ".png");
-//			var file = Gdx.files.external(path);
-//			if (!file.exists()) {
-//				file.parent().mkdirs();
-//
-//				ByteArrayOutputStream bos = new ByteArrayOutputStream(100 << 10);
-//				var fs= new FileOutputStream( file.file()){
-//					@Override
-//					public void write(byte[] b, int off, int len) throws IOException {
-//						super.write(b, off, len);
-//						bos.write(b,off,len);
-//					}
-//
-//					@Override
-//					public void flush() throws IOException {
-//						bos.flush();
-//						super.flush();
-//					}
-//				};
-//				var rendered = ImageIO.read(src);
-//				ImageIO.write(rendered, "png", fs);
-//
-//				var pngData = bos.toByteArray();
-//				Pixmap pixmap = new Pixmap(pngData,0,pngData.length);
-//				final Texture texture = new Texture(pixmap);
-//				setFilter(texture);
-//				setGdxTexture(texture);
-//				pixmap.dispose();
-//
-//				System.out.println("[WRITE_BLP_PNG] " + file.path());
-//			}
-//			else {
-//				// load converted png from cache for the blp.
-//			System.out.println("[LOAD_BLP_PNG] " + file.path());
-//				Pixmap pixmap = new Pixmap(file);
-//				final Texture texture = new Texture(pixmap);
-//				setFilter(texture);
-//				setGdxTexture(texture);
-//				pixmap.dispose();
-//			}
 		}
 		catch (final IOException e) {
 			throw new RuntimeException(e);
