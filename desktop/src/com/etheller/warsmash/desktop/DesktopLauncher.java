@@ -15,6 +15,7 @@ import java.nio.FloatBuffer;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationDesktop;
+import com.badlogic.gdx.backends.lwjgl.audio.LwjglAudio;
 import com.etheller.warsmash.GdxEnv;
 import com.etheller.warsmash.audio.OpenALAudio;
 import com.etheller.warsmash.viewer5.gl.*;
@@ -50,13 +51,13 @@ public class DesktopLauncher extends LwjglApplication {
 		super(listener, config);
 	}
 
-//	@Override
-//	public LwjglAudio createAudio(LwjglApplicationConfiguration config) {
-//		OpenALAudio audio1 = new OpenALAudio();
-//		if(!audio1.noDevice)
-//			return audio1;
-//		return super.createAudio(config);
-//	}
+	@Override
+	public LwjglAudio createAudio(LwjglApplicationConfiguration config) {
+		OpenALAudio audio1 = new OpenALAudio();
+		if(!audio1.isNoDevice())
+			return audio1;
+		return super.createAudio(config);
+	}
 
 	public static void main(final String[] arg) {
 		System.out.println("Warsmash engine is starting...");
@@ -74,9 +75,9 @@ public class DesktopLauncher extends LwjglApplication {
 //		config.foregroundFPS = 0;
 //		config.backgroundFPS = 0;
 		final DisplayMode desktopDisplayMode = LwjglApplicationConfiguration.getDesktopDisplayMode();
-		config.width = 1024;
-		config.height = 768;
-		config.fullscreen = false;
+		config.width = desktopDisplayMode.width;
+		config.height = desktopDisplayMode.height;
+		config.fullscreen = true;
 		String fileToLoad = null;
 		String iniPath = null;
 		boolean noLogs = true;
@@ -122,7 +123,7 @@ public class DesktopLauncher extends LwjglApplication {
 			System.out.println("About to run loading file: " + fileToLoad);
 		}
 		final WarsmashGdxMultiScreenGame warsmashGdxMultiScreenGame = new WarsmashGdxMultiScreenGame();
-		new LwjglApplicationDesktop(warsmashGdxMultiScreenGame, config);
+		new DesktopLauncher(warsmashGdxMultiScreenGame, config);
 		GdxEnv.EXTERNAL_STORAGE_ROOT = Gdx.files.getExternalStoragePath();
 		final String finalFileToLoad = fileToLoad;
 

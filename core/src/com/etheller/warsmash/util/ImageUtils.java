@@ -68,8 +68,14 @@ public final class ImageUtils {
 					return getTexture(res);
 				}
 			}
-			var files = Linq.of(dataSource.getListfile()).where(x -> x.endsWith(".blp")).toList();
 			System.err.println("[RES_NOT_FOUND] " + path + " IN ANY EXT");
+			var kw = new FileHandle(path).nameWithoutExtension().toLowerCase();
+			var files = Linq.of(dataSource.getListfile())
+								.where(x -> x.toLowerCase().contains(kw)).toList();
+			for (String found :
+					files) {
+				System.out.println("maybe file: " + found);
+			}
 		}
 		catch (final IOException e) {
 			return null;
@@ -198,14 +204,14 @@ public final class ImageUtils {
 
 	public static RgbaImageBuffer decodeRes(ResourceInfo info) throws IOException {
 		var file = info.getCacheFile("blp2png", ".png");
-		var temp = info.getCacheFile("blp2png", ".png.tmp");
-		if (temp.exists())
-			temp.delete();
+//		var temp = info.getCacheFile("blp2png", ".png.tmp");
+//		if (temp.exists())
+//			temp.delete();
 		if (!file.exists()) {
 			file.parent().mkdirs();
 			ByteArrayOutputStream bos = new ByteArrayOutputStream(100 << 10);
 
-			var fs = new FileOutputStream(temp.file()) {
+			var fs = new FileOutputStream(file.file()) {
 				@Override
 				public void write(byte[] b, int off, int len) throws IOException {
 					super.write(b, off, len);
@@ -222,10 +228,8 @@ public final class ImageUtils {
 			var image = com.google.code.appengine.imageio.ImageIO.read(info.getResourceAsStream());
 			com.google.code.appengine.imageio.ImageIO.write(image, "png", fs);
 
-			temp.moveTo(file);
-
-			var pngData = bos.toByteArray();
-			Pixmap pixmap = new Pixmap(pngData, 0, pngData.length);
+//			temp.moveTo(file);
+//			temp.delete();
 			System.out.println("[WRITE_BLP_PNG] " + file.path());
 			return rgbaEncode(image);
 		}
@@ -259,14 +263,14 @@ public final class ImageUtils {
 	public static Pixmap getPixmap(ResourceInfo res) throws IOException {
 		final ResourceInfo info = res;
 		var file = info.getCacheFile("blp2png", ".png");
-		var temp = info.getCacheFile("blp2png", ".png.tmp");
-		if (temp.exists())
-			temp.delete();
+//		var temp = info.getCacheFile("blp2png", ".png.tmp");
+//		if (temp.exists())
+//			temp.delete();
 		if (!file.exists()) {
 			file.parent().mkdirs();
 			ByteArrayOutputStream bos = new ByteArrayOutputStream(100 << 10);
 
-			var fs = new FileOutputStream(temp.file()) {
+			var fs = new FileOutputStream(file.file()) {
 				@Override
 				public void write(byte[] b, int off, int len) throws IOException {
 					super.write(b, off, len);
@@ -283,7 +287,7 @@ public final class ImageUtils {
 			var image = com.google.code.appengine.imageio.ImageIO.read(res.getResourceAsStream());
 			com.google.code.appengine.imageio.ImageIO.write(image, "png", fs);
 
-			temp.moveTo(file);
+//			temp.moveTo(file);
 
 			var pngData = bos.toByteArray();
 			Pixmap pixmap = new Pixmap(pngData, 0, pngData.length);

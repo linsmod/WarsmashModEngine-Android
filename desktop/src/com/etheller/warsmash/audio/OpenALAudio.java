@@ -37,6 +37,7 @@ import static org.lwjgl.openal.AL10.alSourcei;
 
 import java.nio.FloatBuffer;
 
+import com.badlogic.gdx.backends.lwjgl.audio.LwjglAudio;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.openal.AL;
@@ -55,7 +56,7 @@ import com.badlogic.gdx.utils.LongMap;
 import com.badlogic.gdx.utils.ObjectMap;
 
 /** @author Nathan Sweet */
-public class OpenALAudio implements Audio {
+public class OpenALAudio implements LwjglAudio {
 	private final int deviceBufferSize;
 	private final int deviceBufferCount;
 	private IntArray idleSources, allSources;
@@ -68,7 +69,11 @@ public class OpenALAudio implements Audio {
 	private int mostRecetSound = -1;
 
 	Array<OpenALMusic> music = new Array(false, 1, OpenALMusic.class);
-	public boolean noDevice = false;
+	boolean noDevice = false;
+
+	public boolean isNoDevice(){
+		return this.noDevice;
+	}
 
 	public OpenALAudio() {
 		this(16, 9, 512);
