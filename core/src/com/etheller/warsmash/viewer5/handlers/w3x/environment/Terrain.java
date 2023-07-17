@@ -1,6 +1,7 @@
 package com.etheller.warsmash.viewer5.handlers.w3x.environment;
 
 import com.google.code.appengine.awt.image.BufferedImage;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.Buffer;
@@ -266,8 +267,9 @@ public class Terrain {
 			final String texFile = cliffInfo.getField("texFile");
 
 //TODO rgb color correct ?
-			var blp = ImageUtils.decodeRes(new ResourceInfo(dataSource, texDir + "\\" + texFile + texturesExt));
-
+			final String path = texDir + "\\" + texFile + texturesExt;
+			var blp = ImageUtils.decodeRes(new ResourceInfo(dataSource, path));
+			System.err.println("may need sRGB format. " + path);
 			//final AnyExtensionImage imageInfo = ImageUtils.getAnyExtensionImageFixRGB(dataSource,
 			//		texDir + "\\" + texFile + texturesExt, "cliff texture");
 			//final BufferedImage image = imageInfo.getRGBCorrectImageData();
@@ -1260,9 +1262,9 @@ public class Terrain {
 		final int height = texture.getHeight();
 		final int ox = (int) Math.round(width * 0.3);
 		final int oy = (int) Math.round(height * 0.7);
-		if(texture instanceof RawOpenGLTextureResource)
-		blitShadowDataLocation(columns, rows, (RawOpenGLTextureResource) texture, width, height, ox, oy,
-				this.centerOffset, shadowX, shadowY, this.shadowData);
+		if (texture instanceof RawOpenGLTextureResource)
+			blitShadowDataLocation(columns, rows, (RawOpenGLTextureResource) texture, width, height, ox, oy,
+					this.centerOffset, shadowX, shadowY, this.shadowData);
 //TODO blitShadowDataLocation to blpGdxTexture
 	}
 
@@ -1335,15 +1337,18 @@ public class Terrain {
 		for (final Map.Entry<String, Texture> fileAndTexture : this.shadowTextures.entrySet()) {
 			final String file = fileAndTexture.getKey();
 			final Texture texture = fileAndTexture.getValue();
-
+			if (texture == null) {
+				System.out.println("NULL texture. " + file);
+				continue;
+			}
 			final int width = texture.getWidth();
 			final int height = texture.getHeight();
 			final int ox = (int) Math.round(width * 0.3);
 			final int oy = (int) Math.round(height * 0.7);
 			for (final float[] location : this.shadows.get(file)) {
-				if(texture instanceof RawOpenGLTextureResource)
-				blitShadowDataLocation(columns, rows, (RawOpenGLTextureResource) texture, width, height, ox, oy,
-						centerOffset, location[0], location[1], this.shadowData);
+				if (texture instanceof RawOpenGLTextureResource)
+					blitShadowDataLocation(columns, rows, (RawOpenGLTextureResource) texture, width, height, ox, oy,
+							centerOffset, location[0], location[1], this.shadowData);
 				//TODO blitShadowDataLocation to blpGdxTexture
 			}
 		}
