@@ -36,6 +36,10 @@ public class CPathfindingProcessor {
 		this.worldCollision = worldCollision;
 		this.nodes = new Node[pathingGrid.getHeight()][pathingGrid.getWidth()];
 		this.cornerNodes = new Node[pathingGrid.getHeight() + 1][pathingGrid.getWidth() + 1];
+		this.pathingGridCellCount = pathingGrid.getWidth() * pathingGrid.getHeight();
+	}
+
+	private void initNodes() {
 		for (int i = 0; i < this.nodes.length; i++) {
 			for (int j = 0; j < this.nodes[i].length; j++) {
 				this.nodes[i][j] = new Node(new Point2D.Float(pathingGrid.getWorldX(j), pathingGrid.getWorldY(i)));
@@ -47,7 +51,6 @@ public class CPathfindingProcessor {
 						new Point2D.Float(pathingGrid.getWorldXFromCorner(j), pathingGrid.getWorldYFromCorner(i)));
 			}
 		}
-		this.pathingGridCellCount = pathingGrid.getWidth() * pathingGrid.getHeight();
 	}
 
 	/**
@@ -58,8 +61,6 @@ public class CPathfindingProcessor {
 	 * in college, and is meant only as a first draft to get things working.
 	 *
 	 * @param collisionSize
-	 *
-	 *
 	 * @param start
 	 * @param goal
 	 * @param playerIndex
@@ -70,6 +71,7 @@ public class CPathfindingProcessor {
 			final CUnit ignoreIntersectionsWithThisSecondUnit, final float startX, final float startY,
 			final Point2D.Float goal, final PathingGrid.MovementType movementType, final float collisionSize,
 			final boolean allowSmoothing, final CBehaviorMove queueItem) {
+		System.out.println("moveQueue job offered, goal=" + goal.x + " " + goal.y);
 		this.moveQueue.offer(new PathfindingJob(ignoreIntersectionsWithThisUnit, ignoreIntersectionsWithThisSecondUnit,
 				startX, startY, goal, movementType, collisionSize, allowSmoothing, queueItem));
 	}
@@ -214,7 +216,8 @@ public class CPathfindingProcessor {
 
 	public void update(final CSimulation simulation) {
 		int workIterations = 0;
-		JobsLoop: while (!this.moveQueue.isEmpty()) {
+		JobsLoop:
+		while (!this.moveQueue.isEmpty()) {
 			this.totalJobLoops++;
 			final PathfindingJob job = this.moveQueue.peek();
 			if (!job.jobStarted) {
@@ -240,6 +243,7 @@ public class CPathfindingProcessor {
 					continue JobsLoop;
 				}
 				tempRect.set(0, 0, job.collisionSize * 2, job.collisionSize * 2);
+				this.initNodes();
 				if (isCollisionSizeBetterSuitedForCorners(job.collisionSize)) {
 					job.searchGraph = this.cornerNodes;
 					job.gridMapping = GridMapping.CORNERS;
