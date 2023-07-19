@@ -44,7 +44,7 @@ public class MdxHandler extends ModelHandler {
 		this.shaders.particles = viewer.webGL.createShaderProgram(MdxShaders.vsParticles(), MdxShaders.fsParticles);
 		// Shaders.simple = viewer.webGL.createShaderProgram(MdxShaders.vsSimple,
 		// MdxShaders.fsSimple);
-		this.shaders.hd = viewer.webGL.createShaderProgram(MdxShaders.vsHd, MdxShaders.fsHd());
+		this.shaders.hd = viewer.webGL.createShaderProgram(MdxShaders.hdCodes());
 		// TODO HD reforged
 
 		// If a shader failed to compile, don't allow the handler to be registered, and

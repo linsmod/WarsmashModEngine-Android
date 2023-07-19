@@ -1,9 +1,13 @@
 package com.etheller.warsmash.viewer5.handlers.mdx;
 
 import com.etheller.warsmash.viewer5.Shaders;
+import com.etheller.warsmash.viewer5.gl.ShaderShellCodes;
 import com.etheller.warsmash.viewer5.handlers.mdx.MdxHandler.ShaderEnvironmentType;
 
 public class MdxShaders {
+	public static final ShaderShellCodes hdCodes(){
+		return new ShaderShellCodes("MdxShaders.vsHd.glsl","MdxShaders.fsHd.glsl");
+	}
 	public static final String vsHd = "#version 120\r\n" + Shaders.boneTexture + "\r\n" + //
 											  "    uniform mat4 u_VP;\r\n" + //
 											  "    uniform mat4 u_MV;\r\n" + //
