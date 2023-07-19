@@ -25,12 +25,6 @@ public class ShaderShellCodes {
 
 	public List<String> vshLines = new ArrayList<>();
 	public List<String> fshLines = new ArrayList<>();
-
-	public ShaderShellCodes vshPrependLine(String vsh) {
-		vshLines.add(0, vsh);
-		return this;
-	}
-
 	public String vsh() {
 		return String.join("\n", vshLines);
 	}
