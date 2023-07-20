@@ -13,6 +13,8 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.g2d.Gdx2DPixmap;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.etheller.warsmash.datasources.DataSource;
 import com.etheller.warsmash.viewer5.handlers.ResourceInfo;
 import com.etheller.warsmash.viewer5.handlers.tga.TgaFile;
@@ -330,19 +332,41 @@ public final class ImageUtils {
 		}
 		else {
 
+			try {
+				byte[] bytes = file.readBytes();
+				return new Pixmap(new Gdx2DPixmap(bytes, 0, bytes.length,Format.toGdx2DPixmapFormat(Format.RGBA8888) )){
+					@Override
+					public int getGLInternalFormat() {
+						return GL30.GL_SRGB8_ALPHA8;
+					}
+				};
+			} catch (Exception e) {
+				throw new GdxRuntimeException("Couldn't load file: " + file, e);
+			}
+
 			// load converted png from cache for the blp.
 //			System.out.println("[LOAD_BLP_PNG] " + file.path());
-			Pixmap pixmap = new Pixmap(file);
-			try {
-				var size = Imaging.getImageSize(info.getResourceAsStream(), info.path);
-				if (size.getHeight() != pixmap.getHeight() || size.getWidth() != pixmap.getWidth()) {
-					System.err.println("png cache broken.");
-				}
-			}
-			catch (ImageReadException e) {
-				throw new RuntimeException(e);
-			}
-			return pixmap;
+//			Pixmap pixmap = new Pixmap(file) {
+//				@Override
+//				public int getGLInternalFormat() {
+//					return GL30.GL_SRGB8_ALPHA8;
+//				}
+//
+//				@Override
+//				public int getGLFormat() {
+//					return GL30.GL_RGBA;
+//				}
+//			};
+//			try {
+//				var size = Imaging.getImageSize(info.getResourceAsStream(), info.path);
+//				if (size.getHeight() != pixmap.getHeight() || size.getWidth() != pixmap.getWidth()) {
+//					System.err.println("png cache broken.");
+//				}
+//			}
+//			catch (ImageReadException e) {
+//				throw new RuntimeException(e);
+//			}
+//			return pixmap;
 		}
 	}
 

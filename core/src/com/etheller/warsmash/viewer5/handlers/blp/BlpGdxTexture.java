@@ -38,7 +38,7 @@ public class BlpGdxTexture extends GdxTextureResource {
 	}
 
 	void setFilter(Texture texture) {
-//		texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+		texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 	}
 
 	@Override

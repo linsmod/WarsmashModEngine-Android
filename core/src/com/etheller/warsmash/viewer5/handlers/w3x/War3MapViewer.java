@@ -2414,6 +2414,7 @@ public class War3MapViewer extends AbstractMdxModelViewer {
 			}
 			final String allyKey = path.substring(0, 2);
 			final Splat locations = entry.getValue();
+			System.out.println("load SplatModel "+filePath);
 			final SplatModel model = new SplatModel(Gdx.gl30, (Texture) load(filePath, PathSolver.DEFAULT, null),
 					locations.locations, this.terrain.centerOffset, locations.unitMapping, true, false, true,
 					locations.aboveWater);
