@@ -274,11 +274,9 @@ public class War3MapViewer extends AbstractMdxModelViewer {
 
 		this.worldScene = addWorldScene();
 
-		//if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
 			if (!this.dynamicShadowManager.setup(webGL)) {
 				throw new IllegalStateException("FrameBuffer setup failed");
 			}
-		//}
 
 		this.commandErrorListener = new SettableCommandErrorListener();
 		this.mapConfig = mapConfig;

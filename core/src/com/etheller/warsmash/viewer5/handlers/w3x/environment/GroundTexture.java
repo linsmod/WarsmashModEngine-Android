@@ -1,16 +1,13 @@
 package com.etheller.warsmash.viewer5.handlers.w3x.environment;
 
-import com.badlogic.gdx.assets.loaders.TextureLoader;
-import com.google.code.appengine.awt.image.BufferedImage;
+import com.etheller.warsmash.util.AbstractBitmap;
+
 import java.io.IOException;
 import java.nio.Buffer;
 
 import com.badlogic.gdx.graphics.GL30;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
 import com.etheller.warsmash.datasources.DataSource;
 import com.etheller.warsmash.util.ImageUtils;
-import com.etheller.warsmash.util.ImageUtils.AnyExtensionImage;
 import com.etheller.warsmash.viewer5.handlers.ResourceInfo;
 
 public class GroundTexture {
@@ -22,9 +19,9 @@ public class GroundTexture {
 		ResourceInfo info = new ResourceInfo(dataSource, path, path);
 		if (path.endsWith(".blp")) {
 			System.out.println("[BLP_DECODE] " + path);
-			var buffRGBA = ImageUtils.decodeRes(info);
+			var bitmap = ImageUtils.decodeRes(info);
 //			var pixmap = ImageUtils.getPixmap(info);
-			loadImage(path, gl, buffRGBA.getBuffer(), buffRGBA.getWidth(), buffRGBA.getHeight(), null);
+			loadImage(path, gl, bitmap);
 		}
 		else {
 			System.err.println("[RES_DECODE_TODO] " + path);
@@ -36,15 +33,11 @@ public class GroundTexture {
 //		loadImage(path, gl, imageInfo.getImageData(), imageInfo.isNeedsSRGBFix());
 	}
 
-	private void loadImage(final String path, final GL30 gl, Buffer buffer, int width, int height, final Pixmap pixmap) {
-//		if (buffer == null) {
-//			throw new IllegalStateException("Missing ground texture: " + path);
-//		}
-		if (pixmap != null) {
-			width = pixmap.getWidth();
-			height = pixmap.getWidth();
-			buffer = pixmap.getPixels();
-		}
+	private void loadImage(final String path, final GL30 gl, AbstractBitmap bitmap) {
+		Buffer buffer = bitmap.getBuffer();
+		int width = bitmap.getWidth();
+		int height = bitmap.getHeight();
+
 		this.tileSize = (int) (height * 0.25);
 		this.extended = (width > height);
 

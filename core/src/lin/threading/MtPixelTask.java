@@ -43,7 +43,7 @@ public class MtPixelTask {
 		return new MtPixelTaskGroup(reader, w, h, list);
 	}
 
-	public void run(RgbaImageBuffer buffer, CountDownLatch latch, boolean postThread) {
+	public void run(DecodedBitmap buffer, CountDownLatch latch, boolean postThread) {
 		if (postThread) {
 			LinsThread.postThread(() -> this.read(buffer, latch));
 		}
@@ -52,7 +52,7 @@ public class MtPixelTask {
 		}
 	}
 
-	void read(RgbaImageBuffer buffer, CountDownLatch latch) {
+	void read(DecodedBitmap buffer, CountDownLatch latch) {
 		try {
 			int i = offset;
 			while (i < offset + pixels) {

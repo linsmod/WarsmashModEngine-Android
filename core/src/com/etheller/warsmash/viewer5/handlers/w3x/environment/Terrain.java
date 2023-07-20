@@ -1,6 +1,6 @@
 package com.etheller.warsmash.viewer5.handlers.w3x.environment;
 
-import com.google.code.appengine.awt.image.BufferedImage;
+import com.etheller.warsmash.util.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +19,7 @@ import java.util.TreeSet;
 import java.util.function.Consumer;
 
 import com.etheller.warsmash.viewer5.handlers.ResourceInfo;
-import lin.threading.RgbaImageBuffer;
+import lin.threading.DecodedBitmap;
 import org.apache.commons.compress.utils.IOUtils;
 
 import com.badlogic.gdx.Gdx;
@@ -37,11 +37,6 @@ import com.etheller.warsmash.parsers.w3x.w3i.War3MapW3i;
 import com.etheller.warsmash.parsers.w3x.wpm.War3MapWpm;
 import com.etheller.warsmash.units.DataTable;
 import com.etheller.warsmash.units.Element;
-import com.etheller.warsmash.util.ImageUtils;
-import com.etheller.warsmash.util.ImageUtils.AnyExtensionImage;
-import com.etheller.warsmash.util.RenderMathUtils;
-import com.etheller.warsmash.util.War3ID;
-import com.etheller.warsmash.util.WorldEditStrings;
 import com.etheller.warsmash.viewer5.Camera;
 import com.etheller.warsmash.viewer5.PathSolver;
 import com.etheller.warsmash.viewer5.RawOpenGLTextureResource;
@@ -378,12 +373,12 @@ public class Terrain {
 
 		if (waterInfo != null) {
 			final String fileName = waterInfo.getField("texFile");
-			final List<RgbaImageBuffer> waterTextures = new ArrayList<>();
+			final List<AbstractBitmap> waterTextures = new ArrayList<>();
 			boolean anyWaterTextureNeedsSRGB = false;
 			int waterImageDimension = 128;
 			for (int i = 0; i < this.waterTextureCount; i++) {
 				String blpPath = fileName + (i < 10 ? "0" : "") + Integer.toString(i) + texturesExt;
-				var blp = ImageUtils.decodeRes(new ResourceInfo(dataSource, blpPath));
+				var blp = ImageUtils.getBitmap(new ResourceInfo(dataSource, blpPath));
 //				final AnyExtensionImage imageInfo = ImageUtils.getAnyExtensionImageFixRGB(dataSource,
 //						blpPath, "water texture");
 //				final BufferedImage image = imageInfo.getImageData();

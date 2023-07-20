@@ -13,7 +13,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
-import com.etheller.warsmash.datasources.CompoundDataSource;
 import com.etheller.warsmash.datasources.DataSource;
 import com.etheller.warsmash.viewer5.handlers.ResourceInfo;
 import com.etheller.warsmash.viewer5.handlers.tga.TgaFile;
@@ -26,13 +25,12 @@ import com.google.code.appengine.awt.image.DataBuffer;
 import com.google.code.appengine.imageio.ImageIO;
 import com.google.code.appengine.imageio.spi.IIORegistry;
 import com.google.code.appengine.imageio.spi.ImageReaderSpi;
-import com.google.common.base.Strings;
 import com.hiveworkshop.blizzard.blp.BLPReadParam;
 import com.hiveworkshop.blizzard.blp.BLPReader;
 import com.hiveworkshop.blizzard.blp.BLPReaderSpi;
 import com.lin.imageio.plugins.jpeg.JPEGImageReaderSpi;
 import lin.threading.MtPixelTask;
-import lin.threading.RgbaImageBuffer;
+import lin.threading.DecodedBitmap;
 import net.hydromatic.linq4j.Linq;
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.Imaging;
@@ -46,10 +44,6 @@ public final class ImageUtils {
 	public static final String DEFAULT_ICON_PATH = "ReplaceableTextures\\CommandButtons\\BTNTemp.blp";
 
 	static {
-		// registration is important!!!
-		if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
-			javax.imageio.spi.IIORegistry.getDefaultInstance().registerServiceProvider(new BLPReaderSpi());
-		}
 		IIORegistry.getDefaultInstance().registerServiceProvider(new BLPReaderSpi());
 		IIORegistry.getDefaultInstance().registerServiceProvider(new JPEGImageReaderSpi());
 	}
@@ -177,11 +171,11 @@ public final class ImageUtils {
 		return texture;
 	}
 
-	public static RgbaImageBuffer decodeBLP(ResourceInfo info) throws IOException {
+	public static DecodedBitmap decodeBLP(ResourceInfo info) throws IOException {
 		return decodeBLP(info.getResourceAsStream());
 	}
 
-	public static RgbaImageBuffer decodeBLP(InputStream stream) throws IOException {
+	public static DecodedBitmap decodeBLP(InputStream stream) throws IOException {
 		BLPReader reader = new BLPReader(null);
 		reader.setInput(new ByteSourceInputStream(stream, null));
 		var image = reader.read(0, new BLPReadParam() {
@@ -202,7 +196,7 @@ public final class ImageUtils {
 		return task.read();
 	}
 
-	public static RgbaImageBuffer decodeRes(ResourceInfo info) throws IOException {
+	public static DecodedBitmap decodeRes(ResourceInfo info) throws IOException {
 		var file = info.getCacheFile("blp2png", ".png");
 //		var temp = info.getCacheFile("blp2png", ".png.tmp");
 //		if (temp.exists())
@@ -237,12 +231,13 @@ public final class ImageUtils {
 
 			// load converted png from cache for the blp.
 //			System.out.println("[LOAD_BLP_PNG] " + file.path());
+
 			var image = com.google.code.appengine.imageio.ImageIO.read(file.file());
 			return rgbaEncode(image);
 		}
 	}
 
-	static RgbaImageBuffer rgbaEncode(BufferedImage image) {
+	static DecodedBitmap rgbaEncode(BufferedImage image) {
 		int batchSize = 64;
 		var task = MtPixelTask.create(image::getRGB, image.getWidth(), image.getHeight(), batchSize);
 		return task.read();
@@ -258,6 +253,45 @@ public final class ImageUtils {
 		final Texture texture = new Texture(pixmap);
 		pixmap.dispose();
 		return texture;
+	}
+
+	public static AbstractBitmap getBitmap(ResourceInfo res) throws IOException {
+		Pixmap pixmap = getPixmap(res);
+		return new AbstractBitmap() {
+			ByteBuffer buffer;
+
+			@Override
+			public int getHeight() {
+				return pixmap.getWidth();
+			}
+
+			@Override
+			public int getWidth() {
+				return pixmap.getHeight();
+			}
+
+			@Override
+			public ByteBuffer getBuffer() {
+				if (buffer == null) {
+//					buffer = BufferUtils.createByteBuffer(pixmap.getWidth() * pixmap.getHeight() * 4);
+					buffer = ByteBuffer.allocateDirect(pixmap.getWidth() * pixmap.getHeight() * 4)
+									 .order(ByteOrder.nativeOrder());
+					for (int y = 0; y < pixmap.getHeight(); y++) {
+						for (int x = 0; x < pixmap.getWidth(); x++) {
+							int pixel = pixmap.getPixel(x, y);
+							pixel = (pixel >>> 8) | (pixel << (32 - 8));
+//							buffer.putInt((pixel >>> 8) | (pixel << (32 - 8)));
+							buffer.put((byte) ((pixel >> 16) & 0xFF));
+							buffer.put((byte) ((pixel >> 8) & 0xFF));
+							buffer.put((byte) ((pixel >> 0) & 0xFF));
+							buffer.put((byte) ((pixel >> 24) & 0xFF));
+						}
+					}
+					buffer.flip();
+				}
+				return buffer;
+			}
+		};
 	}
 
 	public static Pixmap getPixmap(ResourceInfo res) throws IOException {

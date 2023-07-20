@@ -61,28 +61,12 @@ public class GameLoader {
 		final DataTable warsmashIni = loadWarsmashIni("warsmash.ini");
 		final Element emulatorConstants = warsmashIni.get("Emulator");
 		WarsmashConstants.loadConstants(emulatorConstants, warsmashIni);
-//		AppSettings.initialize();
-
-		if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
-			Gdx.app.postRunnable(() -> {
-				WarsmashGdxMenuScreen menuScreen = new WarsmashGdxMenuScreen(warsmashIni, gameInitialized);
-
-				gameInitialized.setScreen(menuScreen);
-				System.out.println("done.");
-			});
-		}
-		else {
-			// bg thread
-//			menuScreen.load();
-
-			// ui thread
-			Gdx.app.postRunnable(() -> {
-				WarsmashGdxMenuScreen menuScreen = new WarsmashGdxMenuScreen(warsmashIni, gameInitialized);
-				menuScreen.show();
-				gameInitialized.setScreen(menuScreen);
-				System.out.println("done.");
-			});
-		}
+		Gdx.app.postRunnable(() -> {
+			WarsmashGdxMenuScreen menuScreen = new WarsmashGdxMenuScreen(warsmashIni, gameInitialized);
+			menuScreen.show();
+			gameInitialized.setScreen(menuScreen);
+			System.out.println("done.");
+		});
 	}
 
 	static DataTable loadWarsmashIni(final String iniPath) {

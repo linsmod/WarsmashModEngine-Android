@@ -1,25 +1,14 @@
 package lin.threading;
 
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.PixmapIO;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Gdx2DPixmap;
-import com.badlogic.gdx.graphics.g2d.PixmapPacker;
-import com.badlogic.gdx.utils.ByteArray;
-import com.google.code.appengine.imageio.ImageIO;
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteSource;
-import org.apache.commons.imaging.formats.tiff.TiffImageData;
+import com.etheller.warsmash.util.AbstractBitmap;
 import org.apache.harmony.luni.util.NotImplementedException;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public class RgbaImageBuffer {
+public class DecodedBitmap extends AbstractBitmap {
 	private final int height;
 	private final int width;
 	private int[] rgbArray;
@@ -42,7 +31,7 @@ public class RgbaImageBuffer {
 					   bytes[3] & 0x000000FF;
 	}
 
-	public RgbaImageBuffer(int[] rgbArray, ByteBuffer buff, int width, int height, int bytesPerPixel) {
+	public DecodedBitmap(int[] rgbArray, ByteBuffer buff, int width, int height, int bytesPerPixel) {
 		this.totalBytes = width * height * bytesPerPixel;
 		this.rgbArray = rgbArray == null ? new int[width * height] : rgbArray;
 		this.buffer = buff != null ? buff : ByteBuffer.allocateDirect(totalBytes)

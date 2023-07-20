@@ -61,18 +61,6 @@ public class WebGL {
 		vertexSrc = vertexSrc.replace("mediump float ", "float ");
 		fragmentSrc = fragmentSrc.replace("mediump float ", "float ");
 		final Map<Integer, ShaderProgram> shaderPrograms = this.shaderPrograms;
-//		if(Gdx.app.getType()== Application.ApplicationType.Android){
-//			vertexSrc = vertexSrc.replace("#version 120", "#version 100");
-//			fragmentSrc = fragmentSrc.replace("#version 120", "#version 100");
-//
-////			vertexSrc = vertexSrc.replace("#version 330 core", "");
-////			fragmentSrc = fragmentSrc.replace("#version 330 core", "");
-//
-//			vertexSrc = vertexSrc.replace("#version 330 core", "#version 320 es");
-//			fragmentSrc = fragmentSrc.replace("#version 330 core", "#version 320 es");
-////			vertexSrc = vertexSrc.replace("texture2D(", "texture(");
-////			fragmentSrc = fragmentSrc.replace("texture2D(", "texture(");
-//		}
 		final int hash = stringHash(vertexSrc + fragmentSrc);
 		ShaderProgram.pedantic = false;
 		if (!shaderPrograms.containsKey(hash)) {

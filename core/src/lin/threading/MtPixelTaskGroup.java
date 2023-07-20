@@ -17,16 +17,16 @@ public class MtPixelTaskGroup {
 		this.list = list;
 	}
 
-	public void readAsync(ByteBuffer buffer, PromiseFunctionGeneric<RgbaImageBuffer> runnable) {
+	public void readAsync(ByteBuffer buffer, PromiseFunctionGeneric<DecodedBitmap> runnable) {
 		LinsThread.bgTask(() -> read(buffer)).thenUITask(runnable);
 	}
-	public RgbaImageBuffer read() {
+	public DecodedBitmap read() {
 		return read(null);
 	}
-	public RgbaImageBuffer read(ByteBuffer byteBuffer) {
+	public DecodedBitmap read(ByteBuffer byteBuffer) {
 		int[] rgbArray = new int[w * h];
 		CountDownLatch latch = new CountDownLatch(list.size());
-		RgbaImageBuffer buffer = new RgbaImageBuffer(rgbArray,byteBuffer, w, h, 4);
+		DecodedBitmap buffer = new DecodedBitmap(rgbArray,byteBuffer, w, h, 4);
 		for (int i = 0; i < list.size(); i++) {
 			list.get(i).run(buffer, latch, true);
 		}
