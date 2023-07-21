@@ -119,6 +119,7 @@ project(":core") {
         implementation 'org.lwjgl.lwjgl:lwjgl:2.9.3'
         implementation 'com.badlogicgames.jlayer:jlayer:1.0.2-gdx'
         implementation 'org.jcraft:jorbis:0.0.17'
+        api "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
         api 'com.github.lintrust:android-awt-blp:1.0.0'
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"

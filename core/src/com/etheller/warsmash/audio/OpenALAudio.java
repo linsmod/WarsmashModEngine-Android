@@ -19,6 +19,7 @@ package com.etheller.warsmash.audio;
 import com.badlogic.gdx.Audio;
 import com.badlogic.gdx.audio.AudioDevice;
 import com.badlogic.gdx.audio.AudioRecorder;
+import com.badlogic.gdx.backends.lwjgl.audio.LwjglAudio;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.*;
@@ -35,7 +36,7 @@ import static org.lwjgl.openal.AL10.*;
 /**
  * @author Nathan Sweet
  */
-public class OpenALAudio implements Audio, IOpenALAudio {
+public class OpenALAudio implements LwjglAudio, IOpenALAudio {
     private final int deviceBufferSize;
     private final int deviceBufferCount;
     private IntArray idleSources, allSources;
@@ -520,5 +521,9 @@ public class OpenALAudio implements Audio, IOpenALAudio {
                 this.recentSounds[i] = null;
             }
         }
+    }
+
+    public boolean isNoDevice() {
+        return this.noDevice;
     }
 }
