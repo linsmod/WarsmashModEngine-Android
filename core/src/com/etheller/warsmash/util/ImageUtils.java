@@ -16,6 +16,9 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Gdx2DPixmap;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.etheller.warsmash.datasources.DataSource;
+import com.etheller.warsmash.pjblp.Blp2;
+import com.etheller.warsmash.pjblp.blpDataFormat;
+import com.etheller.warsmash.pjblp.imageData;
 import com.etheller.warsmash.viewer5.handlers.ResourceInfo;
 import com.etheller.warsmash.viewer5.handlers.tga.TgaFile;
 import com.google.code.appengine.awt.Transparency;
@@ -37,6 +40,7 @@ import net.hydromatic.linq4j.Linq;
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.Imaging;
 import org.apache.commons.imaging.common.bytesource.ByteSourceInputStream;
+import org.lwjgl.BufferUtils;
 
 /**
  * Uses AWT stuff
@@ -256,6 +260,16 @@ public final class ImageUtils {
 		pixmap.dispose();
 		return texture;
 	}
+	public static imageData getImageData(ResourceInfo res){
+		blpDataFormat image = null;
+		try {
+			image = Blp2.decode(res.getResourceAsStream().readAllBytes());
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		return Blp2.getImageData(image, 0);
+	}
 
 	public static AbstractBitmap getBitmap(ResourceInfo res) throws IOException {
 		Pixmap pixmap = getPixmap(res);
@@ -296,7 +310,17 @@ public final class ImageUtils {
 		};
 	}
 
+	public static Pixmap getPixmap2(ResourceInfo res) throws IOException {
+		var image = Blp2.decode(res.getResourceAsStream().readAllBytes());
+		var data = Blp2.getImageData(image, 0);
+		var pixmap = new Pixmap(data.width, data.height, Format.RGBA8888);
+		pixmap.setPixels(BufferUtils.createByteBuffer(data.width * data.height * 4).put(data.data).flip());
+		return pixmap;
+	}
+
 	public static Pixmap getPixmap(ResourceInfo res) throws IOException {
+		if (true)
+			return getPixmap2(res);
 		final ResourceInfo info = res;
 		var file = info.getCacheFile("blp2png", ".png");
 //		var temp = info.getCacheFile("blp2png", ".png.tmp");
@@ -332,41 +356,22 @@ public final class ImageUtils {
 		}
 		else {
 
-			try {
-				byte[] bytes = file.readBytes();
-				return new Pixmap(new Gdx2DPixmap(bytes, 0, bytes.length,Format.toGdx2DPixmapFormat(Format.RGBA8888) )){
-					@Override
-					public int getGLInternalFormat() {
-						return GL30.GL_SRGB8_ALPHA8;
-					}
-				};
-			} catch (Exception e) {
-				throw new GdxRuntimeException("Couldn't load file: " + file, e);
-			}
-
-			// load converted png from cache for the blp.
-//			System.out.println("[LOAD_BLP_PNG] " + file.path());
-//			Pixmap pixmap = new Pixmap(file) {
-//				@Override
-//				public int getGLInternalFormat() {
-//					return GL30.GL_SRGB8_ALPHA8;
-//				}
-//
-//				@Override
-//				public int getGLFormat() {
-//					return GL30.GL_RGBA;
-//				}
-//			};
 //			try {
-//				var size = Imaging.getImageSize(info.getResourceAsStream(), info.path);
-//				if (size.getHeight() != pixmap.getHeight() || size.getWidth() != pixmap.getWidth()) {
-//					System.err.println("png cache broken.");
-//				}
+//				byte[] bytes = file.readBytes();
+//				return new Pixmap(new Gdx2DPixmap(bytes, 0, bytes.length,Format.toGdx2DPixmapFormat(Format.RGBA8888) )){
+//					@Override
+//					public int getGLInternalFormat() {
+//						return GL30.GL_SRGB8_ALPHA8;
+//					}
+//				};
+//			} catch (Exception e) {
+//				throw new GdxRuntimeException("Couldn't load file: " + file, e);
 //			}
-//			catch (ImageReadException e) {
-//				throw new RuntimeException(e);
-//			}
-//			return pixmap;
+
+			//load converted png from cache for the blp.
+			System.out.println("[LOAD_BLP_PNG] " + file.path());
+			Pixmap pixmap = new Pixmap(file);
+			return pixmap;
 		}
 	}
 

@@ -97,7 +97,7 @@ public class AndroidOpenALAudioDevice implements AudioDevice {
         }
 
         if (this.source == null) {
-            int sourceId = this.audio.getAudioSource(true);
+            int sourceId = this.audio.obtainSource(true);
             this.source = this.audio.getAudioSource(sourceId);
             if (this.source == null) {
                 //no device ?

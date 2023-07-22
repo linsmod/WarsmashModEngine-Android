@@ -1,85 +1,116 @@
-package com.etheller.warsmash;
+package com.etheller.warsmash.pjblp;
+
+import java.util.Arrays;
 import java.util.Stack;
 
+
 public class Blp2 {
-	class image {
 
-		public int type;
-		public int encoding;
-		public int alphaDepth;
-		public int alphaEncoding;
-		public int mipLevels;
-		public int[] offsets;
-		public int[] engths;
-		public int[] lengths;
-		public int content;
-		public int alphaBits;
-		public Stack<mipmap> mipmaps = new Stack<>();
-		private byte[] data;
-		private int width;
-		private int height;
-		public int[][] palette;
-
-		public image(byte[] bytes, int width, int height) {
-			this.data = bytes;
-			this.width = width;
-			this.height = height;
+	public static imageData getImageData(blpDataFormat image, int mipmapLevel) {
+		if(image instanceof imageData){
+			return (imageData) image;
 		}
+		var blp = (blpImage) image;
+		var view = new DataView(blp.data);
+		var uint8Data = blp.data;
+		var mipmap = blp.mipmaps.get(mipmapLevel);
+		if (blp.content == BLPContent.JPEG) {
+			int headerSize = (int) uint32(view, 39);
+			var jpegHeader = Arrays.copyOfRange(uint8Data, 40 * 4, 40 * 4 + headerSize);
+			var mmData = Arrays.copyOfRange(uint8Data, mipmap.offset, mipmap.offset + mipmap.size);
+			byte[] jpegBuffer = Arrays.copyOf(jpegHeader, jpegHeader.length
+																  + mipmap.size);
+			System.arraycopy(mmData, 0, jpegBuffer, jpegHeader.length,
+					mmData.length);
+			return decodeJPEG(jpegBuffer);
+		}
+		else {
+			var palette = new DataView(blp.data, 39 * 4, 256 * 4);
+			int width = blp.width / (1 << mipmapLevel);
+			int height = blp.height / (1 << mipmapLevel);
+			int size = width * height;
+			DataView alphaData = new DataView(blp.data, mipmap.offset + size, (int) Math.ceil(size * blp.alphaBits / 8));
+			var imageData = createImageData(width, height);
 
-		public image() {
-
+			for (var i = 0; i < size; ++i) {
+				var paletteIndex = view.getUint8(mipmap.offset + i) * 4;
+				// BGRA order
+				imageData.data[i * 4] = palette.buffer[paletteIndex + 2];
+				imageData.data[i * 4 + 1] = palette.buffer[paletteIndex + 1];
+				imageData.data[i * 4 + 2] = palette.buffer[paletteIndex];
+				if (blp.alphaBits > 0) {
+					int valPerAlphaBit = 255 / ((1 << blp.alphaBits) - 1);
+					imageData.data[i * 4 + 3] = (byte) (bitVal(alphaData.buffer, blp.alphaBits, i) * valPerAlphaBit);
+				}
+				else {
+					imageData.data[i * 4 + 3] = (byte) 255;
+				}
+			}
+			return imageData;
 		}
 	}
-	class mipmap{
+	static imageData decodeJPEG(byte[] data) {
+    	var jpegImage = new JpegImage();
 
-		public int size;
-		public int offset;
+		jpegImage.parse (data);
+
+		var imageData = createImageData(jpegImage.width,jpegImage.height);
+		jpegImage.getData(imageData, jpegImage.width, jpegImage.height);
+
+		return imageData;
+	};
+
+	static int bitVal(byte[] data, int bitCount, int index) {
+		// only 1, 4 or 8 bits
+		var b =data[(int) Math.floor(index * bitCount / 8)];
+		int valsPerByte = 8 / bitCount;
+		return ( b >>(valsPerByte - index % valsPerByte - 1)) &((1 << bitCount) - 1);
 	}
 
-	int JPEG_TYPE = 0;
+	static int JPEG_TYPE = 0;
 	int NORMAL_TYPE = 1;
 	// 1: Uncompressed, 2: DXT compression, 3: Uncompressed BGRA
-	final int UNCOMPRESSED = 1;
+	static final int UNCOMPRESSED = 1;
 	final int DXT_COMPRESSION = 2;
-	final int UNCOMPRESSED_BGRA = 3;
-	final int BLP_ENCODING_DXT = 2;
-	final int BLP_ALPHA_DEPTH_0 = 0;
-	final int BLP_ALPHA_DEPTH_1 = 1;
-	final int BLP_ALPHA_DEPTH_4 = 4;
-	final int BLP_ALPHA_DEPTH_8 = 8;
-	final int BLP_ALPHA_ENCODING_DXT1 = 0;
-	final int BLP_ALPHA_ENCODING_DXT3 = 1;
-	final int BLP_ALPHA_ENCODING_DXT5 = 7;
-	final int BLP_FORMAT_JPEG = 0;
+	static final int UNCOMPRESSED_BGRA = 3;
+	static final int BLP_ENCODING_DXT = 2;
+	static final int BLP_ALPHA_DEPTH_0 = 0;
+	static final int BLP_ALPHA_DEPTH_1 = 1;
+	static final int BLP_ALPHA_DEPTH_4 = 4;
+	static final int BLP_ALPHA_DEPTH_8 = 8;
+	static final int BLP_ALPHA_ENCODING_DXT1 = 0;
+	static final int BLP_ALPHA_ENCODING_DXT3 = 1;
+	static final int BLP_ALPHA_ENCODING_DXT5 = 7;
+	static final int BLP_FORMAT_JPEG = 0;
 
 	static {
 
 	}
 
-	final int BLP_FORMAT_PALETTED_NO_ALPHA = ((UNCOMPRESSED << 16) | (BLP_ALPHA_DEPTH_0 << 8));
-	final int BLP_FORMAT_PALETTED_ALPHA_1 = ((UNCOMPRESSED << 16) | (BLP_ALPHA_DEPTH_1 << 8));
-	final int BLP_FORMAT_PALETTED_ALPHA_4 = ((UNCOMPRESSED << 16) | (BLP_ALPHA_DEPTH_4 << 8));
-	final int BLP_FORMAT_PALETTED_ALPHA_8 = ((UNCOMPRESSED << 16) | (BLP_ALPHA_DEPTH_8 << 8));
-	final int BLP_FORMAT_RAW_BGRA = (UNCOMPRESSED_BGRA << 16);
-	final int BLP_FORMAT_DXT1_NO_ALPHA = (BLP_ENCODING_DXT << 16) | (BLP_ALPHA_DEPTH_0 << 8) | BLP_ALPHA_ENCODING_DXT1;
-	final int BLP_FORMAT_DXT1_ALPHA_1 = (BLP_ENCODING_DXT << 16) | (BLP_ALPHA_DEPTH_1 << 8) | BLP_ALPHA_ENCODING_DXT1;
-	final int BLP_FORMAT_DXT3_ALPHA_4 = (BLP_ENCODING_DXT << 16) | (BLP_ALPHA_DEPTH_4 << 8) | BLP_ALPHA_ENCODING_DXT3;
-	final int BLP_FORMAT_DXT3_ALPHA_8 = (BLP_ENCODING_DXT << 16) | (BLP_ALPHA_DEPTH_8 << 8) | BLP_ALPHA_ENCODING_DXT3;
-	final int BLP_FORMAT_DXT5_ALPHA_8 = (BLP_ENCODING_DXT << 16) | (BLP_ALPHA_DEPTH_8 << 8) | BLP_ALPHA_ENCODING_DXT5;
-	final int dxt4to8 = convertBitRange(4, 8);
-	final int dxt5to8 = convertBitRange(5, 8);
-	final int dxt6to8 = convertBitRange(6, 8);
-	byte[] dx1colors = new byte[16];
-	byte[] dx3colors = new byte[12];
-	byte[] dx5alphas = new byte[8];
+	static final int BLP_FORMAT_PALETTED_NO_ALPHA = ((UNCOMPRESSED << 16) | (BLP_ALPHA_DEPTH_0 << 8));
+	static final int BLP_FORMAT_PALETTED_ALPHA_1 = ((UNCOMPRESSED << 16) | (BLP_ALPHA_DEPTH_1 << 8));
+	static final int BLP_FORMAT_PALETTED_ALPHA_4 = ((UNCOMPRESSED << 16) | (BLP_ALPHA_DEPTH_4 << 8));
+	static final int BLP_FORMAT_PALETTED_ALPHA_8 = ((UNCOMPRESSED << 16) | (BLP_ALPHA_DEPTH_8 << 8));
+	static final int BLP_FORMAT_RAW_BGRA = (UNCOMPRESSED_BGRA << 16);
+	static final int BLP_FORMAT_DXT1_NO_ALPHA = (BLP_ENCODING_DXT << 16) | (BLP_ALPHA_DEPTH_0 << 8) | BLP_ALPHA_ENCODING_DXT1;
+	static final int BLP_FORMAT_DXT1_ALPHA_1 = (BLP_ENCODING_DXT << 16) | (BLP_ALPHA_DEPTH_1 << 8) | BLP_ALPHA_ENCODING_DXT1;
+	static final int BLP_FORMAT_DXT3_ALPHA_4 = (BLP_ENCODING_DXT << 16) | (BLP_ALPHA_DEPTH_4 << 8) | BLP_ALPHA_ENCODING_DXT3;
+	static final int BLP_FORMAT_DXT3_ALPHA_8 = (BLP_ENCODING_DXT << 16) | (BLP_ALPHA_DEPTH_8 << 8) | BLP_ALPHA_ENCODING_DXT3;
+	static final int BLP_FORMAT_DXT5_ALPHA_8 = (BLP_ENCODING_DXT << 16) | (BLP_ALPHA_DEPTH_8 << 8) | BLP_ALPHA_ENCODING_DXT5;
+	static final int dxt4to8 = convertBitRange(4, 8);
+	static final int dxt5to8 = convertBitRange(5, 8);
+	static final int dxt6to8 = convertBitRange(6, 8);
+	static byte[] dx1colors = new byte[16];
+	static byte[] dx3colors = new byte[12];
+	static byte[] dx5alphas = new byte[8];
 	byte[] red = new byte[8];
 	byte[] green = new byte[8];
 
-	int convertBitRange(int fromBits, int toBits) {
+	static int convertBitRange(int fromBits, int toBits) {
 		return ((1 << toBits) - 1) / ((1 << fromBits) - 1);
 	}
 
-	void dx1Colors(byte[] out, int color0, int color1) {
+	static void dx1Colors(byte[] out, int color0, int color1) {
 		byte r0 = (byte) (((color0 >> 11) & 31) * dxt5to8);
 		byte g0 = (byte) (((color0 >> 5) & 63) * dxt6to8);
 		byte b0 = (byte) ((color0 & 31) * dxt5to8);
@@ -118,7 +149,7 @@ public class Blp2 {
 		}
 	}
 
-	void dx3Colors(byte[] out, int color0, int color1) {
+	static void dx3Colors(byte[] out, int color0, int color1) {
 		byte r0 = (byte) (((color0 >> 11) & 31) * dxt5to8);
 		byte g0 = (byte) (((color0 >> 5) & 63) * dxt6to8);
 		byte b0 = (byte) ((color0 & 31) * dxt5to8);
@@ -141,7 +172,7 @@ public class Blp2 {
 		out[11] = (byte) ((5 * b1 + 3 * b0) >> 3);
 	}
 
-	void dx5Alphas(byte[] out, int alpha0, int alpha1) {
+	static void dx5Alphas(byte[] out, int alpha0, int alpha1) {
 		// Minimum and maximum alphas.
 		out[0] = (byte) alpha0;
 		out[1] = (byte) alpha1;
@@ -192,7 +223,7 @@ public class Blp2 {
 	 * <p>
 	 * DXT1 is also known as BC1.
 	 */
-	image decodeDxt1(DataView src, int width, int height, image img) {
+	static imageData decodeDxt1(DataView src, int width, int height, imageData img) {
 		for (int blockY = 0, blockHeight = height / 4; blockY < blockHeight; blockY++) {
 			for (int blockX = 0, blockWidth = width / 4; blockX < blockWidth; blockX++) {
 				var i = 8 * (blockY * blockWidth + blockX);
@@ -224,7 +255,7 @@ public class Blp2 {
 	 * <p>
 	 * DXT3 is also known as BC2.
 	 */
-	image decodeDxt3(DataView src, int width, int height, image img) {
+	static imageData decodeDxt3(DataView src, int width, int height, imageData img) {
 		var rowBytes = width * 4;
 		for (int blockY = 0, blockHeight = height / 4; blockY < blockHeight; blockY++) {
 			for (int blockX = 0, blockWidth = width / 4; blockX < blockWidth; blockX++) {
@@ -257,7 +288,7 @@ public class Blp2 {
 	 * <p>
 	 * DXT5 is also known as BC3.
 	 */
-	image decodeDxt5(DataView src, int width, int height, image img) {
+	static imageData decodeDxt5(DataView src, int width, int height, imageData img) {
 		var rowBytes = width * 4;
 		for (int blockY = 0, blockHeight = height / 4; blockY < blockHeight; blockY++) {
 			for (int blockX = 0, blockWidth = width / 4; blockX < blockWidth; blockX++) {
@@ -338,27 +369,27 @@ public class Blp2 {
 		return dst;
 	}
 
-	String keyword(DataView view, int offset) {
+	static String keyword(DataView view, int offset) {
 		return view.readString(offset, 4);
 	}
 
-	int uint32(DataView view, int offset) {
-		return view.getUint32(offset, true);
+	static long uint32(DataView view, int offset) {
+		return view.getUint32(offset * 4, true);
 	}
 
-	int[] uint32Array(DataView view, int offset, int size) {
-		int[] d = new int[size];
+	static long[] uint32Array(DataView view, int offset, int size) {
+		long[] d = new long[size];
 		for (int i = 0; i < size; i++) {
 			d[i] = uint32(view, offset + i * 4);
 		}
 		return d;
 	}
 
-	int uint8(DataView view, int offset) {
+	static int uint8(DataView view, int offset) {
 		return view.getUint8(offset);
 	}
 
-	int[] readBGRA(DataView view, int offset) {
+	static int[] readBGRA(DataView view, int offset) {
 
 		return new int[]{
 				view.getUint8(offset),
@@ -367,7 +398,7 @@ public class Blp2 {
 				view.getUint8(offset + 3)};
 	}
 
-	int[][] readBGRAArray(DataView view, int offset, int size) {
+	static int[][] readBGRAArray(DataView view, int offset, int size) {
 		int[][] d = new int[4][];
 		for (int i = 0; i < size; i++) {
 			d[i] = readBGRA(view, offset + i * 4);
@@ -375,7 +406,7 @@ public class Blp2 {
 		return d;
 	}
 
-	int blpFormat(image image) {
+	static int blpFormat(blpImage image) {
 		if (image.type == JPEG_TYPE) {
 			return BLP_FORMAT_JPEG;
 		}
@@ -392,18 +423,19 @@ public class Blp2 {
 	}
 
 	interface BLPContent {
-		public static int JPEG=0;
-		public static int Direct=1;
-	}
-	interface BLPType{
-		int BLP0=0;
-		int BLP1=1;
-		int BLP2=2;
+		public static int JPEG = 0;
+		public static int Direct = 1;
 	}
 
-	public image decode(byte[] arrayBuffer) {
+	interface BLPType {
+		int BLP0 = 0;
+		int BLP1 = 1;
+		int BLP2 = 2;
+	}
+
+	public static blpDataFormat decode(byte[] arrayBuffer) {
 		var view = new DataView(arrayBuffer);
-		var image = new image();
+		var image = new blpImage();
 		image.type = BLPType.BLP1;
 		image.width = 0;
 		image.height = 0;
@@ -421,17 +453,17 @@ public class Blp2 {
 		if (!type.equals("BLP1")) {
 			throw new RuntimeException("Not a blp image");
 		}
-		image.content = uint32(view, 1);
+		image.content = (int) uint32(view, 1);
 		if (image.content != BLPContent.JPEG && image.content != BLPContent.Direct) {
 			throw new RuntimeException("Unknown BLP content");
 		}
-		image.alphaBits = uint32(view, 2);
-		image.width = uint32(view, 3);
-		image.height = uint32(view, 4);
+		image.alphaBits = (int) uint32(view, 2);
+		image.width = (int) uint32(view, 3);
+		image.height = (int) uint32(view, 4);
 		for (var i = 0; i < 16; ++i) {
 			var mipmap = new mipmap();
-			mipmap.offset=uint32(view, 7 + i);
-			mipmap.size=uint32(view, 7 + 16 + i);
+			mipmap.offset = (int) uint32(view, 7 + i);
+			mipmap.size = (int) uint32(view, 7 + 16 + i);
 			if (mipmap.size > 0) {
 				image.mipmaps.push(mipmap);
 			}
@@ -442,27 +474,27 @@ public class Blp2 {
 		return image;
 	}
 
-	public image decodeBLP2(byte[] d) {
+	static blpDataFormat decodeBLP2(byte[] d) {
 		var view = new DataView(d);
 		var magic = keyword(view, 0);
 		if (!magic.equals("BLP2")) {
 			throw new RuntimeException("'Not a blp2 image'");
 		}
-		var image = new image();
-		image.type = uint32(view, 4);
+		var image = new blpImage();
+		image.type = (int) uint32(view, 4);
 		image.encoding = uint8(view, 8);
 		image.alphaDepth = uint8(view, 9);
 		image.alphaEncoding = uint8(view, 10);
 		image.mipLevels = uint8(view, 11);
-		image.width = uint32(view, 12);
-		image.height = uint32(view, 16);
+		image.width = (int) uint32(view, 12);
+		image.height = (int) uint32(view, 16);
 		image.offsets = uint32Array(view, 20, 16);
 		image.engths = uint32Array(view, 20 + 16 * 4, 16);
 		image.palette = readBGRAArray(view, 20 + 32 * 4, 256);
 		var mipLevel = image.mipLevels - 1;
 		var width = image.width >> mipLevel;
 		var height = image.height >> mipLevel;
-		var offset = image.offsets[mipLevel];
+		var offset = (int)image.offsets[mipLevel];
 		var size = image.lengths[mipLevel];
 //		console.info(blpFormat(image));
 		switch (blpFormat(image)) {
@@ -490,11 +522,11 @@ public class Blp2 {
 	}
 
 	// node.js have no native ImageData
-	image createImageData(int width, int height) {
-		return new image(new byte[width * height * 4], width, height);
+	static imageData createImageData(int width, int height) {
+		return new imageData(new byte[width * height * 4], width, height);
 	}
 
-	image blp2_convert_paletted_no_alpha(DataView view, int offset, int width, int height, image image) {
+	static imageData blp2_convert_paletted_no_alpha(DataView view, int offset, int width, int height, blpImage image) {
 		var img = createImageData(width, height);
 		var imgIndex = 0;
 		for (var y = 0; y < height; ++y) {
@@ -510,7 +542,7 @@ public class Blp2 {
 		return img;
 	}
 
-	image blp2_convert_paletted_alpha1(DataView view, int offset, int width, int height, image image) {
+	static imageData blp2_convert_paletted_alpha1(DataView view, int offset, int width, int height, blpImage image) {
 		var img = createImageData(width, height);
 		var imgIndex = 0;
 		var alphaOffset = offset + width * height;
@@ -533,7 +565,7 @@ public class Blp2 {
 		return img;
 	}
 
-	image blp2_convert_paletted_alpha4(DataView view, int offset, int width, int height, image image) {
+	static imageData blp2_convert_paletted_alpha4(DataView view, int offset, int width, int height, blpImage image) {
 		var img = createImageData(width, height);
 		var imgIndex = 0;
 		var alphaOffset = offset + width * height;
@@ -557,7 +589,7 @@ public class Blp2 {
 		return img;
 	}
 
-	image blp2_convert_paletted_alpha8(DataView view, int offset, int width, int height, image image) {
+	static imageData blp2_convert_paletted_alpha8(DataView view, int offset, int width, int height, blpImage image) {
 		var img = createImageData(width, height);
 		var imgIndex = 0;
 		var alphaOffset = offset + width * height;
@@ -574,7 +606,7 @@ public class Blp2 {
 		return img;
 	}
 
-	image blp2_convert_raw_bgra(DataView view, int offset, int width, int height, image image) {
+	static imageData blp2_convert_raw_bgra(DataView view, int offset, int width, int height, blpImage image) {
 		var img = createImageData(width, height);
 		var imgIndex = 0;
 		for (var y = 0; y < height; ++y) {
@@ -592,17 +624,17 @@ public class Blp2 {
 		return img;
 	}
 
-	image blp2_convert_dxt(DataView view, int offset, int size, int width, int height, image image) {
+	static imageData blp2_convert_dxt(DataView view, int offset, int size, int width, int height, blpImage image) {
 		var dxtData = new DataView(view.buffer, offset, size);
 		return decodeDxt1(dxtData, width, height, createImageData(width, height));
 	}
 
-	image blp2_convert_dxt3_alpha8(DataView view, int offset, int size, int width, int height, image image) {
+	static imageData blp2_convert_dxt3_alpha8(DataView view, int offset, int size, int width, int height, blpImage image) {
 		var dxtData = new DataView(view.buffer, offset, size);
 		return decodeDxt3(dxtData, width, height, createImageData(width, height));
 	}
 
-	image blp2_convert_dxt5_alpha8(DataView view, int offset, int size, int width, int height, image image) {
+	static imageData blp2_convert_dxt5_alpha8(DataView view, int offset, int size, int width, int height, blpImage image) {
 		var dxtData = new DataView(view.buffer, offset, size);
 		return decodeDxt5(dxtData, width, height, createImageData(width, height));
 	}

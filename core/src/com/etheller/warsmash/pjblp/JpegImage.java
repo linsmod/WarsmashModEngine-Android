@@ -1,10 +1,6 @@
-package com.etheller.warsmash;
+package com.etheller.warsmash.pjblp;
 
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 public class JpegImage {
 	/*
@@ -49,6 +45,8 @@ public class JpegImage {
 	protected int width;
 	protected int height;
 	protected Stack<component> components;
+	private byte[] data;
+	private DataView dr;
 
 	interface decodeDelegate {
 		void decode(component component, int offset);
@@ -64,11 +62,11 @@ public class JpegImage {
 	int dctSqrt1d2 = 2896; // sqrt(2) / 2
 
 	class codeItem {
-		public List<Object> children;
+		public HashMap<Integer, Object> children = new HashMap<>();
 		public int index;
 	}
 
-	byte[] buildHuffmanTable(byte[] codeLengths, byte[] values) {
+	HashMap<Integer, Object> buildHuffmanTable(int[] codeLengths, int[] values) {
 		var k = 0;
 		var code = new Stack<codeItem>();
 		int i;
@@ -82,7 +80,7 @@ public class JpegImage {
 		for (i = 0; i < length; i++) {
 			for (j = 0; j < codeLengths[i]; j++) {
 				p = code.pop();
-				p.children.set(p.index, values[k]);
+				p.children.put(p.index, values[k]);
 				while (p.index > 0) {
 					p = code.pop();
 				}
@@ -90,7 +88,7 @@ public class JpegImage {
 				code.push(p);
 				while (code.size() <= i) {
 					code.push((q = new codeItem()));
-					p.children.set(p.index, q.children);
+					p.children.put(p.index, q.children);
 					p = q;
 				}
 				k++;
@@ -98,27 +96,23 @@ public class JpegImage {
 			if (i + 1 < length) {
 				// p here points to last code
 				code.push(q = new codeItem());
-				p.children.set(p.index, q.children);
+				p.children.put(p.index, q.children);
 				p = q;
 			}
 		}
-		byte[] conv = new byte[code.get(0).children.size()];
-		for (int l = 0; l < code.get(0).children.size(); l++) {
-			conv[i]= (byte) code.get(0).children.get(i);
-		}
-		return conv;
+		return code.get(0).children;
 	}
 
 	class component {
 
 		public int blocksPerLine;
-		public byte[] huffmanTableDC;
-		public short[] blockData;
+		public HashMap<Integer, Object> huffmanTableDC;
+		public int[] blockData;
 		public int pred;
-		public Object huffmanTableAC;
+		public HashMap<Integer, Object> huffmanTableAC;
 		public int v;
 		public int h;
-		public short[] output;
+		public int[] output;
 		public int scaleX;
 		public int scaleY;
 		public int blocksPerColumn;
@@ -140,7 +134,7 @@ public class JpegImage {
 		public int maxV;
 		public int mcusPerColumn;
 		public Stack<component> components;
-		public HashMap<Integer,Integer> componentIds;
+		public HashMap<Byte, Integer> componentIds;
 		public boolean extended;
 	}
 
@@ -148,7 +142,7 @@ public class JpegImage {
 		public abstract void decodeBaseline(component component, int offset);
 	}
 
-	int decodeScan(byte[] data, int offset,
+	int decodeScan(byte[] data, final int offset,
 			frame frame, Stack<component> components, int resetInterval,
 			int spectralStart, int spectralEnd,
 			int successivePrev, int successive) {
@@ -159,39 +153,39 @@ public class JpegImage {
 		var progressive = frame.progressive;
 		int maxH = frame.maxH, maxV = frame.maxV;
 		int startOffset = offset;
-		final int[] bitsData = {0};
-		final int[] bitsCount = {0};
-		final int[] offseta = {offset};
 		var methods = new methods() {
+			int bitsData;
+			int bitsCount;
+			int offset = startOffset;
+
 			public Integer readBit() {
-				if (bitsCount[0] > 0) {
-					bitsCount[0]--;
-					return (bitsData[0] >> bitsCount[0]) & 1;
+				if (bitsCount > 0) {
+					bitsCount--;
+					return (bitsData >> bitsCount) & 1;
 				}
-				bitsData[0] = data[offseta[0]++];
-				if (bitsData[0] == 0xFF) {
-					var nextByte = data[offseta[0]++];
+				bitsData = dr.read(this.offset++);
+//				bitsData = data[this.offset++];
+				if (bitsData == 0xFF) {
+//					var nextByte = data[offset++];
+					var nextByte = dr.read(this.offset++);
 					if (nextByte != 0) {
-						throw new RuntimeException("unexpected marker: " + ((bitsData[0] << 8) | nextByte));
+						throw new RuntimeException("unexpected marker: " + ((bitsData << 8) | nextByte));
 					}
 					// unstuff 0
 				}
-				bitsCount[0] = 7;
-				return bitsData[0] >>> 7;
+				bitsCount = 7;
+				return bitsData >>> 7;
 			}
 
-			public Integer decodeHuffman(Object tree) {
-				var node = tree;
+			public int decodeHuffman(HashMap<Integer, Object> tree) {
+				Object node = tree;
 				Integer bit;
 				while ((bit = readBit()) != null) {
-					throw new RuntimeException();
-//					node = node[bit];
-//					if (node instanceof Number)
-//						return ((int[])node)[bit];
-//					if (typeof node != 'object')
-//					throw new RuntimeException( "invalid huffman sequence");
+					node = ((HashMap<Integer, Object>) node).get(bit);
+					if (node instanceof Number)
+						return (int) node;
 				}
-				return null;
+				throw new RuntimeException();
 			}
 
 
@@ -215,15 +209,16 @@ public class JpegImage {
 
 			@Override
 			public void decodeBaseline(component component, int offset) {
-				var t = decodeHuffman(component.huffmanTableDC);
+				int t = decodeHuffman(component.huffmanTableDC);
 				var diff = t == 0 ? 0 : receiveAndExtend(t);
-				component.blockData[offset] = (short) (component.pred += diff);
+				component.blockData[offset] = (component.pred += diff);
 				var k = 1;
 				while (k < 64) {
 					int rs = decodeHuffman(component.huffmanTableAC);
-					int s = rs & 15, r = rs >> 4;
+					int s = rs & 15;
+					int r = rs >> 4;
 					if (s == 0) {
-						if (r < 15)
+						if (r != 15)
 							break;
 						k += 16;
 						continue;
@@ -294,7 +289,7 @@ public class JpegImage {
 						}
 						else {
 							if (s != 1)
-								throw  new RuntimeException( "invalid ACn encoding");
+								throw new RuntimeException("invalid ACn encoding");
 							successiveACNextValue = receiveAndExtend(s);
 							successiveACState = r != 0 ? 2 : 3;
 						}
@@ -397,6 +392,7 @@ public class JpegImage {
 			}
 			else {
 				for (n = 0; n < resetInterval; n++) {
+
 					for (i = 0; i < componentsLength; i++) {
 						component = components.get(i);
 						h = component.h;
@@ -412,21 +408,21 @@ public class JpegImage {
 			}
 
 			// find marker
-			bitsCount[0] = 0;
-			marker = (data[offset] << 8) | data[offset + 1];
+			marker = dr.getUint16(methods.offset);//data[methods.offset] << 8) | data[methods.offset + 1];
+//			System.out.println("marker=" + marker + " offset=" + methods.offset);
 			if (marker <= 0xFF00) {
 				throw new RuntimeException("marker was not found");
 			}
 
 			if (marker >= 0xFFD0 && marker <= 0xFFD7) { // RSTx
-				offset += 2;
+				methods.offset += 2;
 			}
 			else {
 				break;
 			}
 		}
 
-		return offset - startOffset;
+		return methods.offset - startOffset;
 	}
 
 	// A port of poppler's IDCT method which in turn is taken from:
@@ -591,7 +587,7 @@ public class JpegImage {
 		}
 	}
 
-	short[] buildComponentData(frame frame, component component) {
+	int[] buildComponentData(frame frame, component component) {
 		var blocksPerLine = component.blocksPerLine;
 		var blocksPerColumn = component.blocksPerColumn;
 		var samplesPerLine = blocksPerLine << 3;
@@ -611,10 +607,18 @@ public class JpegImage {
 		return (byte) (a <= 0 ? 0 : a >= 255 ? 255 : a | 0);
 	}
 
-	abstract class parser extends JpegImage  {
+	abstract class parser extends JpegImage {
 		public abstract int readUint16();
 
 		public abstract byte[] readDataBlock();
+	}
+
+	class adobe {
+
+		public byte transformCode;
+		public int flags1;
+		public int flags0;
+		public byte version;
 	}
 
 	class jfif {
@@ -648,265 +652,253 @@ public class JpegImage {
 		}
 	}
 
+	public int readUint16() {
+//				var value = (data[offset] << 8) | data[offset + 1];
+//				offset += 2;
+//				return value;
+		var value = dr.getUint16(offset);
+		offset += 2;
+		return value;
+	}
+
+	public byte[] readDataBlock() {
+		var length = readUint16();
+		var array = Arrays.copyOfRange(data, offset, offset + length - 2);
+		offset += array.length;
+		return array;
+	}
+
+	public void prepareComponents(frame frame) {
+		var mcusPerLine = (int) Math.ceil(frame.samplesPerLine / 8 / frame.maxH);
+		var mcusPerColumn = (int) Math.ceil(frame.scanLines / 8 / frame.maxV);
+		for (var i = 0; i < frame.components.size(); i++) {
+			component component = frame.components.get(i);
+			var blocksPerLine = (int) Math.ceil(Math.ceil(frame.samplesPerLine / 8) * component.h / frame.maxH);
+			var blocksPerColumn = (int) Math.ceil(Math.ceil(frame.scanLines / 8) * component.v / frame.maxV);
+			var blocksPerLineForMcu = mcusPerLine * component.h;
+			var blocksPerColumnForMcu = mcusPerColumn * component.v;
+
+			var blocksBufferSize = 64 * blocksPerColumnForMcu
+										   * (blocksPerLineForMcu + 1);
+			component.blockData = new int[blocksBufferSize];
+			component.blocksPerLine = blocksPerLine;
+			component.blocksPerColumn = blocksPerColumn;
+		}
+		frame.mcusPerLine = mcusPerLine;
+		frame.mcusPerColumn = mcusPerColumn;
+	}
+
+	int offset = 0;
+	jfif jfif = null;
+	adobe adobe = null;
+	frame frame;
+	int resetInterval;
+	HashMap<Integer, int[]> quantizationTables = new HashMap<Integer, int[]>();
+	HashMap<Integer, HashMap<Integer, Object>> huffmanTablesAC = new HashMap<>();
+	HashMap<Integer, HashMap<Integer, Object>> huffmanTablesDC = new HashMap<>();
+
+
 	public void parse(byte[] data) {
-		new parser() {
-			public int readUint16() {
-				var value = (data[offset] << 8) | data[offset + 1];
-				offset += 2;
-				return value;
-			}
+		this.data = data;
+		this.dr = new DataView(data);
+		int fileMarker = readUint16();
+		if (fileMarker != 0xFFD8) { // SOI (Start of Image)
+			throw new RuntimeException("SOI not found");
+		}
 
-			public byte[] readDataBlock() {
-				var length = readUint16();
-				var array = Arrays.copyOfRange(data, offset, offset + length - 2);
-				offset += array.length;
-				return array;
-			}
-
-			public void prepareComponents(frame frame) {
-				var mcusPerLine = (int) Math.ceil(frame.samplesPerLine / 8 / frame.maxH);
-				var mcusPerColumn = (int) Math.ceil(frame.scanLines / 8 / frame.maxV);
-				for (var i = 0; i < frame.components.size(); i++) {
-					component component = frame.components.get(i);
-					var blocksPerLine = (int) Math.ceil(Math.ceil(frame.samplesPerLine / 8) * component.h / frame.maxH);
-					var blocksPerColumn = (int) Math.ceil(Math.ceil(frame.scanLines / 8) * component.v / frame.maxV);
-					var blocksPerLineForMcu = mcusPerLine * component.h;
-					var blocksPerColumnForMcu = mcusPerColumn * component.v;
-
-					var blocksBufferSize = 64 * blocksPerColumnForMcu
-												   * (blocksPerLineForMcu + 1);
-					component.blockData = new short[blocksBufferSize];
-					component.blocksPerLine = blocksPerLine;
-					component.blocksPerColumn = blocksPerColumn;
-				}
-				frame.mcusPerLine = mcusPerLine;
-				frame.mcusPerColumn = mcusPerColumn;
-			}
-
-			int offset = 0, length = data.length;
-			jfif jfif = null;
-			Object adobe = null;
-			Object pixels = null;
-			frame frame;
-			int resetInterval;
-			int[][] quantizationTables = null;
-			byte[][] huffmanTablesAC = null;
-			byte[][] huffmanTablesDC = null;
-			int fileMarker = readUint16();
-			public void ctor(){
-				if(fileMarker !=0xFFD8)
-				{ // SOI (Start of Image)
-					throw new RuntimeException("SOI not found");
-				}
-
-				fileMarker =readUint16();
-				while(fileMarker !=0xFFD9)
-
-				{ // EOI (End of image)
-					switch (fileMarker) {
-					case 0xFFE0: // APP0 (Application Specific)
-					case 0xFFE1: // APP1
-					case 0xFFE2: // APP2
-					case 0xFFE3: // APP3
-					case 0xFFE4: // APP4
-					case 0xFFE5: // APP5
-					case 0xFFE6: // APP6
-					case 0xFFE7: // APP7
-					case 0xFFE8: // APP8
-					case 0xFFE9: // APP9
-					case 0xFFEA: // APP10
-					case 0xFFEB: // APP11
-					case 0xFFEC: // APP12
-					case 0xFFED: // APP13
-					case 0xFFEE: // APP14
-					case 0xFFEF: // APP15
-					case 0xFFFE: // COM (Comment)
-						var appData = readDataBlock();
-
-						if (fileMarker == 0xFFE0) {
-							if (appData[0] == 0x4A && appData[1] == 0x46 && appData[2] == 0x49 &&
-										appData[3] == 0x46 && appData[4] == 0) { // 'JFIF\x00'
-								int densityUnits = appData[7];
-								int xDensity = (appData[8] << 8) | appData[9];
-								int yDensity = (appData[10] << 8) | appData[11];
-								int thumbWidth = appData[12];
-								int thumbHeight = appData[13];
-								byte[] thumbData =
-										Arrays.copyOfRange(appData, 14, 14 + 3 * appData[12] * appData[13]);
-								jfif = new jfif(new version(appData[5], appData[6]), densityUnits, xDensity, yDensity, thumbWidth, thumbHeight, thumbData);
-							}
-						}
-						// TODO APP1 - Exif
-						if (fileMarker == 0xFFEE) {
-//					if (appData[0] == 0x41 && appData[1] == 0x64 && appData[2] == 0x6F &&
-//								appData[3] == 0x62 && appData[4] == 0x65 && appData[5] == 0) { // 'Adobe\x00'
-//						adobe = {
-//								version:appData[6],
-//												flags0:(appData[7] << 8) | appData[8],
-//															   flags1:(appData[9] << 8) | appData[10],
-//																			  transformCode:appData[11]
-//                                };
-//					}
-							throw new RuntimeException("adobe");
-						}
-						break;
-
-					case 0xFFDB: // DQT (Define Quantization Tables)
-						var quantizationTablesLength = readUint16();
-						var quantizationTablesEnd = quantizationTablesLength + offset - 2;
-						while (offset < quantizationTablesEnd) {
-							var quantizationTableSpec = data[offset++];
-							var tableData = new int[64];
-							if ((quantizationTableSpec >> 4) == 0) { // 8 bit values
-								for (var j = 0; j < 64; j++) {
-									var z = dctZigZag[j];
-									tableData[z] = data[offset++];
-								}
-							}
-							else if ((quantizationTableSpec >> 4) == 1) { //16 bit
-								for (var j = 0; j < 64; j++) {
-									var z = dctZigZag[j];
-									tableData[z] = readUint16();
-								}
-							}
-							else
-								throw new RuntimeException("DQT: invalid table spec");
-							quantizationTables[quantizationTableSpec & 15] = tableData;
-						}
-						break;
-
-					case 0xFFC0: // SOF0 (Start of Frame, Baseline DCT)
-					case 0xFFC1: // SOF1 (Start of Frame, Extended DCT)
-					case 0xFFC2: // SOF2 (Start of Frame, Progressive DCT)
-						if (frame != null) {
-							throw new RuntimeException("Only single frame JPEGs supported");
-						}
-						readUint16(); // skip data length
-						frame = new frame();
-						frame.extended = (fileMarker == 0xFFC1);
-						frame.progressive = (fileMarker == 0xFFC2);
-						frame.precision = data[offset++];
-						frame.scanLines = readUint16();
-						frame.samplesPerLine = readUint16();
-						frame.components = new Stack<>();
-						frame.componentIds = new HashMap<Integer,Integer>();
-						int componentsCount = data[offset++], componentId;
-						int maxH = 0, maxV = 0;
-						for (var i = 0; i < componentsCount; i++) {
-							componentId = data[offset];
-							var h = data[offset + 1] >> 4;
-							var v = data[offset + 1] & 15;
-							if (maxH < h) maxH = h;
-							if (maxV < v) maxV = v;
-							var qId = data[offset + 2];
-
-							var c = new component();
-							c.h = h;
-							c.v = v;
-							c.quantizationTable = quantizationTables[qId];
-							frame.components.push(c);
-							frame.componentIds.put(componentId, frame.components.size() - 1);
-							offset += 3;
-						}
-						frame.maxH = maxH;
-						frame.maxV = maxV;
-						prepareComponents(frame);
-						break;
-
-					case 0xFFC4: // DHT (Define Huffman Tables)
-						var huffmanLength = readUint16();
-						for (var i = 2; i < huffmanLength; ) {
-							var huffmanTableSpec = data[offset++];
-							var codeLengths = new byte[16];
-							var codeLengthSum = 0;
-							for (var j = 0; j < 16; j++, offset++)
-								codeLengthSum += (codeLengths[j] = data[offset]);
-							var huffmanValues = new byte[codeLengthSum];
-							for (var j = 0; j < codeLengthSum; j++, offset++)
-								huffmanValues[j] = data[offset];
-							i += 17 + codeLengthSum;
-							if ((huffmanTableSpec >> 4) == 0) {
-								huffmanTablesDC[huffmanTableSpec & 15] = buildHuffmanTable(codeLengths, huffmanValues);
-							}
-							else {
-								huffmanTablesAC[huffmanTableSpec & 15] = buildHuffmanTable(codeLengths, huffmanValues);
-							}
-						}
-						break;
-
-					case 0xFFDD: // DRI (Define Restart Interval)
-						readUint16(); // skip data length
-						resetInterval = readUint16();
-						break;
-
-					case 0xFFDA: // SOS (Start of Scan)
-
-						var scanLength = readUint16();
-						int selectorsCount = data[offset++];
-						var components = new Stack<component>();
-						component component;
-
-						for (var i = 0; i < selectorsCount; i++) {
-							var componentIndex = frame.componentIds.get(data[offset++]);
-							component = frame.components.get(componentIndex);
-							var tableSpec = data[offset++];
-							component.huffmanTableDC = huffmanTablesDC[tableSpec >> 4];
-							component.huffmanTableAC = huffmanTablesAC[tableSpec & 15];
-							components.push(component);
-						}
-						var spectralStart = data[offset++];
-						var spectralEnd = data[offset++];
-						var successiveApproximation = data[offset++];
-						var processed = decodeScan(data, offset,
-								frame, components, resetInterval,
-								spectralStart, spectralEnd,
-								successiveApproximation >> 4, successiveApproximation & 15);
-						offset += processed;
-						break;
-					default:
-						if (data[offset - 3] == 0xFF &&
-									data[offset - 2] >= 0xC0 && data[offset - 2] <= 0xFE) {
-							// could be incorrect encoding -- last 0xFF byte of the previous
-							// block was eaten by the encoder
-							offset -= 3;
-							break;
-						}
-						throw new RuntimeException("unknown JPEG marker " + fileMarker);
+		fileMarker = readUint16();
+		while (fileMarker != 0xFFD9) { // EOI (End of image)
+//			System.out.println("fileMarker=" + fileMarker);
+			switch (fileMarker) {
+			case 0xFFE0: // APP0 (Application Specific)
+			case 0xFFE1: // APP1
+			case 0xFFE2: // APP2
+			case 0xFFE3: // APP3
+			case 0xFFE4: // APP4
+			case 0xFFE5: // APP5
+			case 0xFFE6: // APP6
+			case 0xFFE7: // APP7
+			case 0xFFE8: // APP8
+			case 0xFFE9: // APP9
+			case 0xFFEA: // APP10
+			case 0xFFEB: // APP11
+			case 0xFFEC: // APP12
+			case 0xFFED: // APP13
+			case 0xFFEE: // APP14
+			case 0xFFEF: // APP15
+			case 0xFFFE: // COM (Comment)
+				var appData = readDataBlock();
+				if (fileMarker == 0xFFE0) {
+					if (appData[0] == 0x4A && appData[1] == 0x46 && appData[2] == 0x49 &&
+								appData[3] == 0x46 && appData[4] == 0) { // 'JFIF\x00'
+						int densityUnits = appData[7];
+						int xDensity = dr.getUint16(8);//appData[8] << 8) | appData[9];
+						int yDensity = dr.getUint16(10);//(appData[10] << 8) | appData[11];
+						int thumbWidth = appData[12];
+						int thumbHeight = appData[13];
+						byte[] thumbData =
+								Arrays.copyOfRange(appData, 14, 14 + 3 * appData[12] * appData[13]);
+						jfif = new jfif(new version(appData[5], appData[6]), densityUnits, xDensity, yDensity, thumbWidth, thumbHeight, thumbData);
 					}
-					fileMarker = readUint16();
 				}
+				// TODO APP1 - Exif
+				if (fileMarker == 0xFFEE) {
+					if (appData[0] == 0x41 && appData[1] == 0x64 && appData[2] == 0x6F &&
+								appData[3] == 0x62 && appData[4] == 0x65 && appData[5] == 0) { // 'Adobe\x00'
+						adobe = new adobe();
+						adobe.version = appData[6];
+						adobe.flags0 = dr.getUint16(7);//appData[7] << 8) | appData[8];
+						adobe.flags1 = dr.getUint16(9);// (appData[9] << 8) | appData[10];
+						adobe.transformCode = appData[11];
+					}
+				}
+				break;
 
-				this.width =frame.samplesPerLine;
-				this.height =frame.scanLines;
-				this.jfif =jfif;
-				this.adobe =adobe;
-				this.components =new Stack<component>();
-				for(
-						var i = 0; i<frame.components.size();i++)
+			case 0xFFDB: // DQT (Define Quantization Tables)
+				var quantizationTablesLength = readUint16();
+				var quantizationTablesEnd = quantizationTablesLength + offset - 2;
+				while (offset < quantizationTablesEnd) {
+					var quantizationTableSpec = data[offset++];
+					var tableData = new int[64];
+					if ((quantizationTableSpec >> 4) == 0) { // 8 bit values
+						for (var j = 0; j < 64; j++) {
+							var z = dctZigZag[j];
+							tableData[z] = data[offset++];
+						}
+					}
+					else if ((quantizationTableSpec >> 4) == 1) { //16 bit
+						for (var j = 0; j < 64; j++) {
+							var z = dctZigZag[j];
+							tableData[z] = readUint16();
+						}
+					}
+					else
+						throw new RuntimeException("DQT: invalid table spec");
+					quantizationTables.put(quantizationTableSpec & 15, tableData);
+				}
+				break;
 
-				{
-					component component = frame.components.get(i);
+			case 0xFFC0: // SOF0 (Start of Frame, Baseline DCT)
+			case 0xFFC1: // SOF1 (Start of Frame, Extended DCT)
+			case 0xFFC2: // SOF2 (Start of Frame, Progressive DCT)
+				if (frame != null) {
+					throw new RuntimeException("Only single frame JPEGs supported");
+				}
+				readUint16(); // skip data length
+				frame = new frame();
+				frame.extended = (fileMarker == 0xFFC1);
+				frame.progressive = (fileMarker == 0xFFC2);
+				frame.precision = data[offset++];
+				frame.scanLines = readUint16();
+				frame.samplesPerLine = readUint16();
+				frame.components = new Stack<>();
+				frame.componentIds = new HashMap<Byte, Integer>();
+				int componentsCount = data[offset++], componentId;
+				int maxH = 0, maxV = 0;
+				for (var i = 0; i < componentsCount; i++) {
+					componentId = data[offset];
+					var h = data[offset + 1] >> 4;
+					var v = data[offset + 1] & 15;
+					if (maxH < h) maxH = h;
+					if (maxV < v) maxV = v;
+					var qId = data[offset + 2];
+
 					var c = new component();
-					c.output = buildComponentData(frame, component);
-					c.scaleX = component.h / frame.maxH;
-					c.scaleY = component.v / frame.maxV;
-					c.blocksPerLine = component.blocksPerLine;
-					c.blocksPerColumn =
-							component.blocksPerColumn;
-					this.components.push(c);
+					c.h = h;
+					c.v = v;
+					c.quantizationTable = quantizationTables.get((int) qId);
+					frame.components.push(c);
+					frame.componentIds.put((byte) componentId, frame.components.size() - 1);
+					offset += 3;
 				}
+				frame.maxH = maxH;
+				frame.maxV = maxV;
+				prepareComponents(frame);
+				break;
+
+			case 0xFFC4: // DHT (Define Huffman Tables)
+				var huffmanLength = readUint16();
+				for (var i = 2; i < huffmanLength; ) {
+					var huffmanTableSpec = dr.read(offset++);
+					var codeLengths = new int[16];
+					var codeLengthSum = 0;
+					for (var j = 0; j < 16; j++, offset++)
+						codeLengthSum += (codeLengths[j] = dr.read(offset));
+					var huffmanValues = new int[codeLengthSum];
+					for (var j = 0; j < codeLengthSum; j++, offset++)
+						huffmanValues[j] = dr.read(offset);
+					i += 17 + codeLengthSum;
+					if ((huffmanTableSpec >> 4) == 0) {
+						huffmanTablesDC.put(huffmanTableSpec & 15, buildHuffmanTable(codeLengths, huffmanValues));
+					}
+					else {
+						huffmanTablesAC.put(huffmanTableSpec & 15, buildHuffmanTable(codeLengths, huffmanValues));
+					}
+				}
+				break;
+
+			case 0xFFDD: // DRI (Define Restart Interval)
+				readUint16(); // skip data length
+				resetInterval = readUint16();
+				break;
+
+			case 0xFFDA: // SOS (Start of Scan)
+
+				var scanLength = readUint16();
+				int selectorsCount = data[offset++];
+				var components = new Stack<component>();
+				component component;
+
+				for (var i = 0; i < selectorsCount; i++) {
+					var componentIndex = frame.componentIds.get(data[offset++]);
+					component = frame.components.get(componentIndex);
+					var tableSpec = data[offset++];
+					component.huffmanTableDC = huffmanTablesDC.get(tableSpec >> 4);
+					component.huffmanTableAC = huffmanTablesAC.get(tableSpec & 15);
+					components.push(component);
+				}
+				var spectralStart = data[offset++];
+				var spectralEnd = data[offset++];
+				var successiveApproximation = data[offset++];
+				var processed = decodeScan(data, offset,
+						frame, components, resetInterval,
+						spectralStart, spectralEnd,
+						successiveApproximation >> 4, successiveApproximation & 15);
+				offset += processed;
+				break;
+			default:
+				if (data[offset - 3] == 0xFF &&
+							data[offset - 2] >= 0xC0 && data[offset - 2] <= 0xFE) {
+					// could be incorrect encoding -- last 0xFF byte of the previous
+					// block was eaten by the encoder
+					offset -= 3;
+					break;
+				}
+				throw new RuntimeException("unknown JPEG marker " + fileMarker);
 			}
-		}.ctor();
+			fileMarker = readUint16();
+		}
+
+		this.width = frame.samplesPerLine;
+		this.height = frame.scanLines;
+		this.jfif = jfif;
+		this.adobe = adobe;
+		this.components = new Stack<component>();
+		for (
+				var i = 0; i < frame.components.size(); i++) {
+			component component = frame.components.get(i);
+			var c = new component();
+			c.output = buildComponentData(frame, component);
+			c.scaleX = component.h / frame.maxH;
+			c.scaleY = component.v / frame.maxV;
+			c.blocksPerLine = component.blocksPerLine;
+			c.blocksPerColumn =
+					component.blocksPerColumn;
+			this.components.push(c);
+		}
 	}
 
-	class imageData {
-
-		public int[] data;
-		public int width;
-		public int height;
-	}
-
-	public int[] getData(imageData imageData, int width, int height) {
+	public byte[] getData(imageData imageData, int width, int height) {
 		int scaleX = this.width / width, scaleY = this.height / height;
 
 		component component;
@@ -959,7 +951,7 @@ public class JpegImage {
 					cy = 0 | (y * componentScaleY);
 					cx = 0 | (x * componentScaleX);
 					index = cy * samplesPerLine + cx;
-					data[offset] = lineData[index];
+					data[offset] = (byte) lineData[index];
 					offset += numComponents;
 				}
 			}
@@ -979,9 +971,9 @@ public class JpegImage {
 			while (j < imageDataBytes) {
 				Y = data[i++];
 
-				imageDataArray[j++] = Y;
-				imageDataArray[j++] = Y;
-				imageDataArray[j++] = Y;
+				imageDataArray[j++] = (byte) Y;
+				imageDataArray[j++] = (byte) Y;
+				imageDataArray[j++] = (byte) Y;
 				imageDataArray[j++] = (byte) 255;
 			}
 			break;
@@ -991,9 +983,9 @@ public class JpegImage {
 				G = data[i++];
 				B = data[i++];
 
-				imageDataArray[j++] = R;
-				imageDataArray[j++] = G;
-				imageDataArray[j++] = B;
+				imageDataArray[j++] = (byte) R;
+				imageDataArray[j++] = (byte) G;
+				imageDataArray[j++] = (byte) B;
 				imageDataArray[j++] = (byte) 255;
 			}
 			break;
@@ -1012,9 +1004,9 @@ public class JpegImage {
 				G = clampToUint8(k0 - M * k1);
 				B = clampToUint8(k0 - Y * k1);
 
-				imageDataArray[j++] = R;
-				imageDataArray[j++] = G;
-				imageDataArray[j++] = B;
+				imageDataArray[j++] = (byte) R;
+				imageDataArray[j++] = (byte) G;
+				imageDataArray[j++] = (byte) B;
 				imageDataArray[j++] = (byte) 255;
 			}
 			break;
@@ -1023,25 +1015,3 @@ public class JpegImage {
 		}
 	}
 }
-
-//		 window.decodeJPEG=function decode(data){
-//		 const jpegImage=new JpegImage();
-//
-//		 jpegImage.loadFromBuffer(data);
-//
-//		 var imageData;
-//		 if(typeof ImageData!=='undefined'){
-//		 imageData=new ImageData(jpegImage.width,jpegImage.height);
-//		 }else{
-//		 imageData={
-//		 width:jpegImage.width,
-//		 height:jpegImage.height,
-//		 data:new Uint8ClampedArray(jpegImage.width*jpegImage.height*4)
-//		 };
-//		 }
-//		 jpegImage.getData(imageData,jpegImage.width,jpegImage.height);
-//
-//		 return imageData;
-//		 };
-//
-//		 }

@@ -263,7 +263,7 @@ public class Terrain {
 
 //TODO rgb color correct ?
 			final String path = texDir + "\\" + texFile + texturesExt;
-			var blp = ImageUtils.decodeRes(new ResourceInfo(dataSource, path));
+			var blp = ImageUtils.getImageData(new ResourceInfo(dataSource, path));
 			System.err.println("may need sRGB format. " + path);
 			//final AnyExtensionImage imageInfo = ImageUtils.getAnyExtensionImageFixRGB(dataSource,
 			//		texDir + "\\" + texFile + texturesExt, "cliff texture");

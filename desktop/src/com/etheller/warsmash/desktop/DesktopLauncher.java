@@ -14,13 +14,11 @@ import java.nio.FloatBuffer;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplicationDesktop;
 import com.badlogic.gdx.backends.lwjgl.audio.LwjglAudio;
-import com.etheller.warsmash.GdxEnv;
+import com.etheller.warsmash.*;
 import com.etheller.warsmash.audio.OpenALAudio;
+import com.etheller.warsmash.audio.OpenALSound;
 import com.etheller.warsmash.viewer5.gl.*;
-import com.etheller.warsmash.viewer5.handlers.w3x.W3xShaders;
-import com.etheller.warsmash.viewer5.handlers.w3x.environment.TerrainShaders;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL;
 import org.lwjgl.opengl.GL11;
@@ -34,10 +32,6 @@ import com.badlogic.gdx.Graphics.DisplayMode;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl.LwjglNativesLoader;
-import com.etheller.warsmash.WarsmashGdxFDFTestRenderScreen;
-import com.etheller.warsmash.WarsmashGdxMenuScreen;
-import com.etheller.warsmash.WarsmashGdxMultiScreenGame;
-import com.etheller.warsmash.audio.OpenALSound;
 import com.etheller.warsmash.units.DataTable;
 import com.etheller.warsmash.units.Element;
 import com.etheller.warsmash.util.StringBundle;
@@ -54,10 +48,12 @@ public class DesktopLauncher extends LwjglApplication {
 	@Override
 	public LwjglAudio createAudio(LwjglApplicationConfiguration config) {
 		OpenALAudio audio1 = new OpenALAudio();
-		if(!audio1.isNoDevice())
+		if (!audio1.isNoDevice())
 			return audio1;
 		return super.createAudio(config);
 	}
+
+
 
 	public static void main(final String[] arg) {
 		System.out.println("Warsmash engine is starting...");
@@ -75,9 +71,9 @@ public class DesktopLauncher extends LwjglApplication {
 //		config.foregroundFPS = 0;
 //		config.backgroundFPS = 0;
 		final DisplayMode desktopDisplayMode = LwjglApplicationConfiguration.getDesktopDisplayMode();
-		config.width = desktopDisplayMode.width;
-		config.height = desktopDisplayMode.height;
-		config.fullscreen = true;
+		config.width = (int) (desktopDisplayMode.width * 0.8);
+		config.height = (int) (desktopDisplayMode.height * 0.8);
+		config.fullscreen = false;
 		String fileToLoad = null;
 		String iniPath = null;
 		boolean noLogs = true;
@@ -126,7 +122,7 @@ public class DesktopLauncher extends LwjglApplication {
 		new DesktopLauncher(warsmashGdxMultiScreenGame, config);
 		GdxEnv.EXTERNAL_STORAGE_ROOT = Gdx.files.getExternalStoragePath();
 		final String finalFileToLoad = fileToLoad;
-
+//		testBLP.main(null);
 //		Gdx.app.postRunnable(() -> {
 //			// WebGL test
 //			try {

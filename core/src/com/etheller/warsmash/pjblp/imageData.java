@@ -1,0 +1,34 @@
+package com.etheller.warsmash.pjblp;
+
+import com.etheller.warsmash.util.AbstractBitmap;
+import org.apache.commons.compress.utils.ByteUtils;
+import org.lwjgl.BufferUtils;
+
+import java.nio.ByteBuffer;
+
+public class imageData extends AbstractBitmap implements blpDataFormat {
+	public final byte[] data;
+	public final int width;
+	public final int height;
+
+	public imageData(byte[] bytes, int width, int height) {
+		this.data = bytes;
+		this.width = width;
+		this.height = height;
+	}
+
+	@Override
+	public int getHeight() {
+		return this.height;
+	}
+
+	@Override
+	public int getWidth() {
+		return this.width;
+	}
+
+	@Override
+	public ByteBuffer getBuffer() {
+		return BufferUtils.createByteBuffer(this.width * height * 4).put(this.data).flip();
+	}
+}

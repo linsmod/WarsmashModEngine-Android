@@ -25,6 +25,8 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.*;
 import com.etheller.warsmash.audio.*;
+import com.etheller.warsmash.audio.OpenALMusic;
+import com.etheller.warsmash.audio.OpenALSound;
 import com.etheller.warsmash.loader.ExtensionLoader;
 import com.etheller.warsmash.viewer5.gl.Extensions;
 import com.shc.androidopenal.AL;
@@ -168,7 +170,7 @@ public class AndroidOpenALAudio implements AndroidAudio, IOpenALAudio {
 		idleSources.add(source);
 	}
 
-	public void CALL_freeBuffer(int bufferID) {
+	public void freeBuffer(int bufferID) {
 		if (noDevice) return;
 		for (int i = 0, n = idleSources.size(); i < n; i++) {
 			ALAudioSource source = idleSources.get(i);
@@ -185,7 +187,7 @@ public class AndroidOpenALAudio implements AndroidAudio, IOpenALAudio {
 	 * @return
 	 */
 	@Override
-	public int CALL_alGenBuffers() {
+	public int alGenBuffers() {
 		return AL.alGenBuffers();
 	}
 
@@ -196,7 +198,7 @@ public class AndroidOpenALAudio implements AndroidAudio, IOpenALAudio {
 	 * @param sampleRate
 	 */
 	@Override
-	public void CALL_alBufferData(int bufferID, int i, ShortBuffer shortBuffer, int sampleRate) {
+	public void alBufferData(int bufferID, int i, ShortBuffer shortBuffer, int sampleRate) {
 		AL.alBufferData(bufferID, i, shortBuffer, sampleRate);
 	}
 
@@ -218,11 +220,16 @@ public class AndroidOpenALAudio implements AndroidAudio, IOpenALAudio {
 	 * @param bufferID
 	 */
 	@Override
-	public void CALL_alDeleteBuffers(int bufferID) {
+	public void alDeleteBuffers(int bufferID) {
 		AL.alDeleteBuffers(bufferID);
 	}
 
-	public void stopSource(int bufferID) {
+	@Override
+	public void update() {
+
+	}
+
+	public void stopSourcesWithBuffer(int bufferID) {
 		if (noDevice) return;
 		for (int i = 0, n = idleSources.size(); i < n; i++) {
 			ALAudioSource source = idleSources.get(i);
@@ -234,7 +241,7 @@ public class AndroidOpenALAudio implements AndroidAudio, IOpenALAudio {
 		}
 	}
 
-	public void pauseSource(int bufferID) {
+	public void pauseSourcesWithBuffer(int bufferID) {
 		if (noDevice) return;
 		for (int i = 0, n = idleSources.size(); i < n; i++) {
 			ALAudioSource source = idleSources.get(i);
@@ -243,7 +250,7 @@ public class AndroidOpenALAudio implements AndroidAudio, IOpenALAudio {
 		}
 	}
 
-	public void resumeSource(int bufferID) {
+	public void resumeSourcesWithBuffer(int bufferID) {
 		if (noDevice) return;
 		for (int i = 0, n = idleSources.size(); i < n; i++) {
 			ALAudioSource source = idleSources.get(i);
@@ -294,7 +301,7 @@ public class AndroidOpenALAudio implements AndroidAudio, IOpenALAudio {
 	 * @return
 	 */
 
-	public int getAudioSource(boolean isMusic) {
+	public int obtainSource(boolean isMusic) {
 		if (noDevice) return -1;
 		for (int i = 0, n = idleSources.size(); i < n; i++) {
 			ALAudioSource source = idleSources.get(i);
@@ -446,7 +453,7 @@ public class AndroidOpenALAudio implements AndroidAudio, IOpenALAudio {
 	 * Retains a list of the most recently played sounds and stops the sound played least recently if necessary for a new sound to
 	 * play
 	 */
-	public void retainSound(OpenALSound sound, boolean stop) {
+	public void retain(OpenALSound sound, boolean stop) {
 		// Move the pointer ahead and wrap
 		mostRecetSound++;
 		mostRecetSound %= recentSounds.length;
@@ -462,7 +469,7 @@ public class AndroidOpenALAudio implements AndroidAudio, IOpenALAudio {
 	/**
 	 * Removes the disposed sound from the least recently played list
 	 */
-	public void removeFromRecent(OpenALSound sound) {
+	public void forget(OpenALSound sound) {
 		for (int i = 0; i < recentSounds.length; i++) {
 			if (recentSounds[i] == sound) recentSounds[i] = null;
 		}
