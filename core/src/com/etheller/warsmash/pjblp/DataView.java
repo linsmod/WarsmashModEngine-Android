@@ -1,7 +1,5 @@
 package com.etheller.warsmash.pjblp;
 
-import com.etheller.warsmash.BitConvert;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;

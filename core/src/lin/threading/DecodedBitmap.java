@@ -1,7 +1,7 @@
 package lin.threading;
 
 import com.badlogic.gdx.graphics.Pixmap;
-import com.etheller.warsmash.util.AbstractBitmap;
+import com.etheller.warsmash.pjblp.AbstractBitmap;
 import org.apache.harmony.luni.util.NotImplementedException;
 
 import java.io.IOException;

@@ -4,6 +4,8 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.etheller.warsmash.viewer5.handlers.ResourceHandler;
 
+import java.nio.ByteBuffer;
+
 public abstract class GdxTextureResource extends Texture {
 	private com.badlogic.gdx.graphics.Texture gdxTexture;
 
@@ -14,6 +16,10 @@ public abstract class GdxTextureResource extends Texture {
 
 	public void setGdxTexture(final com.badlogic.gdx.graphics.Texture gdxTexture) {
 		this.gdxTexture = gdxTexture;
+	}
+
+	public ByteBuffer getData(){
+		return this.gdxTexture.getTextureData().consumePixmap().getPixels();
 	}
 
 	@Override

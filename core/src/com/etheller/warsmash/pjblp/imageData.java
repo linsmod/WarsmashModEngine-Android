@@ -1,7 +1,5 @@
 package com.etheller.warsmash.pjblp;
 
-import com.etheller.warsmash.util.AbstractBitmap;
-import org.apache.commons.compress.utils.ByteUtils;
 import org.lwjgl.BufferUtils;
 
 import java.nio.ByteBuffer;

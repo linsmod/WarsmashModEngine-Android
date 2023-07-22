@@ -5,17 +5,14 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import com.badlogic.gdx.Application;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
-import com.badlogic.gdx.graphics.g2d.Gdx2DPixmap;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.etheller.warsmash.datasources.DataSource;
+import com.etheller.warsmash.pjblp.AbstractBitmap;
 import com.etheller.warsmash.pjblp.Blp2;
 import com.etheller.warsmash.pjblp.blpDataFormat;
 import com.etheller.warsmash.pjblp.imageData;
@@ -37,8 +34,6 @@ import com.lin.imageio.plugins.jpeg.JPEGImageReaderSpi;
 import lin.threading.MtPixelTask;
 import lin.threading.DecodedBitmap;
 import net.hydromatic.linq4j.Linq;
-import org.apache.commons.imaging.ImageReadException;
-import org.apache.commons.imaging.Imaging;
 import org.apache.commons.imaging.common.bytesource.ByteSourceInputStream;
 import org.lwjgl.BufferUtils;
 
@@ -50,8 +45,8 @@ public final class ImageUtils {
 	public static final String DEFAULT_ICON_PATH = "ReplaceableTextures\\CommandButtons\\BTNTemp.blp";
 
 	static {
-		IIORegistry.getDefaultInstance().registerServiceProvider(new BLPReaderSpi());
-		IIORegistry.getDefaultInstance().registerServiceProvider(new JPEGImageReaderSpi());
+//		IIORegistry.getDefaultInstance().registerServiceProvider(new BLPReaderSpi());
+//		IIORegistry.getDefaultInstance().registerServiceProvider(new JPEGImageReaderSpi());
 	}
 
 	public static Texture getAnyExtensionTexture(final DataSource dataSource, final String path) {
@@ -176,78 +171,78 @@ public final class ImageUtils {
 		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		return texture;
 	}
-
-	public static DecodedBitmap decodeBLP(ResourceInfo info) throws IOException {
-		return decodeBLP(info.getResourceAsStream());
-	}
-
-	public static DecodedBitmap decodeBLP(InputStream stream) throws IOException {
-		BLPReader reader = new BLPReader(null);
-		reader.setInput(new ByteSourceInputStream(stream, null));
-		var image = reader.read(0, new BLPReadParam() {
-			@Override
-			public boolean isDirectRead() {
-				return true;
-			}
-
-			@Override
-			public ImageReaderSpi getJPEGSpi() {
-				return new JPEGImageReaderSpi();
-			}
-		});
-
-		//speedup read using multi-threading task
-		int batchSize = 64;
-		var task = MtPixelTask.create(image::getRGB, image.getWidth(), image.getHeight(), batchSize);
-		return task.read();
-	}
-
-	public static DecodedBitmap decodeRes(ResourceInfo info) throws IOException {
-		var file = info.getCacheFile("blp2png", ".png");
-//		var temp = info.getCacheFile("blp2png", ".png.tmp");
-//		if (temp.exists())
-//			temp.delete();
-		if (!file.exists()) {
-			file.parent().mkdirs();
-			ByteArrayOutputStream bos = new ByteArrayOutputStream(100 << 10);
-
-			var fs = new FileOutputStream(file.file()) {
-				@Override
-				public void write(byte[] b, int off, int len) throws IOException {
-					super.write(b, off, len);
-					bos.write(b, off, len);
-				}
-
-				@Override
-				public void flush() throws IOException {
-					bos.flush();
-					super.flush();
-				}
-			};
-
-			var image = com.google.code.appengine.imageio.ImageIO.read(info.getResourceAsStream());
-			com.google.code.appengine.imageio.ImageIO.write(image, "png", fs);
-
-//			temp.moveTo(file);
-//			temp.delete();
-			System.out.println("[WRITE_BLP_PNG] " + file.path());
-			return rgbaEncode(image);
-		}
-		else {
-
-			// load converted png from cache for the blp.
-//			System.out.println("[LOAD_BLP_PNG] " + file.path());
-
-			var image = com.google.code.appengine.imageio.ImageIO.read(file.file());
-			return rgbaEncode(image);
-		}
-	}
-
-	static DecodedBitmap rgbaEncode(BufferedImage image) {
-		int batchSize = 64;
-		var task = MtPixelTask.create(image::getRGB, image.getWidth(), image.getHeight(), batchSize);
-		return task.read();
-	}
+//
+//	public static DecodedBitmap decodeBLP(ResourceInfo info) throws IOException {
+//		return decodeBLP(info.getResourceAsStream());
+//	}
+//
+//	public static DecodedBitmap decodeBLP(InputStream stream) throws IOException {
+//		BLPReader reader = new BLPReader(null);
+//		reader.setInput(new ByteSourceInputStream(stream, null));
+//		var image = reader.read(0, new BLPReadParam() {
+//			@Override
+//			public boolean isDirectRead() {
+//				return true;
+//			}
+//
+//			@Override
+//			public ImageReaderSpi getJPEGSpi() {
+//				return new JPEGImageReaderSpi();
+//			}
+//		});
+//
+//		//speedup read using multi-threading task
+//		int batchSize = 64;
+//		var task = MtPixelTask.create(image::getRGB, image.getWidth(), image.getHeight(), batchSize);
+//		return task.read();
+//	}
+//
+//	public static DecodedBitmap decodeRes(ResourceInfo info) throws IOException {
+//		var file = info.getCacheFile("blp2png", ".png");
+////		var temp = info.getCacheFile("blp2png", ".png.tmp");
+////		if (temp.exists())
+////			temp.delete();
+//		if (!file.exists()) {
+//			file.parent().mkdirs();
+//			ByteArrayOutputStream bos = new ByteArrayOutputStream(100 << 10);
+//
+//			var fs = new FileOutputStream(file.file()) {
+//				@Override
+//				public void write(byte[] b, int off, int len) throws IOException {
+//					super.write(b, off, len);
+//					bos.write(b, off, len);
+//				}
+//
+//				@Override
+//				public void flush() throws IOException {
+//					bos.flush();
+//					super.flush();
+//				}
+//			};
+//
+//			var image = com.google.code.appengine.imageio.ImageIO.read(info.getResourceAsStream());
+//			com.google.code.appengine.imageio.ImageIO.write(image, "png", fs);
+//
+////			temp.moveTo(file);
+////			temp.delete();
+//			System.out.println("[WRITE_BLP_PNG] " + file.path());
+//			return rgbaEncode(image);
+//		}
+//		else {
+//
+//			// load converted png from cache for the blp.
+////			System.out.println("[LOAD_BLP_PNG] " + file.path());
+//
+//			var image = com.google.code.appengine.imageio.ImageIO.read(file.file());
+//			return rgbaEncode(image);
+//		}
+//	}
+//
+//	static DecodedBitmap rgbaEncode(BufferedImage image) {
+//		int batchSize = 64;
+//		var task = MtPixelTask.create(image::getRGB, image.getWidth(), image.getHeight(), batchSize);
+//		return task.read();
+//	}
 
 	/**
 	 * @param res blp/jpeg/png/dds/tga should be supported by awt-imageio
@@ -310,71 +305,71 @@ public final class ImageUtils {
 		};
 	}
 
-	public static Pixmap getPixmap2(ResourceInfo res) throws IOException {
+	public static Pixmap getPixmap(ResourceInfo res) throws IOException {
 		var image = Blp2.decode(res.getResourceAsStream().readAllBytes());
 		var data = Blp2.getImageData(image, 0);
 		var pixmap = new Pixmap(data.width, data.height, Format.RGBA8888);
 		pixmap.setPixels(BufferUtils.createByteBuffer(data.width * data.height * 4).put(data.data).flip());
 		return pixmap;
 	}
-
-	public static Pixmap getPixmap(ResourceInfo res) throws IOException {
-		if (true)
-			return getPixmap2(res);
-		final ResourceInfo info = res;
-		var file = info.getCacheFile("blp2png", ".png");
-//		var temp = info.getCacheFile("blp2png", ".png.tmp");
-//		if (temp.exists())
-//			temp.delete();
-		if (!file.exists()) {
-			file.parent().mkdirs();
-			ByteArrayOutputStream bos = new ByteArrayOutputStream(100 << 10);
-
-			var fs = new FileOutputStream(file.file()) {
-				@Override
-				public void write(byte[] b, int off, int len) throws IOException {
-					super.write(b, off, len);
-					bos.write(b, off, len);
-				}
-
-				@Override
-				public void flush() throws IOException {
-					bos.flush();
-					super.flush();
-				}
-			};
-
-			var image = com.google.code.appengine.imageio.ImageIO.read(res.getResourceAsStream());
-			com.google.code.appengine.imageio.ImageIO.write(image, "png", fs);
-
-//			temp.moveTo(file);
-
-			var pngData = bos.toByteArray();
-			Pixmap pixmap = new Pixmap(pngData, 0, pngData.length);
-			System.out.println("[WRITE_BLP_PNG] " + file.path());
-			return pixmap;
-		}
-		else {
-
-//			try {
-//				byte[] bytes = file.readBytes();
-//				return new Pixmap(new Gdx2DPixmap(bytes, 0, bytes.length,Format.toGdx2DPixmapFormat(Format.RGBA8888) )){
-//					@Override
-//					public int getGLInternalFormat() {
-//						return GL30.GL_SRGB8_ALPHA8;
-//					}
-//				};
-//			} catch (Exception e) {
-//				throw new GdxRuntimeException("Couldn't load file: " + file, e);
-//			}
-
-			//load converted png from cache for the blp.
-			System.out.println("[LOAD_BLP_PNG] " + file.path());
-			Pixmap pixmap = new Pixmap(file);
-			return pixmap;
-		}
-	}
-
+//
+//	public static Pixmap getPixmap(ResourceInfo res) throws IOException {
+//		if (true)
+//			return getPixmap2(res);
+//		final ResourceInfo info = res;
+//		var file = info.getCacheFile("blp2png", ".png");
+////		var temp = info.getCacheFile("blp2png", ".png.tmp");
+////		if (temp.exists())
+////			temp.delete();
+//		if (!file.exists()) {
+//			file.parent().mkdirs();
+//			ByteArrayOutputStream bos = new ByteArrayOutputStream(100 << 10);
+//
+//			var fs = new FileOutputStream(file.file()) {
+//				@Override
+//				public void write(byte[] b, int off, int len) throws IOException {
+//					super.write(b, off, len);
+//					bos.write(b, off, len);
+//				}
+//
+//				@Override
+//				public void flush() throws IOException {
+//					bos.flush();
+//					super.flush();
+//				}
+//			};
+//
+//			var image = com.google.code.appengine.imageio.ImageIO.read(res.getResourceAsStream());
+//			com.google.code.appengine.imageio.ImageIO.write(image, "png", fs);
+//
+////			temp.moveTo(file);
+//
+//			var pngData = bos.toByteArray();
+//			Pixmap pixmap = new Pixmap(pngData, 0, pngData.length);
+//			System.out.println("[WRITE_BLP_PNG] " + file.path());
+//			return pixmap;
+//		}
+//		else {
+//
+////			try {
+////				byte[] bytes = file.readBytes();
+////				return new Pixmap(new Gdx2DPixmap(bytes, 0, bytes.length,Format.toGdx2DPixmapFormat(Format.RGBA8888) )){
+////					@Override
+////					public int getGLInternalFormat() {
+////						return GL30.GL_SRGB8_ALPHA8;
+////					}
+////				};
+////			} catch (Exception e) {
+////				throw new GdxRuntimeException("Couldn't load file: " + file, e);
+////			}
+//
+//			//load converted png from cache for the blp.
+//			System.out.println("[LOAD_BLP_PNG] " + file.path());
+//			Pixmap pixmap = new Pixmap(file);
+//			return pixmap;
+//		}
+//	}
+//
 	public static Texture getTextureNoColorCorrection(final BufferedImage image) {
 		final int[] pixels = new int[image.getWidth() * image.getHeight()];
 		image.getRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());
@@ -397,45 +392,45 @@ public final class ImageUtils {
 		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		return texture;
 	}
-
-	public static Buffer getTextureBuffer(final BufferedImage image) {
-
-		final int imageWidth = image.getWidth();
-		final int imageHeight = image.getHeight();
-		final int[] pixels = new int[imageWidth * imageHeight];
-		image.getRGB(0, 0, imageWidth, imageHeight, pixels, 0, imageWidth);
-
-		final ByteBuffer buffer = ByteBuffer.allocateDirect(imageWidth * imageHeight * BYTES_PER_PIXEL)
-										  .order(ByteOrder.nativeOrder());
-		// 4
-		// for
-		// RGBA,
-		// 3
-		// for
-		// RGB
-
-		for (int y = 0; y < imageHeight; y++) {
-			for (int x = 0; x < imageWidth; x++) {
-				final int pixel = pixels[(y * imageWidth) + x];
-				buffer.put((byte) ((pixel >> 16) & 0xFF)); // Red component
-				buffer.put((byte) ((pixel >> 8) & 0xFF)); // Green component
-				buffer.put((byte) (pixel & 0xFF)); // Blue component
-				buffer.put((byte) ((pixel >> 24) & 0xFF)); // Alpha component.
-				// Only for RGBA
-			}
-		}
-
-		buffer.flip();
-		return buffer;
-	}
-
-	/**
-	 * Convert an input buffered image into sRGB color space using component values
-	 * directly instead of performing a color space conversion.
-	 *
-	 * @param in Input image to be converted.
-	 * @return Resulting sRGB image.
-	 */
+//
+//	public static Buffer getTextureBuffer(final BufferedImage image) {
+//
+//		final int imageWidth = image.getWidth();
+//		final int imageHeight = image.getHeight();
+//		final int[] pixels = new int[imageWidth * imageHeight];
+//		image.getRGB(0, 0, imageWidth, imageHeight, pixels, 0, imageWidth);
+//
+//		final ByteBuffer buffer = ByteBuffer.allocateDirect(imageWidth * imageHeight * BYTES_PER_PIXEL)
+//										  .order(ByteOrder.nativeOrder());
+//		// 4
+//		// for
+//		// RGBA,
+//		// 3
+//		// for
+//		// RGB
+//
+//		for (int y = 0; y < imageHeight; y++) {
+//			for (int x = 0; x < imageWidth; x++) {
+//				final int pixel = pixels[(y * imageWidth) + x];
+//				buffer.put((byte) ((pixel >> 16) & 0xFF)); // Red component
+//				buffer.put((byte) ((pixel >> 8) & 0xFF)); // Green component
+//				buffer.put((byte) (pixel & 0xFF)); // Blue component
+//				buffer.put((byte) ((pixel >> 24) & 0xFF)); // Alpha component.
+//				// Only for RGBA
+//			}
+//		}
+//
+//		buffer.flip();
+//		return buffer;
+//	}
+//
+//	/**
+//	 * Convert an input buffered image into sRGB color space using component values
+//	 * directly instead of performing a color space conversion.
+//	 *
+//	 * @param in Input image to be converted.
+//	 * @return Resulting sRGB image.
+//	 */
 	public static BufferedImage forceBufferedImagesRGB(final BufferedImage in) {
 		// Resolve input ColorSpace.
 		final ColorSpace inCS = in.getColorModel().getColorSpace();

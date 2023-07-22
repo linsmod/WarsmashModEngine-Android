@@ -1,6 +1,6 @@
 package com.etheller.warsmash.viewer5.handlers.w3x.environment;
 
-import com.etheller.warsmash.util.AbstractBitmap;
+import com.etheller.warsmash.pjblp.AbstractBitmap;
 
 import java.io.IOException;
 import java.nio.Buffer;

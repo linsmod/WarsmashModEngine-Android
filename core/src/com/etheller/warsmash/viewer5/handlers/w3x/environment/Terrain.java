@@ -1,5 +1,6 @@
 package com.etheller.warsmash.viewer5.handlers.w3x.environment;
 
+import com.etheller.warsmash.pjblp.AbstractBitmap;
 import com.etheller.warsmash.util.*;
 
 import java.io.IOException;
@@ -18,8 +19,9 @@ import java.util.Map;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 
+import com.etheller.warsmash.viewer5.*;
 import com.etheller.warsmash.viewer5.handlers.ResourceInfo;
-import lin.threading.DecodedBitmap;
+import com.etheller.warsmash.viewer5.handlers.blp.BlpGdxTexture;
 import org.apache.commons.compress.utils.IOUtils;
 
 import com.badlogic.gdx.Gdx;
@@ -37,10 +39,6 @@ import com.etheller.warsmash.parsers.w3x.w3i.War3MapW3i;
 import com.etheller.warsmash.parsers.w3x.wpm.War3MapWpm;
 import com.etheller.warsmash.units.DataTable;
 import com.etheller.warsmash.units.Element;
-import com.etheller.warsmash.viewer5.Camera;
-import com.etheller.warsmash.viewer5.PathSolver;
-import com.etheller.warsmash.viewer5.RawOpenGLTextureResource;
-import com.etheller.warsmash.viewer5.Texture;
 import com.etheller.warsmash.viewer5.gl.DataTexture;
 import com.etheller.warsmash.viewer5.gl.Extensions;
 import com.etheller.warsmash.viewer5.gl.WebGL;
@@ -377,8 +375,8 @@ public class Terrain {
 			boolean anyWaterTextureNeedsSRGB = false;
 			int waterImageDimension = 128;
 			for (int i = 0; i < this.waterTextureCount; i++) {
-				String blpPath = fileName + (i < 10 ? "0" : "") + Integer.toString(i) + texturesExt;
-				var blp = ImageUtils.getBitmap(new ResourceInfo(dataSource, blpPath));
+				String blpPath = fileName + (i < 10 ? "0" : "") + i + texturesExt;
+				var blp = ImageUtils.getImageData(new ResourceInfo(dataSource, blpPath));
 //				final AnyExtensionImage imageInfo = ImageUtils.getAnyExtensionImageFixRGB(dataSource,
 //						blpPath, "water texture");
 //				final BufferedImage image = imageInfo.getImageData();
@@ -1258,9 +1256,11 @@ public class Terrain {
 		final int ox = (int) Math.round(width * 0.3);
 		final int oy = (int) Math.round(height * 0.7);
 		if (texture instanceof RawOpenGLTextureResource)
-			blitShadowDataLocation(columns, rows, (RawOpenGLTextureResource) texture, width, height, ox, oy,
+			blitShadowDataLocation(columns, rows, ((RawOpenGLTextureResource) texture).getData(), width, height, ox, oy,
 					this.centerOffset, shadowX, shadowY, this.shadowData);
-//TODO blitShadowDataLocation to blpGdxTexture
+		if(texture instanceof GdxTextureResource)
+			blitShadowDataLocation(columns, rows, ((GdxTextureResource) texture).getData(), width, height, ox, oy,
+					this.centerOffset, shadowX, shadowY, this.shadowData);
 	}
 
 	public void initShadows() throws IOException {
@@ -1342,14 +1342,16 @@ public class Terrain {
 			final int oy = (int) Math.round(height * 0.7);
 			for (final float[] location : this.shadows.get(file)) {
 				if (texture instanceof RawOpenGLTextureResource)
-					blitShadowDataLocation(columns, rows, (RawOpenGLTextureResource) texture, width, height, ox, oy,
+					blitShadowDataLocation(columns, rows, ((RawOpenGLTextureResource) texture).getData(), width, height, ox, oy,
 							centerOffset, location[0], location[1], this.shadowData);
-				//TODO blitShadowDataLocation to blpGdxTexture
+				if(texture instanceof BlpGdxTexture)
+					blitShadowDataLocation(columns, rows, ((BlpGdxTexture) texture).getData(), width, height, ox, oy,
+							centerOffset, location[0], location[1], this.shadowData);
 			}
 		}
 	}
 
-	public void blitShadowDataLocation(final int columns, final int rows, final RawOpenGLTextureResource texture,
+	public void blitShadowDataLocation(final int columns, final int rows, final ByteBuffer textureData,
 			final int width, final int height, final int x01, final int y01, final float[] centerOffset, final float v,
 			final float v2, final byte[] shadowData) {
 		final int x0 = (int) Math.floor((v - centerOffset[0]) / 32.0) - x01;
@@ -1362,7 +1364,7 @@ public class Terrain {
 				if (((x0 + x) < 0) || ((x0 + x) >= columns)) {
 					continue;
 				}
-				if (texture.getData().get((((y * width) + x) * 4) + 3) != 0) {
+				if (textureData.get((((y * width) + x) * 4) + 3) != 0) {
 					shadowData[((y0 - y) * columns) + x0 + x] = (byte) 128;
 				}
 			}

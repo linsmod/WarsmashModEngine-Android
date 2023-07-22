@@ -1,4 +1,4 @@
-package com.etheller.warsmash;
+package com.etheller.warsmash.pjblp;
 
 import java.io.IOException;
 import java.io.InputStream;
