@@ -16,11 +16,16 @@
 
 package com.etheller.warsmash.audio;
 
+import java.io.ByteArrayOutputStream;
+
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import javazoom.jl.decoder.*;
 
-import java.io.ByteArrayOutputStream;
+import javazoom.jl.decoder.Bitstream;
+import javazoom.jl.decoder.BitstreamException;
+import javazoom.jl.decoder.Header;
+import javazoom.jl.decoder.MP3Decoder;
+import javazoom.jl.decoder.OutputBuffer;
 
 /** @author Nathan Sweet */
 public class Mp3 {
@@ -31,7 +36,7 @@ public class Mp3 {
 		private OutputBuffer outputBuffer;
 		private MP3Decoder decoder;
 
-		public Music(final IOpenALAudio audio, final FileHandle file) {
+		public Music(final OpenALAudio audio, final FileHandle file) {
 			super(audio, file);
 			if (audio.noDevice) {
 				return;
@@ -114,7 +119,7 @@ public class Mp3 {
 	static public class Sound extends OpenALSound {
 		// Note: This uses a slightly modified version of JLayer.
 
-		public Sound(final IOpenALAudio audio, final FileHandle file) {
+		public Sound(final OpenALAudio audio, final FileHandle file) {
 			super(audio);
 			if (audio.noDevice) {
 				return;

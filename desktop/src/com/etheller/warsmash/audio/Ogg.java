@@ -16,11 +16,10 @@
 
 package com.etheller.warsmash.audio;
 
-import com.badlogic.gdx.backends.lwjgl.audio.OggInputStream;
+import java.io.ByteArrayOutputStream;
+
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.StreamUtils;
-
-import java.io.ByteArrayOutputStream;
 
 /** @author Nathan Sweet */
 public class Ogg {
@@ -28,7 +27,7 @@ public class Ogg {
 		private OggInputStream input;
 		private OggInputStream previousInput;
 
-		public Music(final IOpenALAudio audio, final FileHandle file) {
+		public Music(final OpenALAudio audio, final FileHandle file) {
 			super(audio, file);
 			if (audio.noDevice) {
 				return;
@@ -63,7 +62,7 @@ public class Ogg {
 	}
 
 	static public class Sound extends OpenALSound {
-		public Sound(final IOpenALAudio audio, final FileHandle file) {
+		public Sound(final OpenALAudio audio, final FileHandle file) {
 			super(audio);
 			if (audio.noDevice) {
 				return;

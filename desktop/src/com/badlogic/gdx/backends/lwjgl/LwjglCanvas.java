@@ -23,6 +23,8 @@ import java.awt.EventQueue;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.etheller.warsmash.audio.IOpenALAudio;
+import com.etheller.warsmash.audio.OpenALAudio;
 import org.lwjgl.opengl.AWTGLCanvas;
 import org.lwjgl.opengl.Display;
 
@@ -40,7 +42,6 @@ import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Clipboard;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
-import com.etheller.warsmash.audio.OpenALAudio;
 
 /**
  * An OpenGL surface on an AWT Canvas, allowing OpenGL to be embedded in a Swing

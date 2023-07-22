@@ -9,7 +9,7 @@ public interface IOpenALAudio {
 
     void addMusic(OpenALMusic openALMusic);
 
-    int getAudioSource(boolean b);
+    int obtainSource(boolean b);
 
     void removeMusic(OpenALMusic openALMusic);
 
@@ -17,11 +17,11 @@ public interface IOpenALAudio {
 
     void stopSound(long soundId);
 
-    void pauseSource(int bufferID);
+    void pauseSourcesWithBuffer( int bufferID);
 
     void pauseSound(long soundId);
 
-    void resumeSource(int bufferID);
+    void resumeSourcesWithBuffer(int bufferID);
 
     void resumeSound(long soundId);
 
@@ -35,20 +35,22 @@ public interface IOpenALAudio {
 
     void setSoundPosition(long soundId, float x, float y, float z, boolean is3DSound, float maxDistance, float refDistance);
 
-    void retainSound(OpenALSound openALSound, boolean b);
+    void retain(OpenALSound openALSound, boolean b);
 
-    void stopSource(int bufferID);
+    void stopSourcesWithBuffer(int bufferID);
 
-    void removeFromRecent(OpenALSound openALMusic);
+    void forget(OpenALSound openALMusic);
     void playSound(int sourceID, int bufferID, boolean looping, float volume);
 
 
-    void CALL_freeBuffer(int bufferID);
+    void freeBuffer(int bufferID);
 
-    int CALL_alGenBuffers();
+    int alGenBuffers();
 
-    void CALL_alBufferData(int bufferID, int i, ShortBuffer shortBuffer, int sampleRate);
+    void alBufferData(int bufferID, int i, ShortBuffer shortBuffer, int sampleRate);
 
 
-    void CALL_alDeleteBuffers(int bufferID);
+    void alDeleteBuffers(int bufferID);
+
+    void update();
 }

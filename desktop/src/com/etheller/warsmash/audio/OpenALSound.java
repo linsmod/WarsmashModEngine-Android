@@ -16,24 +16,36 @@
 
 package com.etheller.warsmash.audio;
 
-import com.badlogic.gdx.audio.Sound;
+import static org.lwjgl.openal.AL10.AL_BUFFER;
+import static org.lwjgl.openal.AL10.AL_FALSE;
+import static org.lwjgl.openal.AL10.AL_FORMAT_MONO16;
+import static org.lwjgl.openal.AL10.AL_FORMAT_STEREO16;
+import static org.lwjgl.openal.AL10.AL_GAIN;
+import static org.lwjgl.openal.AL10.AL_LOOPING;
+import static org.lwjgl.openal.AL10.AL_TRUE;
+import static org.lwjgl.openal.AL10.alBufferData;
+import static org.lwjgl.openal.AL10.alDeleteBuffers;
+import static org.lwjgl.openal.AL10.alGenBuffers;
+import static org.lwjgl.openal.AL10.alSourcePlay;
+import static org.lwjgl.openal.AL10.alSourcef;
+import static org.lwjgl.openal.AL10.alSourcei;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import static org.lwjgl.openal.AL10.*;
+import com.badlogic.gdx.audio.Sound;
 
 /** @author Nathan Sweet */
 public class OpenALSound implements Sound {
 	private int bufferID = -1;
-	private final IOpenALAudio audio;
+	private final OpenALAudio audio;
 	private float duration;
 
-	public OpenALSound(final IOpenALAudio audio) {
+	public OpenALSound(final OpenALAudio audio) {
 		this.audio = audio;
 	}
 
-	protected void setup(final byte[] pcm, final int channels, final int sampleRate) {
+	void setup(final byte[] pcm, final int channels, final int sampleRate) {
 		final int bytes = pcm.length - (pcm.length % (channels > 1 ? 4 : 2));
 		final int samples = bytes / (2 * channels);
 		this.duration = samples / (float) sampleRate;
