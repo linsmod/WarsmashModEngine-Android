@@ -54,7 +54,7 @@ public class MdxComplexInstance extends ModelInstance {
 	public int sequence = -1;
 	public SequenceLoopMode sequenceLoopMode = SequenceLoopMode.NEVER_LOOP;
 	public boolean sequenceEnded = false;
-	public float[] vertexColor = { 1, 1, 1, 1 };
+	public float[] vertexColor = {1, 1, 1, 1};
 	// Particles do not spawn when the sequence is -1, or when the sequence finished
 	// and it's not repeating
 	public boolean allowParticleSpawn = false;
@@ -114,7 +114,7 @@ public class MdxComplexInstance extends ModelInstance {
 		// A shared typed array for all world matrices of the internal nodes.
 		this.worldMatrices = ((List<Matrix4>) sharedNodeData[1]).toArray(new Matrix4[0]);
 		this.worldMatricesCopyHeap = ByteBuffer.allocateDirect(16 * this.worldMatrices.length * 4)
-				.order(ByteOrder.nativeOrder()).asFloatBuffer();
+											 .order(ByteOrder.nativeOrder()).asFloatBuffer();
 
 		// And now initialize all of the nodes and objects
 		for (final Bone bone : model.bones) {
@@ -375,7 +375,7 @@ public class MdxComplexInstance extends ModelInstance {
 				}
 
 				final boolean wasReallyDirty = forced || wasDirty || parent.wasDirty || genericObject.anyBillboarding
-						|| (overrideWorldRotation != null);
+													   || (overrideWorldRotation != null);
 
 				node.wasDirty = wasReallyDirty;
 
@@ -541,9 +541,11 @@ public class MdxComplexInstance extends ModelInstance {
 			}
 		}
 
-		final int glGetError = Gdx.gl.glGetError();
-		if ((glGetError != GL20.GL_NO_ERROR) && WarsmashConstants.ENABLE_DEBUG) {
-			throw new IllegalStateException("GL ERROR: " + glGetError + " ON " + model.name + " (Opaque)");
+		if (WarsmashConstants.ENABLE_DEBUG) {
+			final int glGetError = Gdx.gl.glGetError();
+			if ((glGetError != GL20.GL_NO_ERROR)) {
+				throw new IllegalStateException("GL ERROR: " + glGetError + " ON " + model.name + " (Opaque)");
+			}
 		}
 	}
 
@@ -595,7 +597,7 @@ public class MdxComplexInstance extends ModelInstance {
 			if (this.floatingFrame >= animEnd) {
 				boolean sequenceRestarted = false;
 				if ((this.sequenceLoopMode == SequenceLoopMode.ALWAYS_LOOP)
-						|| ((this.sequenceLoopMode == SequenceLoopMode.MODEL_LOOP) && (sequence.getFlags() == 0))) {
+							|| ((this.sequenceLoopMode == SequenceLoopMode.MODEL_LOOP) && (sequence.getFlags() == 0))) {
 					this.floatingFrame = this.frame = (int) interval[0]; // TODO not cast
 
 					resetEventEmitters();
@@ -707,11 +709,11 @@ public class MdxComplexInstance extends ModelInstance {
 	@Override
 	public void setReplaceableTextureHD(final int replaceableTextureId, final String replaceableTextureFile) {
 		this.replaceableTextures_diffuse[replaceableTextureId] = (Texture) this.model.viewer
-				.load(replaceableTextureFile + "_diffuse.dds", PathSolver.DEFAULT, null);
+																				   .load(replaceableTextureFile + "_diffuse.dds", PathSolver.DEFAULT, null);
 		this.replaceableTextures_normal[replaceableTextureId] = (Texture) this.model.viewer
-				.load(replaceableTextureFile + "_normal.dds", PathSolver.DEFAULT, null);
+																				  .load(replaceableTextureFile + "_normal.dds", PathSolver.DEFAULT, null);
 		this.replaceableTextures_orm[replaceableTextureId] = (Texture) this.model.viewer
-				.load(replaceableTextureFile + "_orm.dds", PathSolver.DEFAULT, null);
+																			   .load(replaceableTextureFile + "_orm.dds", PathSolver.DEFAULT, null);
 	}
 
 	/**

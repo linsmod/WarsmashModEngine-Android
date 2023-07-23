@@ -19,7 +19,9 @@ public class ListItemMapProperty extends AbstractListItemProperty {
 
     public ListItemMapProperty(ListItemEnum dataType, String rawValue, GameUI gameUI, DataSource data) {
         super(dataType, rawValue);
-
+//        this.mapName = rawValue;
+//        this.playerCount =0;
+//        this.mapType= MapType.MELEE_MAP;
         try {
             final War3Map map = War3MapViewer.beginLoadingMap(data, rawValue);
             final War3MapW3i mapInfo = map.readMapInformation();

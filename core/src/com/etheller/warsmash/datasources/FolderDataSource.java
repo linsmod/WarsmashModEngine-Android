@@ -116,10 +116,16 @@ public class FolderDataSource implements DataSource {
 	}
 
 	String relative(String path, String folder) {
+		path = fixFilepath(path);
+		folder = fixFilepath(folder);
+
 		if (path.startsWith(folder)) {
-			return fixFilepath(path.substring(folder.length() + 1));
+			path = path.substring(folder.length());
 		}
-		return fixFilepath(path);
+		if (path.startsWith(File.separator)) {
+			path = path.substring(1);
+		}
+		return path;
 	}
 
 	boolean pathEqual(String path, String listitem) {

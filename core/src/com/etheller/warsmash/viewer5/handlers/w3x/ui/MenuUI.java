@@ -751,6 +751,7 @@ public class MenuUI {
 			throw new IllegalStateException("Unable to load FrameDef.toc", exc);
 		}
 		try {
+			dataSource.has("UI\\FrameDef\\SmashFrameDef.toc");
 			this.rootFrame.loadTOCFile("UI\\FrameDef\\SmashFrameDef.toc");
 		}
 		catch (final IOException exc) {
@@ -1110,6 +1111,7 @@ public class MenuUI {
 					isListing= true;
 					mapListContainer.listFolder(folderPaths);
 					isListing = false;
+
 				}
 			}
 

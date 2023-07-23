@@ -25,6 +25,10 @@ public class ListBoxFrame extends ControlFrame implements ScrollBarFrame.ScrollB
 	public static final Color SELECT_COLOR = Color.BLUE;
 	public static final Color MOUSE_OVER_HIGHLIGHT_COLOR = new Color(0.3f, 0.3f, 1.0f, 0.25f);
 
+	public List<AbstractListItemProperty> getListItems() {
+		return listItems;
+	}
+
 	// private final List<String> listItems = new ArrayList<>();
 	private final List<AbstractListItemProperty> listItems = new ArrayList<>();
 	private final List<AbstractListItemDisplay> listFrames = new ArrayList<>();
