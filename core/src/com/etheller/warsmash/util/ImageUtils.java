@@ -66,10 +66,10 @@ public final class ImageUtils {
 			System.err.println("[RES_NOT_FOUND] " + path + " IN ANY EXT");
 			var kw = new FileHandle(path).nameWithoutExtension().toLowerCase();
 			var files = Linq.of(dataSource.getListfile())
-								.where(x -> x.toLowerCase().contains(kw)).toList();
+								.where(x -> x.toLowerCase().contains(kw) && x.endsWith("blp")).toList();
 			for (String found :
 					files) {
-				System.out.println("maybe file: " + found);
+				System.out.println("maybe file: " + found + " for " + path);
 			}
 		}
 		catch (final IOException e) {
