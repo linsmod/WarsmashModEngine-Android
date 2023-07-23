@@ -128,6 +128,11 @@ public class SimpleButtonFrame extends AbstractRenderableFrame implements Clicka
 	}
 
 	@Override
+	public void doubleTap(GameUI gameUI, Viewport uiViewport) {
+
+	}
+
+	@Override
 	public void mouseDown(final GameUI gameUI, final Viewport uiViewport) {
 		if (this.enabled) {
 			this.activeChild = this.controlPushedBackdrop;

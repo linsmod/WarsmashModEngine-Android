@@ -6,19 +6,18 @@ import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.util.EnumSet;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -29,16 +28,7 @@ import com.etheller.warsmash.parsers.jass.Jass2.RootFrameListener;
 import com.etheller.warsmash.units.DataTable;
 import com.etheller.warsmash.units.Element;
 import com.etheller.warsmash.util.WarsmashUtils;
-import com.etheller.warsmash.viewer5.Camera;
-import com.etheller.warsmash.viewer5.CanvasProvider;
-import com.etheller.warsmash.viewer5.Model;
-import com.etheller.warsmash.viewer5.ModelInstance;
-import com.etheller.warsmash.viewer5.ModelViewer;
-import com.etheller.warsmash.viewer5.PathSolver;
-import com.etheller.warsmash.viewer5.RenderBatch;
-import com.etheller.warsmash.viewer5.Scene;
-import com.etheller.warsmash.viewer5.SolvedPath;
-import com.etheller.warsmash.viewer5.TextureMapper;
+import com.etheller.warsmash.viewer5.*;
 import com.etheller.warsmash.viewer5.handlers.ModelHandler;
 import com.etheller.warsmash.viewer5.handlers.mdx.MdxComplexInstance;
 import com.etheller.warsmash.viewer5.handlers.mdx.MdxHandler;
@@ -223,9 +213,25 @@ public class WarsmashGdxMenuScreen implements InputProcessor, Screen, SingleMode
 			resize(width, height);
 		}
 
-		Gdx.input.setInputProcessor(this);
+		Gdx.input.setInputProcessor(new InputMultiplexer(this, new GestureDetector(new GestureListener())));
 		this.menuUI.show();
+	}
 
+	class GestureListener extends GestureDetector.GestureAdapter {
+		@Override
+		public boolean longPress(float x, float y) {
+			return super.longPress(x, y);
+		}
+
+		@Override
+		public boolean tap(float x, float y, int count, int button) {
+			if (count == 2) {
+				System.out.println("Double tap!");
+				WarsmashGdxMenuScreen.this.menuUI.doubleTap(x, y, button);
+				return true;
+			}
+			return super.tap(x, y, count, button);
+		}
 	}
 
 	private float getMinWorldWidth() {
@@ -612,7 +618,7 @@ public class WarsmashGdxMenuScreen implements InputProcessor, Screen, SingleMode
 //		super.resize(width, height);
 
 		this.uiViewport.update(width, height);
-		System.out.println("VIEWPOINT.SIZE="+new Dimension(width,height));
+		System.out.println("VIEWPOINT.SIZE=" + new Dimension(width, height));
 		this.uiCamera.position.set(getMinWorldWidth() / 2, getMinWorldHeight() / 2, 0);
 		System.out.println("CAMERA.POSITION=" + this.uiCamera.position);
 		this.menuUI.resize();
@@ -752,6 +758,15 @@ public class WarsmashGdxMenuScreen implements InputProcessor, Screen, SingleMode
 
 		if (this.menuUI.touchDown(screenX, screenY, worldScreenY, button)) {
 			return false;
+		}
+		return false;
+	}
+
+	public boolean tap(float x, float y, int count, int button) {
+		if (count == 2) {
+			System.out.println("Double tap!");
+			this.menuUI.doubleTap(x, y, button);
+			return true;
 		}
 		return false;
 	}

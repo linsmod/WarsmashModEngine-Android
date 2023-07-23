@@ -92,6 +92,11 @@ public class BuffBarIcon extends AbstractClickableActionFrame implements Clickab
 	}
 
 	@Override
+	public void doubleTap(GameUI gameUI, Viewport uiViewport) {
+
+	}
+
+	@Override
 	public void mouseDown(final GameUI gameUI, final Viewport uiViewport) {
 	}
 

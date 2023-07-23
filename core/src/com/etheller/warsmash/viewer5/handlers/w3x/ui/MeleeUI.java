@@ -4606,6 +4606,11 @@ public class MeleeUI implements CUnitStateListener, CommandButtonListener, Comma
 		}
 
 		@Override
+		public void doubleTap(GameUI gameUI, Viewport uiViewport) {
+
+		}
+
+		@Override
 		public void mouseDown(final GameUI gameUI, final Viewport uiViewport) {
 			if ((getCameraManager().getTargetControllerUnit() == null) && (MeleeUI.this.selectedUnit != null)) {
 				getCameraManager().setTargetController(MeleeUI.this.selectedUnit, 0, 0, false);

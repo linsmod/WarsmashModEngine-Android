@@ -57,6 +57,25 @@ public abstract class AbstractUIFrame extends AbstractRenderableFrame implements
 		}
 	}
 
+
+	@Override
+	public UIFrame doubleTap(final float screenX, final float screenY, final int button) {
+		if (isVisible()) {
+			// we render from front to back, then back is showing as top. So we iterate back
+			// to front, so that we mouse interact with something corresponding to its
+			// order.
+			final ListIterator<UIFrame> reverseIterator = this.childFrames.listIterator(this.childFrames.size());
+			while (reverseIterator.hasPrevious()) {
+				final UIFrame childFrame = reverseIterator.previous();
+				final UIFrame clickedChild = childFrame.doubleTap(screenX, screenY, button);
+				if (clickedChild != null) {
+					return clickedChild;
+				}
+			}
+		}
+		return super.doubleTap(screenX, screenY, button);
+	}
+
 	@Override
 	public UIFrame touchDown(final float screenX, final float screenY, final int button) {
 		if (isVisible()) {

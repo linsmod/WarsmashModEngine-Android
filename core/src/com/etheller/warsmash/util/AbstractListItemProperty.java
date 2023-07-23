@@ -4,37 +4,43 @@ import com.etheller.warsmash.datasources.DataSource;
 import com.etheller.warsmash.parsers.fdf.GameUI;
 
 public abstract class AbstractListItemProperty {
-    
-    protected ListItemEnum dataType;
-    protected String rawValue;
 
-    public AbstractListItemProperty(ListItemEnum dataType, String rawValue) {
-        this.dataType = dataType;
-        this.rawValue = rawValue;
-    }
+	protected ListItemEnum dataType;
+	protected String rawValue;
 
-    public String getRawValue() {
-        return this.rawValue;
-    }
+	public AbstractListItemProperty(ListItemEnum dataType, String rawValue) {
+		this.dataType = dataType;
+		this.rawValue = rawValue;
+	}
 
-    public ListItemEnum getItemType() {
-        return this.dataType;
-    }
+	public String getRawValue() {
+		return this.rawValue;
+	}
 
-    public int compare(AbstractListItemProperty itemProperty) {
-        return 0;
-    }
+	public ListItemEnum getItemType() {
+		return this.dataType;
+	}
 
-    // ======== GLOBAL ========= //
+	public int compare(AbstractListItemProperty itemProperty) {
+		return 0;
+	}
 
-    public static AbstractListItemProperty createFromType(String input, ListItemEnum dataType, GameUI gameUI, DataSource dataSource) {
-        switch(dataType) {
-            case ITEM_STRING:
-                return new ListItemStringProperty(input);
-            case ITEM_MAP:
-                return new ListItemMapProperty(dataType, input, gameUI, dataSource);
-            default:
-                return null;
-        }
-    }
+	// ======== GLOBAL ========= //
+
+	public static AbstractListItemProperty createFromType(String input, ListItemEnum dataType, GameUI gameUI, DataSource dataSource) {
+		switch (dataType) {
+		case ITEM_STRING:
+			return new ListItemStringProperty(input);
+		case ITEM_MAP:
+			return new ListItemMapProperty(dataType, input, gameUI, dataSource);
+		case ITEM_FOLDER:
+			var folder = new ListItemFolderProperty(dataType, input, gameUI, dataSource);
+			if (input.equals("..")) {
+				folder.setGoToParent(true);
+			}
+			return folder;
+		default:
+			return null;
+		}
+	}
 }

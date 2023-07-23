@@ -10,6 +10,7 @@ import java.nio.channels.SeekableByteChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Stack;
 import java.util.zip.CRC32C;
 
 import com.badlogic.gdx.Gdx;
@@ -42,7 +43,6 @@ import com.etheller.warsmash.parsers.fdf.frames.EditBoxFrame;
 import com.etheller.warsmash.parsers.fdf.frames.GlueButtonFrame;
 import com.etheller.warsmash.parsers.fdf.frames.GlueTextButtonFrame;
 import com.etheller.warsmash.parsers.fdf.frames.ListBoxFrame;
-import com.etheller.warsmash.parsers.fdf.frames.ListBoxFrame.ListBoxSelelectionListener;
 import com.etheller.warsmash.parsers.fdf.frames.SetPoint;
 import com.etheller.warsmash.parsers.fdf.frames.SimpleFrame;
 import com.etheller.warsmash.parsers.fdf.frames.SpriteFrame;
@@ -57,10 +57,7 @@ import com.etheller.warsmash.parsers.w3x.w3i.War3MapW3iFlags;
 import com.etheller.warsmash.units.DataTable;
 import com.etheller.warsmash.units.Element;
 import com.etheller.warsmash.units.custom.WTS;
-import com.etheller.warsmash.util.DataSourceFileHandle;
-import com.etheller.warsmash.util.StringBundle;
-import com.etheller.warsmash.util.WarsmashConstants;
-import com.etheller.warsmash.util.WorldEditStrings;
+import com.etheller.warsmash.util.*;
 import com.etheller.warsmash.viewer5.Scene;
 import com.etheller.warsmash.viewer5.handlers.mdx.MdxViewer;
 import com.etheller.warsmash.viewer5.handlers.w3x.AnimationTokens.PrimaryTag;
@@ -451,7 +448,7 @@ public class MenuUI {
 							// joining game as non-host
 							final String mapNameLower = mapName.toLowerCase(Locale.US);
 							if (!(mapNameLower.endsWith(".w3m") || mapNameLower.endsWith(".w3x")
-									|| mapNameLower.endsWith(".wsm"))) {
+										  || mapNameLower.endsWith(".wsm"))) {
 								// error, not a map file
 								System.err.println("ERROR!!! NOT A MAP FILE: " + mapName);
 								gamingNetworkConnection
@@ -460,7 +457,7 @@ public class MenuUI {
 							}
 							else {
 								final String mapNameOnly = mapName
-										.substring(Math.max(mapName.lastIndexOf('/'), mapName.lastIndexOf('\\')) + 1);
+																   .substring(Math.max(mapName.lastIndexOf('/'), mapName.lastIndexOf('\\')) + 1);
 								final String mapFileLookupName = mapDownloadDir + File.separator + mapNameOnly;
 								File mapLookupFile = new File(mapFileLookupName);
 								boolean hasMap = false;
@@ -481,7 +478,7 @@ public class MenuUI {
 									}
 									final int dotIndex = mapFileLookupName.lastIndexOf('.');
 									mapLookupFile = new File(mapFileLookupName.substring(0, dotIndex) + "~"
-											+ tildeIndex++ + mapFileLookupName.substring(dotIndex));
+																	 + tildeIndex++ + mapFileLookupName.substring(dotIndex));
 								}
 								currentNetGameMapLookup = new CurrentNetGameMapLookupFile(mapLookupFile);
 								if (hasMap) {
@@ -713,16 +710,16 @@ public class MenuUI {
 						MenuUI.this.beginGameInformation = new BeginGameInformation();
 						MenuUI.this.beginGameInformation.gameMapLookup = currentNetGameMapLookup;
 						MenuUI.this.beginGameInformation.sessionToken = MenuUI.this.battleNetUI
-								.getGamingNetworkSessionToken();
+																				.getGamingNetworkSessionToken();
 						MenuUI.this.beginGameInformation.hostInetAddress = hostIpAddressBytes;
 						MenuUI.this.beginGameInformation.hostUdpPort = hostUdpPort & 0xFFFF;
 						final IntIntMap gameChatroomServerSlotToMapSlot = MenuUI.this.battleNetUI
-								.getGameChatroomServerSlotToMapSlot();
+																				  .getGameChatroomServerSlotToMapSlot();
 						MenuUI.this.beginGameInformation.serverSlotToMapSlot = gameChatroomServerSlotToMapSlot;
 						MenuUI.this.beginGameInformation.mapSlotToServerSlot = MenuUI.this.battleNetUI
-								.getGameChatroomMapSlotToServerSlot();
+																					   .getGameChatroomMapSlotToServerSlot();
 						MenuUI.this.beginGameInformation.localPlayerIndex = gameChatroomServerSlotToMapSlot
-								.get(yourServerPlayerSlot, -1);
+																					.get(yourServerPlayerSlot, -1);
 						MenuUI.this.currentMapConfig = MenuUI.this.battleNetUI.getGameChatroomMapConfig();
 						MenuUI.this.menuState = MenuState.GOING_TO_MAP;
 					}
@@ -772,7 +769,7 @@ public class MenuUI {
 		}
 		else {
 			try (InputStream campaignStringStream = this.dataSource
-					.getResourceAsStream("UI\\CampaignInfoClassic.txt")) {
+															.getResourceAsStream("UI\\CampaignInfoClassic.txt")) {
 				this.campaignStrings.readTXT(campaignStringStream, true);
 				this.unifiedCampaignInfo = true;
 			}
@@ -959,14 +956,14 @@ public class MenuUI {
 			public void run() {
 				final int selectedIndex = profileListBox.getSelectedIndex();
 				final boolean validSelect = (selectedIndex >= 0)
-						&& (selectedIndex < MenuUI.this.profileManager.getProfiles().size());
+													&& (selectedIndex < MenuUI.this.profileManager.getProfiles().size());
 				if (validSelect) {
 					if (MenuUI.this.profileManager.getProfiles().size() > 1) {
 						final PlayerProfile profileToRemove = MenuUI.this.profileManager.getProfiles()
-								.get(selectedIndex);
+																	  .get(selectedIndex);
 						final String removeProfileName = profileToRemove.getName();
 						final boolean deletingCurrentProfile = removeProfileName
-								.equals(MenuUI.this.profileManager.getCurrentProfile());
+																	   .equals(MenuUI.this.profileManager.getCurrentProfile());
 						MenuUI.this.profileManager.removeProfile(profileToRemove);
 						profileListBox.removeItem(selectedIndex, MenuUI.this.rootFrame, MenuUI.this.uiViewport);
 						if (deletingCurrentProfile) {
@@ -981,7 +978,7 @@ public class MenuUI {
 			public void run() {
 				final int selectedIndex = profileListBox.getSelectedIndex();
 				final boolean validSelect = (selectedIndex >= 0)
-						&& (selectedIndex < MenuUI.this.profileManager.getProfiles().size());
+													&& (selectedIndex < MenuUI.this.profileManager.getProfiles().size());
 				if (validSelect) {
 					final PlayerProfile profileToSelect = MenuUI.this.profileManager.getProfiles().get(selectedIndex);
 					final String selectedProfileName = profileToSelect.getName();
@@ -996,9 +993,9 @@ public class MenuUI {
 			}
 
 		});
-		profileListBox.setSelectionListener(new ListBoxSelelectionListener() {
+		profileListBox.setSelectionListener(new ListBoxFrame.ListBoxItemListener() {
 			@Override
-			public void onSelectionChanged(final int newSelectedIndex, final String newSelectedItem) {
+			public void onSelectionChanged(final int newSelectedIndex, final AbstractListItemProperty newSelectedItem) {
 				final boolean validSelect = newSelectedItem != null;
 				MenuUI.this.selectProfileButton.setEnabled(validSelect);
 				MenuUI.this.deleteProfileButton.setEnabled(validSelect);
@@ -1079,7 +1076,7 @@ public class MenuUI {
 		this.advancedOptionsPanel = this.rootFrame.getFrameByName("AdvancedOptionsPanel", 0);
 		final SimpleFrame mapInfoPaneContainer = (SimpleFrame) this.rootFrame.getFrameByName("MapInfoPaneContainer", 0);
 		final SimpleFrame advancedOptionsPaneContainer = (SimpleFrame) this.rootFrame
-				.getFrameByName("AdvancedOptionsPaneContainer", 0);
+																			   .getFrameByName("AdvancedOptionsPaneContainer", 0);
 		this.skirmishAdvancedOptionsPane = this.rootFrame.createFrame("AdvancedOptionsPane",
 				advancedOptionsPaneContainer, 0, 0);
 		this.skirmishAdvancedOptionsPane.setSetAllPoints(true);
@@ -1093,20 +1090,53 @@ public class MenuUI {
 				0);
 		final MapListContainer mapListContainer = new MapListContainer(this.rootFrame, this.uiViewport,
 				"MapListContainer", this.dataSource, profileListText.getFrameFont());
-		mapListContainer.addSelectionListener(new ListBoxSelelectionListener() {
+		mapListContainer.addSelectionListener(new ListBoxFrame.ListBoxItemListener() {
+			private boolean isListing;
 			War3Map lastMapListMap;
-			String prevSelectedItem = "";
+			AbstractListItemProperty prevSelectedItem = null;
+			Stack<String> folderPaths = new Stack<>();
+			@Override
+			public void onDoubleClick(int newSelectedIndex, AbstractListItemProperty newSelectedItem) {
+				if(newSelectedItem instanceof ListItemFolderProperty){
+					if(isListing)
+						return;
+					ListItemFolderProperty folder = (ListItemFolderProperty) newSelectedItem;
+					if(folder.isGoToParent()){
+						folderPaths.pop();
+					}
+					else{
+						folderPaths.push(folder.getRawValue());
+					}
+					isListing= true;
+					mapListContainer.listFolder(folderPaths);
+					isListing = false;
+				}
+			}
 
 			@Override
-			public void onSelectionChanged(final int newSelectedIndex, final String newSelectedItem) {
+			public void onSelectionChanged(final int newSelectedIndex, final AbstractListItemProperty newSelectedItem) {
 				if (newSelectedItem != null) {
-					if (newSelectedItem.compareTo(prevSelectedItem) == 0) {
+					if (newSelectedItem == this.prevSelectedItem) {
 						return;
 					}
 					prevSelectedItem = newSelectedItem;
-
+					if (!(newSelectedItem instanceof ListItemMapProperty)) {
+						if (this.lastMapListMap != null) {
+							try {
+								this.lastMapListMap.close();
+							}
+							catch (final IOException e) {
+								e.printStackTrace();
+							}
+							this.lastMapListMap = null;
+						}
+						MenuUI.this.currentMapConfig = null;
+						MenuUI.this.skirmishMapInfoPane.clearMap(MenuUI.this.rootFrame, MenuUI.this.uiViewport, "");
+						teamSetupPane.clearMap(null, null);
+						return;
+					}
 					try {
-						final War3Map map = War3MapViewer.beginLoadingMap(MenuUI.this.dataSource, newSelectedItem);
+						final War3Map map = War3MapViewer.beginLoadingMap(MenuUI.this.dataSource, newSelectedItem.getRawValue());
 						if (this.lastMapListMap != null) {
 							try {
 								this.lastMapListMap.close();
@@ -1143,7 +1173,7 @@ public class MenuUI {
 							}
 							else if (player.getController() == CMapControl.COMPUTER) {
 								if (!foundFirstComp
-										|| mapInfo.hasFlag(War3MapW3iFlags.FIXED_PLAYER_SETTINGS_FOR_CUSTOM_FORCES)) {
+											|| mapInfo.hasFlag(War3MapW3iFlags.FIXED_PLAYER_SETTINGS_FOR_CUSTOM_FORCES)) {
 									player.setSlotState(CPlayerSlotState.PLAYING);
 									foundFirstComp = true;
 								}
@@ -1166,8 +1196,8 @@ public class MenuUI {
 		playGameButton.setOnClick(new Runnable() {
 			@Override
 			public void run() {
-				final String selectedItem = mapListContainer.getSelectedItem();
-				if (selectedItem != null) {
+				final var selectedItem = mapListContainer.getSelectedItem();
+				if (selectedItem != null && selectedItem instanceof ListItemMapProperty) {
 					MenuUI.this.campaignMenu.setVisible(false);
 					MenuUI.this.campaignBackButton.setVisible(false);
 					MenuUI.this.missionSelectFrame.setVisible(false);
@@ -1179,7 +1209,7 @@ public class MenuUI {
 					MenuUI.this.glueSpriteLayerTopLeft.setSequence("Death");
 					MenuUI.this.glueSpriteLayerTopRight.setSequence("Death");
 					MenuUI.this.beginGameInformation = new BeginGameInformation();
-					MenuUI.this.beginGameInformation.gameMapLookup = new CurrentNetGameMapLookupPath(selectedItem);
+					MenuUI.this.beginGameInformation.gameMapLookup = new CurrentNetGameMapLookupPath(selectedItem.getRawValue());
 					MenuUI.this.beginGameInformation.localPlayerIndex = -1;
 					MenuUI.this.menuState = MenuState.GOING_TO_MAP;
 				}
@@ -1195,7 +1225,6 @@ public class MenuUI {
 				MenuUI.this.glueSpriteLayerTopRight.setSequence("SinglePlayerSkirmish Death");
 				MenuUI.this.skirmish.setVisible(false);
 				MenuUI.this.menuState = MenuState.GOING_TO_SINGLE_PLAYER;
-
 			}
 		});
 
@@ -1517,7 +1546,7 @@ public class MenuUI {
 								MenuUI.this.battleNetUI.getGamingNetworkSessionToken(), gameName, mapPath,
 								mapPlayerSlots, gameSpeed, hostedGameVisibility, mapChecksum);
 						final SeekableByteChannel inputChannel = map.getInternalMpqContentsDataSource()
-								.getInputChannel();
+																		 .getInputChannel();
 						try {
 							inputChannel.position(0);
 							final ByteBuffer mapDataBuffer = ByteBuffer.allocate(1300).clear();
@@ -1772,7 +1801,7 @@ public class MenuUI {
 			if (!this.beginGameInformation.loadingStarted) {
 				if (this.beginGameInformation.gameMapLookup instanceof CurrentNetGameMapLookupFile) {
 					internalStartMap(((CurrentNetGameMapLookupFile) this.beginGameInformation.gameMapLookup).getFile()
-							.getAbsolutePath());
+											 .getAbsolutePath());
 				}
 				else if (this.beginGameInformation.gameMapLookup instanceof CurrentNetGameMapLookupPath) {
 					internalStartMap(((CurrentNetGameMapLookupPath) this.beginGameInformation.gameMapLookup).getPath());
@@ -1798,7 +1827,7 @@ public class MenuUI {
 
 						try {
 							final InetAddress byAddress = InetAddress
-									.getByAddress(this.beginGameInformation.hostInetAddress);
+																  .getByAddress(this.beginGameInformation.hostInetAddress);
 							System.err.println("Connecting to address: " + byAddress);
 							warsmashClient = new WarsmashClient(byAddress, this.beginGameInformation.hostUdpPort,
 									this.loadingMap.viewer, this.beginGameInformation.sessionToken);
@@ -1819,7 +1848,7 @@ public class MenuUI {
 						for (int i = 0; i < WarsmashConstants.MAX_PLAYERS; i++) {
 							final CBasePlayer configPlayer = mapViewer.getMapConfig().getPlayer(i);
 							if ((configPlayer.getSlotState() == CPlayerSlotState.PLAYING)
-									&& (configPlayer.getController() == CMapControl.USER)) {
+										&& (configPlayer.getController() == CMapControl.USER)) {
 								localPlayerIndex = i;
 								break;
 							}
@@ -1867,7 +1896,7 @@ public class MenuUI {
 		}
 		if (this.currentMusics != null) {
 			if ((this.currentMusics[this.currentMusicIndex] != null)
-					&& !this.currentMusics[this.currentMusicIndex].isPlaying()) {
+						&& !this.currentMusics[this.currentMusicIndex].isPlaying()) {
 				if (this.currentMusicRandomizeIndex) {
 					this.currentMusicIndex = (int) (Math.random() * this.currentMusics.length);
 				}
@@ -1905,8 +1934,8 @@ public class MenuUI {
 		this.cursorFrame.setSequence("Normal");
 
 		if (this.glueSpriteLayerTopRight.isSequenceEnded() && this.glueSpriteLayerTopLeft.isSequenceEnded()
-				&& (!this.campaignFade.isVisible() || this.campaignFade.isSequenceEnded())
-				&& (!this.battleNetUI.getDoors().isVisible() || this.battleNetUI.getDoors().isSequenceEnded())) {
+					&& (!this.campaignFade.isVisible() || this.campaignFade.isSequenceEnded())
+					&& (!this.battleNetUI.getDoors().isVisible() || this.battleNetUI.getDoors().isSequenceEnded())) {
 			switch (this.menuState) {
 			case GOING_TO_MAIN_MENU:
 				this.glueSpriteLayerTopLeft.setSequence("MainMenu Birth");
@@ -2070,7 +2099,7 @@ public class MenuUI {
 			case GOING_TO_CAMPAIGN_PART2: {
 				final String currentCampaignBackgroundModel = getCurrentBackgroundModel();
 				final String currentCampaignAmbientSound = this.rootFrame
-						.trySkinField(this.currentCampaign.getAmbientSound());
+																   .trySkinField(this.currentCampaign.getAmbientSound());
 				this.menuScreen.setModel(currentCampaignBackgroundModel);
 				this.glueScreenLoop.stop();
 				this.glueScreenLoop = this.uiSounds.getSound(currentCampaignAmbientSound);
@@ -2093,7 +2122,7 @@ public class MenuUI {
 			case GOING_TO_MISSION_SELECT: {
 				final String currentCampaignBackgroundModel = getCurrentBackgroundModel();
 				final String currentCampaignAmbientSound = this.rootFrame
-						.trySkinField(this.currentCampaign.getAmbientSound());
+																   .trySkinField(this.currentCampaign.getAmbientSound());
 				this.menuScreen.setModel(currentCampaignBackgroundModel);
 				this.glueScreenLoop.stop();
 				this.glueScreenLoop = this.uiSounds.getSound(currentCampaignAmbientSound);
@@ -2230,7 +2259,7 @@ public class MenuUI {
 				this.uiSoundsTable.readSLK(miscDataTxtStream);
 			}
 			try (InputStream miscDataTxtStream = this.dataSource
-					.getResourceAsStream("UI\\SoundInfo\\AmbienceSounds.slk")) {
+														 .getResourceAsStream("UI\\SoundInfo\\AmbienceSounds.slk")) {
 				this.uiSoundsTable.readSLK(miscDataTxtStream);
 			}
 		}
@@ -2242,6 +2271,24 @@ public class MenuUI {
 
 	public KeyedSounds getUiSounds() {
 		return this.uiSounds;
+	}
+
+	public void doubleTap(float x, float y, int button) {
+		screenCoordsVector.set(x, y);
+		this.uiViewport.unproject(screenCoordsVector);
+		final UIFrame clickedUIFrame = this.rootFrame.doubleTap(screenCoordsVector.x, screenCoordsVector.y, button);
+		if (clickedUIFrame != null) {
+			if (clickedUIFrame instanceof ClickableFrame) {
+				this.mouseDownUIFrame = (ClickableFrame) clickedUIFrame;
+				this.mouseDownUIFrame.doubleTap(this.rootFrame, this.uiViewport);
+			}
+			if (clickedUIFrame instanceof FocusableFrame) {
+				final FocusableFrame clickedFocusableFrame = (FocusableFrame) clickedUIFrame;
+				if (clickedFocusableFrame.isFocusable()) {
+					setFocusFrame(clickedFocusableFrame);
+				}
+			}
+		}
 	}
 
 	private static final class PlayerSlotPaneListenerImplementation implements PlayerSlotPaneListener {
@@ -2396,7 +2443,7 @@ public class MenuUI {
 		case MISSION_SELECT:
 			final String currentCampaignBackgroundModel = getCurrentBackgroundModel();
 			final String currentCampaignAmbientSound = this.rootFrame
-					.trySkinField(this.currentCampaign.getAmbientSound());
+															   .trySkinField(this.currentCampaign.getAmbientSound());
 			this.menuScreen.setModel(currentCampaignBackgroundModel);
 			this.glueScreenLoop.stop();
 			this.glueScreenLoop = this.uiSounds.getSound(currentCampaignAmbientSound);
@@ -2490,7 +2537,7 @@ public class MenuUI {
 			for (int i = 0; i < musics.length; i++) {
 				if (this.viewer.dataSource.has(musics[i])) {
 					final Music newMusic = Gdx.audio
-							.newMusic(new DataSourceFileHandle(this.viewer.dataSource, musics[i]));
+												   .newMusic(new DataSourceFileHandle(this.viewer.dataSource, musics[i]));
 					newMusic.setVolume(1.0f);
 					this.currentMusics[i] = newMusic;
 					validMusicCount++;
@@ -2582,9 +2629,9 @@ public class MenuUI {
 	private void requestEnterDefaultChat() {
 		MenuUI.this.gamingNetworkConnection.joinChannel(MenuUI.this.battleNetUI.getGamingNetworkSessionToken(),
 				"Frozen Throne USA-1"); // TODO
-										// maybe
-										// not
-										// hardcode
-										// this
+		// maybe
+		// not
+		// hardcode
+		// this
 	}
 }

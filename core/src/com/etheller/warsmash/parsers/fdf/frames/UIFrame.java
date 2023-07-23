@@ -47,6 +47,8 @@ public interface UIFrame {
 
 	boolean isVisibleOnScreen();
 
+	UIFrame doubleTap(float screenX, float screenY, int button);
+
 	UIFrame touchDown(float screenX, float screenY, int button);
 
 	UIFrame touchUp(float screenX, float screenY, int button);

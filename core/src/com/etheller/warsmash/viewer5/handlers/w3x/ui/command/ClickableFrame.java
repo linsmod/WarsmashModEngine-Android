@@ -7,6 +7,8 @@ import com.etheller.warsmash.parsers.fdf.frames.UIFrame;
 public interface ClickableFrame extends UIFrame {
 	void mouseDown(final GameUI gameUI, final Viewport uiViewport);
 
+	void doubleTap(final GameUI gameUI, final Viewport uiViewport);
+
 	void mouseUp(final GameUI gameUI, final Viewport uiViewport);
 
 	void mouseEnter(final GameUI gameUI, final Viewport uiViewport);

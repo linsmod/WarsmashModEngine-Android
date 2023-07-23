@@ -20,6 +20,7 @@ public class GlueButtonFrame extends AbstractRenderableFrame implements Clickabl
 	private UIFrame activeChild;
 
 	private Runnable onClick;
+	private Runnable onDoubleClick;
 	private ButtonListener buttonListener = ButtonListener.DO_NOTHING;
 
 	public GlueButtonFrame(final String name, final UIFrame parent) {
@@ -103,6 +104,12 @@ public class GlueButtonFrame extends AbstractRenderableFrame implements Clickabl
 				this.controlMouseOverHighlight.render(batch, baseFont, glyphLayout);
 			}
 		}
+	}
+
+	@Override
+	public void doubleTap(GameUI gameUI, Viewport uiViewport) {
+		if(this.onDoubleClick!=null)
+			this.onDoubleClick.run();
 	}
 
 	@Override

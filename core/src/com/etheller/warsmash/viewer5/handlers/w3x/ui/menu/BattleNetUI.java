@@ -18,7 +18,6 @@ import com.etheller.warsmash.parsers.fdf.frames.EditBoxFrame;
 import com.etheller.warsmash.parsers.fdf.frames.GlueButtonFrame;
 import com.etheller.warsmash.parsers.fdf.frames.GlueTextButtonFrame;
 import com.etheller.warsmash.parsers.fdf.frames.ListBoxFrame;
-import com.etheller.warsmash.parsers.fdf.frames.ListBoxFrame.ListBoxSelelectionListener;
 import com.etheller.warsmash.parsers.fdf.frames.ScrollBarFrame;
 import com.etheller.warsmash.parsers.fdf.frames.ScrollBarFrame.ScrollBarChangeListener;
 import com.etheller.warsmash.parsers.fdf.frames.SimpleFrame;
@@ -32,7 +31,7 @@ import com.etheller.warsmash.parsers.w3x.objectdata.Warcraft3MapObjectData;
 import com.etheller.warsmash.parsers.w3x.w3i.War3MapW3i;
 import com.etheller.warsmash.parsers.w3x.w3i.War3MapW3iFlags;
 import com.etheller.warsmash.units.custom.WTS;
-import com.etheller.warsmash.util.JAVACrc32C;
+import com.etheller.warsmash.util.AbstractListItemProperty;
 import com.etheller.warsmash.util.WarsmashConstants;
 import com.etheller.warsmash.viewer5.Scene;
 import com.etheller.warsmash.viewer5.handlers.w3x.War3MapViewer;
@@ -453,11 +452,12 @@ public class BattleNetUI {
 
 		this.joinGameEditBox = (EditBoxFrame) this.rootFrame.getFrameByName("JoinGameNameEditBox", 0);
 
-		this.joinGameListBox.setSelectionListener(new ListBoxSelelectionListener() {
+		this.joinGameListBox.setSelectionListener(new ListBoxFrame.ListBoxItemListener() {
+
 			@Override
-			public void onSelectionChanged(final int newSelectedIndex, final String newSelectedItem) {
+			public void onSelectionChanged(final int newSelectedIndex, final AbstractListItemProperty newSelectedItem) {
 				if (newSelectedItem != null) {
-					BattleNetUI.this.joinGameEditBox.setText(newSelectedItem, rootFrame, uiViewport);
+					BattleNetUI.this.joinGameEditBox.setText(newSelectedItem.getRawValue(), rootFrame, uiViewport);
 				}
 			}
 		});
@@ -501,24 +501,25 @@ public class BattleNetUI {
 		final StringFrame mapListLabel = (StringFrame) this.rootFrame.getFrameByName("MapListLabel", 0);
 		final MapListContainer mapListContainer = new MapListContainer(this.rootFrame, this.uiViewport,
 				"MapListContainer", dataSource, mapListLabel.getFrameFont());
-		mapListContainer.addSelectionListener(new ListBoxSelelectionListener() {
+		mapListContainer.addSelectionListener(new ListBoxFrame.ListBoxItemListener() {
 			String prevSelectedItem = "";
 
 			@Override
-			public void onSelectionChanged(final int newSelectedIndex, final String newSelectedItem) {
+			public void onSelectionChanged(final int newSelectedIndex, final AbstractListItemProperty newSelectedItem) {
 				if (newSelectedItem != null) {
-					if (newSelectedItem.compareTo(prevSelectedItem) == 0) {
+					final String vale = newSelectedItem.getRawValue();
+					if (vale.compareTo(prevSelectedItem) == 0) {
 						return;
 					}
-					prevSelectedItem = newSelectedItem;
+					prevSelectedItem = vale;
 
 					BattleNetUI.this.customCreateCurrentMapConfig = null;
 					BattleNetUI.this.customCreateCurrentMapInfo = null;
 
-					BattleNetUI.this.customCreatePanelCurrentSelectedMapPath = newSelectedItem;
+					BattleNetUI.this.customCreatePanelCurrentSelectedMapPath = vale;
 
 					try {
-						final War3Map map = War3MapViewer.beginLoadingMap(dataSource, newSelectedItem);
+						final War3Map map = War3MapViewer.beginLoadingMap(dataSource, vale);
 
 						final War3MapW3i mapInfo = map.readMapInformation();
 						final WTS wtsFile = Warcraft3MapObjectData.loadWTS(map);
@@ -591,7 +592,7 @@ public class BattleNetUI {
 		}
 
 		this.customCreatePanelCreateButton.setOnClick(new Runnable() {
-			private final JAVACrc32C mapChecksumCalculator = new JAVACrc32C();
+			private final CRC32C mapChecksumCalculator = new CRC32C();
 
 			@Override
 			public void run() {

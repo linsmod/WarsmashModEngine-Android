@@ -56,6 +56,8 @@ public abstract class AbstractListItemDisplay {
                 return new ListItemStringDisplay(rootList, name, gameUI, viewport);
             case ITEM_MAP:
                 return new ListItemMapDisplay(dataType, name, rootList, gameUI, viewport);
+        case ITEM_FOLDER:
+                return new ListItemFolderDisplay(dataType, name, rootList, gameUI, viewport);
             default:
                 return null;
         }

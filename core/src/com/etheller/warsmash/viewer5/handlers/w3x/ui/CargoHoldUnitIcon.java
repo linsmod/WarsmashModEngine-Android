@@ -113,6 +113,11 @@ public class CargoHoldUnitIcon extends AbstractClickableActionFrame implements C
 	}
 
 	@Override
+	public void doubleTap(GameUI gameUI, Viewport uiViewport) {
+
+	}
+
+	@Override
 	public void mouseDown(final GameUI gameUI, final Viewport uiViewport) {
 		this.clickListener.multiSelectIconPress(this.queueIconIndexId);
 		showMousePressed(gameUI, uiViewport);

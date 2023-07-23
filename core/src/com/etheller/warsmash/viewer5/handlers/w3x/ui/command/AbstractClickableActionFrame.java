@@ -10,6 +10,14 @@ public abstract class AbstractClickableActionFrame extends AbstractRenderableFra
 	}
 
 	@Override
+	public UIFrame doubleTap(float screenX, float screenY, int button) {
+		if (isVisible() && this.renderBounds.contains(screenX, screenY)) {
+			return this;
+		}
+		return super.doubleTap(screenX, screenY, button);
+	}
+
+	@Override
 	public UIFrame touchDown(final float screenX, final float screenY, final int button) {
 		if (isVisible() && this.renderBounds.contains(screenX, screenY)) {
 			return this;

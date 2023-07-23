@@ -38,7 +38,7 @@ public class ListBoxFrame extends ControlFrame implements ScrollBarFrame.ScrollB
 	private GameUI gameUI;
 	private Viewport viewport;
 	private ScrollBarFrame scrollBarFrame;
-	private ListBoxSelelectionListener selectionListener = ListBoxSelelectionListener.DO_NOTHING;
+	private ListBoxSelectionListener selectionListener = ListBoxSelectionListener.DO_NOTHING;
 
 	private final DataSource dataSource;
 
@@ -127,8 +127,16 @@ public class ListBoxFrame extends ControlFrame implements ScrollBarFrame.ScrollB
 		this.listItems.add(AbstractListItemProperty.createFromType(item, ListItemEnum.ITEM_STRING, gameUI, this.dataSource));
 	}
 
+	public void addItem(int index, final String item, final GameUI gameUI, final Viewport viewport) {
+		this.listItems.add(index, AbstractListItemProperty.createFromType(item, ListItemEnum.ITEM_STRING, gameUI, this.dataSource));
+	}
+
 	public void addItem(final String item, final ListItemEnum itemType, final GameUI gameUI, final Viewport viewport) {
 		this.listItems.add(AbstractListItemProperty.createFromType(item, itemType, gameUI, this.dataSource));
+	}
+
+	public void addItem(int i, final String item, final ListItemEnum itemType, final GameUI gameUI, final Viewport viewport) {
+		this.listItems.add(i, AbstractListItemProperty.createFromType(item, itemType, gameUI, this.dataSource));
 	}
 
 	public void setItems(final List<AbstractListItemProperty> items, final GameUI gameUI, final Viewport viewport) {
@@ -170,21 +178,21 @@ public class ListBoxFrame extends ControlFrame implements ScrollBarFrame.ScrollB
 		return this.selectedIndex;
 	}
 
-	public String getSelectedItem() {
+	public AbstractListItemProperty getSelectedItem() {
 		if ((this.selectedIndex < 0) || (this.selectedIndex >= this.listItems.size())) {
 			return null;
 		}
-		return this.listItems.get(this.selectedIndex).getRawValue();
+		return this.listItems.get(this.selectedIndex);
 	}
 
 	private void updateUI(final GameUI gameUI, final Viewport viewport) {
 		AbstractRenderableFrame prev = null;
 		boolean foundSelected = false;
 		boolean foundMouseOver = false;
-		
+
 		float itemSize = this.frameFont.getLineHeight();
 		if (!this.listFrames.isEmpty()) {
-			itemSize = (float)Math.floor(this.listFrames.get(0).getParentFrame().getRenderBounds().height);
+			itemSize = (float) Math.floor(this.listFrames.get(0).getParentFrame().getRenderBounds().height);
 		}
 		final int numStringFrames = (int) Math.min(this.listItems.size(),
 				(Math.floor((this.renderBounds.height - (this.listBoxBorder * 2)) / itemSize)));
@@ -202,7 +210,7 @@ public class ListBoxFrame extends ControlFrame implements ScrollBarFrame.ScrollB
 				if (curY + prevY >= this.getRenderBounds().height - 2 * this.listBoxBorder) {
 					break;
 				}
-				
+
 				final int index = stringFrameIndex + scrollOffset;
 				final boolean selected = (index == this.selectedIndex);
 				final boolean mousedOver = (index == this.mouseOverIndex);
@@ -221,7 +229,8 @@ public class ListBoxFrame extends ControlFrame implements ScrollBarFrame.ScrollB
 
 				if (prev != null) {
 					listDisplay.getParentFrame().addSetPoint(new SetPoint(FramePoint.TOPLEFT, prev, FramePoint.BOTTOMLEFT, 0, 0));
-				} else {
+				}
+				else {
 					listDisplay.getParentFrame().addSetPoint(new SetPoint(FramePoint.TOPLEFT, this, FramePoint.TOPLEFT, this.listBoxBorder, -this.listBoxBorder));
 				}
 				this.listFrames.add(listDisplay);
@@ -253,18 +262,20 @@ public class ListBoxFrame extends ControlFrame implements ScrollBarFrame.ScrollB
 				if (index < this.listItems.size()) {
 					if (listDisplay.compareType(this.listItems.get(index))) {
 						listDisplay.setValuesFromProperty(this.listItems.get(index));
-					} else {
+					}
+					else {
 						listDisplay.remove(gameUI);
 						listDisplay = AbstractListItemDisplay.createFromType(this.listItems.get(index).getItemType(), "LISTY_" + stringFrameIndex, this, gameUI, viewport);
 						listDisplay.setValuesFromProperty(this.listItems.get(index));
 
 						if (stringFrameIndex > 0) {
 							listDisplay.getParentFrame().addSetPoint(new SetPoint(FramePoint.TOPLEFT, this.listFrames.get(stringFrameIndex - 1).getParentFrame(), FramePoint.BOTTOMLEFT, 0, 0));
-						} else {
+						}
+						else {
 							listDisplay.getParentFrame().addSetPoint(new SetPoint(FramePoint.TOPLEFT, this, FramePoint.TOPLEFT, this.listBoxBorder, -this.listBoxBorder));
 						}
-						if (stringFrameIndex < this.listFrames.size()-1) {
-							this.listFrames.get(stringFrameIndex+1).getParentFrame().addSetPoint(new SetPoint(FramePoint.TOPLEFT, listDisplay.getParentFrame(), FramePoint.BOTTOMLEFT, 0, 0));
+						if (stringFrameIndex < this.listFrames.size() - 1) {
+							this.listFrames.get(stringFrameIndex + 1).getParentFrame().addSetPoint(new SetPoint(FramePoint.TOPLEFT, listDisplay.getParentFrame(), FramePoint.BOTTOMLEFT, 0, 0));
 						}
 
 						this.listFrames.set(stringFrameIndex, listDisplay);
@@ -294,8 +305,7 @@ public class ListBoxFrame extends ControlFrame implements ScrollBarFrame.ScrollB
 	private int computeScrollOffset(final int numStringFrames) {
 		int scrollOffset;
 		if ((this.scrollBarFrame != null) && (this.listItems.size() > numStringFrames)) {
-			scrollOffset = (int) Math
-					.ceil(((100 - this.scrollBarFrame.getValue()) / 100f) * (this.listItems.size() - numStringFrames));
+			scrollOffset = (int) Math.ceil(((100 - this.scrollBarFrame.getValue()) * 1f / 100f) * (this.listItems.size() - numStringFrames));
 		}
 		else {
 			scrollOffset = 0;
@@ -325,6 +335,14 @@ public class ListBoxFrame extends ControlFrame implements ScrollBarFrame.ScrollB
 			return this;
 		}
 		return super.touchDown(screenX, screenY, button);
+	}
+
+	@Override
+	public UIFrame doubleTap(float screenX, float screenY, int button) {
+		if (isVisible() && this.renderBounds.contains(screenX, screenY)) {
+			this.selectionListener.onDoubleClick(this.selectedIndex, getSelectedItem());
+		}
+		return super.doubleTap(screenX, screenY, button);
 	}
 
 	@Override
@@ -367,7 +385,7 @@ public class ListBoxFrame extends ControlFrame implements ScrollBarFrame.ScrollB
 		return super.getFrameChildUnderMouse(screenX, screenY);
 	}
 
-	public void setSelectionListener(final ListBoxSelelectionListener selectionListener) {
+	public void setSelectionListener(final ListBoxSelectionListener selectionListener) {
 		this.selectionListener = selectionListener;
 	}
 
@@ -376,13 +394,33 @@ public class ListBoxFrame extends ControlFrame implements ScrollBarFrame.ScrollB
 		updateUI(gameUI, uiViewport);
 	}
 
-	public interface ListBoxSelelectionListener {
-		void onSelectionChanged(int newSelectedIndex, String newSelectedItem);
+	public interface ListBoxSelectionListener {
+		void onSelectionChanged(int newSelectedIndex, AbstractListItemProperty newSelectedItem);
 
-		ListBoxSelelectionListener DO_NOTHING = new ListBoxSelelectionListener() {
+		void onDoubleClick(int newSelectedIndex, AbstractListItemProperty newSelectedItem);
+
+		ListBoxSelectionListener DO_NOTHING = new ListBoxSelectionListener() {
 			@Override
-			public void onSelectionChanged(final int newSelectedIndex, final String newSelectedItem) {
+			public void onSelectionChanged(final int newSelectedIndex, final AbstractListItemProperty newSelectedItem) {
+			}
+
+			@Override
+			public void onDoubleClick(int newSelectedIndex, AbstractListItemProperty newSelectedItem) {
+
 			}
 		};
+	}
+
+	public static class ListBoxItemListener implements ListBoxSelectionListener {
+
+		@Override
+		public void onSelectionChanged(int newSelectedIndex, AbstractListItemProperty newSelectedItem) {
+
+		}
+
+		@Override
+		public void onDoubleClick(int newSelectedIndex, AbstractListItemProperty newSelectedItem) {
+
+		}
 	}
 }

@@ -102,7 +102,8 @@ public class FolderDataSource implements DataSource {
 			return false; // special case for folder data source, dont do this
 		}
 		String finalFilepath = filepath;
-		return this.listfile.stream().anyMatch(x -> pathEqual(finalFilepath, x.path()));
+		return this.getListfile().stream().anyMatch(x -> x.equalsIgnoreCase(finalFilepath));
+//		return this.listfile.stream().anyMatch(x -> pathEqual(finalFilepath, x.path()));
 
 //		final Path resolvedPath = this.folderPath.resolve(filepath);
 //		return Files.exists(resolvedPath) && !Files.isDirectory(resolvedPath);
@@ -110,8 +111,15 @@ public class FolderDataSource implements DataSource {
 
 	@Override
 	public Collection<String> getListfile() {
-		return this.listfile.stream().map(x -> x.path()).collect(Collectors.toCollection(ArrayList::new));
-		//return this.listfile;
+		String folder = folderPath.path();
+		return this.listfile.stream().map(x -> relative(x.path(), folder)).collect(Collectors.toCollection(ArrayList::new));
+	}
+
+	String relative(String path, String folder) {
+		if (path.startsWith(folder)) {
+			return fixFilepath(path.substring(folder.length() + 1));
+		}
+		return fixFilepath(path);
 	}
 
 	boolean pathEqual(String path, String listitem) {
@@ -137,12 +145,13 @@ public class FolderDataSource implements DataSource {
 		return path;
 	}
 
-	private static String fixFilepath(final String filepath) {
+	public static String fixFilepath(final String filepath) {
 		String path = filepath.replace('\\', File.separatorChar).replace('/', File.separatorChar).replace(':',
 				File.separatorChar);
 
 		return path;
 	}
+
 	@Override
 	public String getPathName() {
 		return this.folderPath.toString();

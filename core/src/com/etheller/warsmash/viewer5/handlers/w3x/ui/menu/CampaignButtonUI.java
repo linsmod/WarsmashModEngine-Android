@@ -65,6 +65,11 @@ public class CampaignButtonUI extends AbstractUIFrame implements ClickableFrame 
 	}
 
 	@Override
+	public void doubleTap(GameUI gameUI, Viewport uiViewport) {
+		this.buttonArt.doubleTap(gameUI, uiViewport);
+	}
+
+	@Override
 	public void mouseDown(final GameUI gameUI, final Viewport uiViewport) {
 		this.buttonArt.mouseDown(gameUI, uiViewport);
 	}

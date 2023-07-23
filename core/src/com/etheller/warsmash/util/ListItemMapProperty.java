@@ -37,7 +37,8 @@ public class ListItemMapProperty extends AbstractListItemProperty {
     @Override
     public int compare(AbstractListItemProperty itemProperty) {
         if (this.getItemType() != itemProperty.getItemType()) {
-            throw new RuntimeException("Cannot compare with mix items");
+			return 0;
+//            throw new RuntimeException("Cannot compare with mix items");
         }
         ListItemMapProperty mapProperty = (ListItemMapProperty) itemProperty;
         if (this.playerCount == mapProperty.playerCount) {

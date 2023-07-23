@@ -377,6 +377,11 @@ public abstract class AbstractRenderableFrame implements UIFrame {
 	protected abstract void internalRender(SpriteBatch batch, BitmapFont baseFont, GlyphLayout glyphLayout);
 
 	@Override
+	public UIFrame doubleTap(float screenX, float screenY, int button){
+		return null;
+	}
+
+	@Override
 	public UIFrame touchDown(final float screenX, final float screenY, final int button) {
 		return null;
 	}
